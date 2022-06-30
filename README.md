@@ -1,8 +1,6 @@
 ![](.github/banner.png)
 
 <p align="center">
-<img src="https://github.com/jina-ai/docarray/blob/main/.github/banner.png?raw=true" alt="Create Disco Diffusion artworks in one-line" width="150px">
-<br>
 <b>Create Disco Diffusion artworks in one-line</b>
 </p>
 
