@@ -7,7 +7,7 @@
 <p align=center>
 <a href="https://pypi.org/project/discoart/"><img src="https://img.shields.io/pypi/v/discoart?style=flat-square&amp;label=Release" alt="PyPI"></a>
 <a href="https://slack.jina.ai"><img src="https://img.shields.io/badge/Slack-3.1k-blueviolet?logo=slack&amp;logoColor=white&style=flat-square"></a>
-<a href="https://colab.research.google.com/github/jina-ai/dalle-flow/blob/main/client.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
+<a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 </p>
 
 DiscoArt is an elegant way of creating compelling Disco Diffusion<sup><a href="#example-application">[*]</a></sup> artworks for generative artists, AI enthusiasts and hard-core developers. DiscoArt has a modern & professional API with a beautiful codebase, ensuring high usability and maintainability. It introduces handy features such as result recovery and persistence, gRPC/HTTP serving w/o TLS, post-analysis, easing the integration to larger cross-modal or multi-modal applications.
@@ -32,7 +32,7 @@ If you are not using DiscoArt under Google Colab, then other dependencies might 
 
 ## Get Started
 
-This Google Colab Notebook provides a walkthrough of DiscoArt.
+<a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 
 ### Create artworks
 
@@ -59,6 +59,7 @@ For example, you can display all final images in a grid:
 ```python
 da.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
 ```
+![](.github/all-results.png)
 
 Or the final image of one particular run:
 
@@ -82,7 +83,7 @@ da[0].tags
 ```
 ![](.github/tags.png)
 
-### Recover from failure and interrupts
+### Pull results
 
 If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. With DiscoArt, you can easily recover the results by pulling the last session ID.
 
@@ -122,6 +123,17 @@ import os
 
 os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
 ```
+
+## What's next?
+
+😎🪩 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.2. So just unleash your creativity!
+- Note that DiscoArt does not support animation generation and `image_prompt` (which was marked as uneffective? in original DD 5.2).
+
+👶🎨 **If you are a [DALL·E Flow](https://github.com/jina-ai/dalle-flow/)/DALLE-Mini user**: you may want to take step by step, as Disco Diffusion works in a very different way than DALL·E. It is much more advanced and powerful: e.g. Disco Diffusion can take weighted & structured text prompts; it can initialize from a image with controlled noise; and there are way more parameters one can tweak. Impatient prompt like `"armchair avocado"` will give you nothing but confusion and frustration. I highly recommend you to check out the following resources before trying your own prompt:
+- [Zippy's Disco Diffusion Cheatsheet v0.3](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
+- [EZ Charts - Diffusion Parameter Studies](https://docs.google.com/document/d/1ORymHm0Te18qKiHnhcdgGp-WSt8ZkLZvow3raiu2DVU/edit#)
+- [Disco Diffusion 70+ Artist Studies](https://weirdwonderfulai.art/resources/disco-diffusion-70-plus-artist-studies/)
+
 
 <!-- start support-pitch -->
 ## Support
