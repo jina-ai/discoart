@@ -1,5 +1,6 @@
 import copy
 import random
+import warnings
 from types import SimpleNamespace
 from typing import Dict
 
@@ -18,6 +19,10 @@ def load_config(
 
     if user_config:
         cfg.update(**user_config)
+
+    for k in user_config.keys():
+        if k not in cfg:
+            warnings.warn(f'unknown argument {k}, ignored')
 
     cfg.update(
         **{

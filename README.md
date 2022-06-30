@@ -105,10 +105,15 @@ DiscoArt support parameters are [listed here](./discoart/resources/default.yml).
 ```python
 from discoart import create
 
-create(text_prompts='')
+create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
+       init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
+       skip_steps=100)
 ```
 
-[This docs explains those parameters in more detail.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
+![](.github/parameter-demo.gif)
+
+
+[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
 
 ### Verbose logs
 
