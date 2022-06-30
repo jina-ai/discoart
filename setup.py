@@ -72,7 +72,6 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     project_urls={
-        'Documentation': 'https://discoart.jina.ai',
         'Source': 'https://github.com/jina-ai/discoart/',
         'Tracker': 'https://github.com/jina-ai/discoart/issues',
     },
