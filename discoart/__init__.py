@@ -41,13 +41,15 @@ model_config, clip_models, secondary_model = load_all_models(
     device=device,
 )
 
-# load interfaces
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 if TYPE_CHECKING:
     from docarray import DocumentArray
 
+
+# begin_create_overload
+
+# end_create_overload
 
 def create(**kwargs) -> 'DocumentArray':
     from .config import load_config
@@ -92,5 +94,13 @@ More usage can be found at https://github.com/jina-ai/disco-art
         torch.cuda.empty_cache()
 
 
-def serve():
-    pass
+def serve(**kwargs) -> None:
+    from jina import Executor, requests
+
+    class DiscoArtExecutor(Executor):
+
+        @requests
+        def create_fn(self, parameters: Dict, **kwargs):
+            return create(**parameters)
+
+    DiscoArtExecutor.serve(**kwargs)
