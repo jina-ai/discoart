@@ -18,7 +18,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
-🎨 **Focus on creating not coding**: one-liner `create()` with Pythonic interfaces and powerful features. Cloud-synced results and no more worry on session crushes on Google Colab.
+🎨 **Focus on creating not coding**: one-liner `create()` with Pythonic interfaces and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab free tier.
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
