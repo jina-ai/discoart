@@ -29,7 +29,7 @@ setup(
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
-    description='The elegant way of creating Disco Diffusion artworks',
+    description='Create Disco Diffusion artworks in one line',
     author='Jina AI',
     author_email='hello@jina.ai',
     license='Apache 2.0',

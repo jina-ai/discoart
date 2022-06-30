@@ -1,7 +1,7 @@
 ![](.github/banner.png)
 
 <p align="center">
-<b>Create Disco Diffusion artworks in one-line</b>
+<b>Create Disco Diffusion artworks in one line</b>
 </p>
 
 <p align=center>
