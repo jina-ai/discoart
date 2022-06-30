@@ -29,7 +29,7 @@ logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     logger.info(
-        f'looks like you are running {__package__} for the first time, this will take some time. '
+        f'looks like you are running {__package__} for the first time, the first time will take longer time as it will download models. '
         f'You wont see this message on the second run.'
     )
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
@@ -45,6 +45,12 @@ def _gitclone(url, dest):
     ).stdout.decode('utf-8')
     logger.debug(f'cloned {url} to {dest}: {res}')
 
+def _pip_install(url):
+    res = subprocess.run(
+        ['pip', 'install', url], stdout=subprocess.PIPE
+    ).stdout.decode('utf-8')
+    logger.debug(f'pip installed {url}: {res}')
+
 
 def _clone_repo_install(repo_url, repo_dir):
     if not os.path.exists(repo_dir):
@@ -53,7 +59,7 @@ def _clone_repo_install(repo_url, repo_dir):
 
 
 def _clone_dependencies():
-    _clone_repo_install('https://github.com/openai/CLIP', f'{cache_dir}/CLIP')
+    _pip_install('git+https://github.com/openai/CLIP.git')
     _clone_repo_install(
         'https://github.com/crowsonkb/guided-diffusion', f'{cache_dir}/guided_diffusion'
     )
