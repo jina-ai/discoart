@@ -84,12 +84,12 @@ da[0].tags
 
 ### Recover from failure and interrupts
 
-If you are free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. With DiscoArt, you can easily recover the results by pulling the last session ID.
+If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. With DiscoArt, you can easily recover the results by pulling the last session ID.
 
 1. Find the session ID. It appears on top of the image. 
 ![](.github/session-id.png)
 
-2. Pull the result via that ID. You can do it on any machine with DocArray installed, not necessarily on Google Colab:
+2. Pull the result via that ID **on any machine at any time**, not necessarily on Google Colab:
     ```python
     from docarray import DocumentArray
 
