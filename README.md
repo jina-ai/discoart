@@ -1,5 +1,10 @@
 ![](.github/banner.png)
 
+<p align="center">
+<img src="https://github.com/jina-ai/docarray/blob/main/.github/banner.png?raw=true" alt="Create Disco Diffusion artworks in one-line" width="150px">
+<br>
+<b>Create Disco Diffusion artworks in one-line</b>
+</p>
 
 <p align=center>
 <a href="https://pypi.org/project/discoart/"><img src="https://img.shields.io/pypi/v/discoart?style=flat-square&amp;label=Release" alt="PyPI"></a>
@@ -10,7 +15,7 @@
 DiscoArt is an elegant way of creating Disco Diffusion<sup><a href="#example-application">[*]</a></sup> artworks for generative artists, AI enthusiasts and hard-core developers. DiscoArt has a modern & professional API with a beautiful codebase, ensuring high usability and maintainability. It introduces handy features such as result recovery and persistence, gRPC/HTTP serving w/o TLS, post-analysis, allowing it to be part of larger cross-modal or multi-modal applications.
 
 <sub><sup><a id="example-application">[*]</a> 
-Disco Diffusion (DD) is a Google Colab Notebook which leverages an AI Image generating technique called CLIP-Guided Diffusion to allow you to create compelling and beautiful images from just text inputs.
+Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion to allow one to create compelling and beautiful images from text prompts.
 </sup></sub>
 
 👼 **Available to all**: fully compatible to Google Colab *free tier*! Perfect for those who don't own GPU.
