@@ -86,7 +86,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     init = None
     if args.init_image:
         d = Document(uri=args.init_image).load_uri_to_image_tensor(side_x, side_y)
-        init = d.tensor.to(device).unsqueeze(0).mul(2).sub(1)
+        init = TF.to_tensor(d.tensor).to(device).unsqueeze(0).mul(2).sub(1)
 
     if args.perlin_init:
         if args.perlin_mode == 'color':
