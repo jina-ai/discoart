@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        types: [ python ]
+        exclude: ^(docarray/proto/docarray_pb2.py|docs/|docarray/resources/)
+        args:
+          - -S
+  - repo: https://github.com/asottile/blacken-docs
+    rev: v1.12.1
+    hooks:
+      - id: blacken-docs
+        args:
+          - -S
