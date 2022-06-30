@@ -44,7 +44,7 @@ from discoart import create
 da = create()
 ```
 
-That's it! It will create with the default text prompts and parameters.
+That's it! It will create with the [default text prompts and parameters](./discoart/resources/default.yml).
 
 ![](.github/create-demo.gif)
 
