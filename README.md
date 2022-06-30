@@ -18,11 +18,11 @@ DiscoArt is an elegant way of creating Disco Diffusion<sup><a href="#example-app
 Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion to allow one to create compelling and beautiful images from text prompts.
 </sup></sub>
 
-👼 **Available to all**: fully compatible to Google Colab *free tier*! Perfect for those who don't own GPU.
+👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
-🎨 **Focus on creating not coding**: two functions `create()` and `serve()` with Pythonic interfaces and powerful features. Smooth recovery & backup from session crashes or availability issues on Google Colab.
+🎨 **Focus on creating not coding**: two functions `create()` and `serve()` with Pythonic interfaces and powerful features. Cloud-synced results and no more worry on session crushes on Google Colab.
 
-🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoys smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
+🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
 ## Install
 
