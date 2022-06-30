@@ -17,7 +17,6 @@ __resources_path__ = os.path.join(
     'resources',
 )
 
-import warnings
 import gc
 
 # check if GPU is available
@@ -26,10 +25,10 @@ import torch
 if torch.cuda.is_available():
     device = torch.device('cuda:0')
 else:
-    warnings.warn(
-        'CUDA is not available. Running on CPU. This can be extremely slow and may not even be runnable.'
+    raise RuntimeError(
+        'CUDA is not available. DiscoArt is unbearably slow on CPU. '
+        'Please switch to GPU device, if you are using Google Colab, then free tier would work.'
     )
-    device = torch.device('cpu')
 
 # download and load models, this will take some time on the first load
 
@@ -50,6 +49,7 @@ if TYPE_CHECKING:
 # begin_create_overload
 
 # end_create_overload
+
 
 def create(**kwargs) -> 'DocumentArray':
     from .config import load_config
@@ -98,7 +98,6 @@ def serve(**kwargs) -> None:
     from jina import Executor, requests
 
     class DiscoArtExecutor(Executor):
-
         @requests
         def create_fn(self, parameters: Dict, **kwargs):
             return create(**parameters)
