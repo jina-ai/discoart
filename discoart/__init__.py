@@ -93,13 +93,3 @@ More usage can be found at https://github.com/jina-ai/disco-art
         gc.collect()
         torch.cuda.empty_cache()
 
-
-def serve(**kwargs) -> None:
-    from jina import Executor, requests
-
-    class DiscoArtExecutor(Executor):
-        @requests
-        def create_fn(self, parameters: Dict, **kwargs):
-            return create(**parameters)
-
-    DiscoArtExecutor.serve(**kwargs)
