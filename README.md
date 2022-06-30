@@ -7,7 +7,7 @@
 <a href="https://colab.research.google.com/github/jina-ai/dalle-flow/blob/main/client.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 </p>
 
-DiscoArt is an elegant way of creating Disco Diffusion<sup><a href="#example-application">[*]</a></sup> artworks for generative artists, AI enthusiasts and hard-core engineers. DiscoArt has a modern & professional API with a beautiful codebase, ensuring high usability and maintainability. It introduces handy features such as result recovery and persist, gRPC/HTTP serving w/o TLS, post-analysis, allowing one to integrate it into larger cross-modal or multi-modal applications.
+DiscoArt is an elegant way of creating Disco Diffusion<sup><a href="#example-application">[*]</a></sup> artworks for generative artists, AI enthusiasts and hard-core developers. DiscoArt has a modern & professional API with a beautiful codebase, ensuring high usability and maintainability. It introduces handy features such as result recovery and persist, gRPC/HTTP serving w/o TLS, post-analysis, allowing one to integrate it into larger cross-modal or multi-modal applications.
 
 <sub><sup><a id="example-application">[*]</a> 
 Disco Diffusion (DD) is a Google Colab Notebook which leverages an AI Image generating technique called CLIP-Guided Diffusion to allow you to create compelling and beautiful images from just text inputs.
