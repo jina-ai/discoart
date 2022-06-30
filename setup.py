@@ -45,7 +45,6 @@ setup(
         'ftfy',
         'docarray',
         'pyyaml',
-        'clip@git+https://github.com/openai/CLIP.git#egg=clip-0.1'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
