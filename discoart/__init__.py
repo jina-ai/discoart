@@ -4,7 +4,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 __version__ = '0.0.1'
 
-__all__ = ['create', 'serve']
+__all__ = ['create']
 
 import sys
 
@@ -73,20 +73,17 @@ def create(**kwargs) -> 'DocumentArray':
 
         md = Markdown(
             f'''
-Generated images are saved in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/).
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/).
 
-You can easily fetch, plot, analyze the results by using the following command:
+To get it on any machine:
 
 ```python
 from docarray import DocumentArray
 
 da = DocumentArray.pull('{_args.name_docarray}')
-
-da.plot_image_sprites()
-da[0].chunks.plot_image_sprites()
 ```
 
-More usage can be found at https://github.com/jina-ai/disco-art
+More usage such as plotting, post-analysis can be found  in the [README](https://github.com/jina-ai/discoart).
         '''
         )
         print(md)
