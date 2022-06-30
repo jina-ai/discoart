@@ -53,7 +53,6 @@ def _clone_repo_install(repo_url, repo_dir):
 
 
 def _clone_dependencies():
-    _clone_repo_install('https://github.com/openai/CLIP', f'{cache_dir}/CLIP')
     _clone_repo_install(
         'https://github.com/crowsonkb/guided-diffusion', f'{cache_dir}/guided_diffusion'
     )
@@ -70,7 +69,7 @@ def _wget(url, outputdir):
 
 
 def _load_clip_model(device):
-    from CLIP import clip
+    import clip
 
     clip_models = []
     ViTB32 = True  # @param{type:"boolean"}
