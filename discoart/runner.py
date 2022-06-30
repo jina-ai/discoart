@@ -10,7 +10,7 @@ import torchvision.transforms.functional as TF
 from IPython import display
 from docarray import DocumentArray, Document
 from ipywidgets import Output
-import clip
+from CLIP import clip
 from .helper import parse_prompt, logger
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango

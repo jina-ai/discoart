@@ -70,7 +70,7 @@ def _wget(url, outputdir):
 
 
 def _load_clip_model(device):
-    import clip
+    from CLIP import clip
 
     clip_models = []
     ViTB32 = True  # @param{type:"boolean"}
