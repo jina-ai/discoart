@@ -12,7 +12,6 @@ on:
 
 jobs:
   create-release:
-    needs: update-doc
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
