@@ -45,10 +45,11 @@ def _gitclone(url, dest):
     ).stdout.decode('utf-8')
     logger.debug(f'cloned {url} to {dest}: {res}')
 
+
 def _pip_install(url):
-    res = subprocess.run(
-        ['pip', 'install', url], stdout=subprocess.PIPE
-    ).stdout.decode('utf-8')
+    res = subprocess.run(['pip', 'install', url], stdout=subprocess.PIPE).stdout.decode(
+        'utf-8'
+    )
     logger.debug(f'pip installed {url}: {res}')
 
 
