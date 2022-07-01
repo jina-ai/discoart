@@ -43,10 +43,8 @@ setup(
         'numpy',
         'lpips',
         'ftfy',
-        'docarray',
+        'docarray[common]',
         'pyyaml',
-        'ipywidgets',
-        'matplotlib'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
