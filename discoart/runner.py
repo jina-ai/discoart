@@ -91,19 +91,19 @@ def do_run(args, models, device) -> 'DocumentArray':
     if args.perlin_init:
         if args.perlin_mode == 'color':
             init = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
+                [1.5**-i * 0.5 for i in range(12)], 1, 1, False
             )
             init2 = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(8)], 4, 4, False
+                [1.5**-i * 0.5 for i in range(8)], 4, 4, False
             )
         elif args.perlin_mode == 'gray':
-            init = create_perlin_noise([1.5 ** -i * 0.5 for i in range(12)], 1, 1, True)
-            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
+            init = create_perlin_noise([1.5**-i * 0.5 for i in range(12)], 1, 1, True)
+            init2 = create_perlin_noise([1.5**-i * 0.5 for i in range(8)], 4, 4, True)
         else:
             init = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
+                [1.5**-i * 0.5 for i in range(12)], 1, 1, False
             )
-            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
+            init2 = create_perlin_noise([1.5**-i * 0.5 for i in range(8)], 4, 4, True)
         # init = TF.to_tensor(init).add(TF.to_tensor(init2)).div(2).to(device)
         init = (
             TF.to_tensor(init)
@@ -150,7 +150,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             for model_stat in model_stats:
                 for i in range(args.cutn_batches):
                     t_int = (
-                            int(t.item()) + 1
+                        int(t.item()) + 1
                     )  # errors on last step without +1, need to find source
                     # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
                     try:
@@ -187,10 +187,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                         losses.sum().item()
                     )  # log loss, probably shouldn't do per cutn_batch
                     x_in_grad += (
-                            torch.autograd.grad(
-                                losses.sum() * args.clip_guidance_scale, x_in
-                            )[0]
-                            / args.cutn_batches
+                        torch.autograd.grad(
+                            losses.sum() * args.clip_guidance_scale, x_in
+                        )[0]
+                        / args.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
             if secondary_model:
@@ -199,9 +199,9 @@ def do_run(args, models, device) -> 'DocumentArray':
                 range_losses = range_loss(out['pred_xstart'])
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
             loss = (
-                    tv_losses.sum() * args.tv_scale
-                    + range_losses.sum() * args.range_scale
-                    + sat_losses.sum() * args.sat_scale
+                tv_losses.sum() * args.tv_scale
+                + range_losses.sum() * args.range_scale
+                + sat_losses.sum() * args.sat_scale
             )
             if init is not None and args.init_scale:
                 init_losses = lpips_model(x_in, init)
@@ -215,7 +215,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         if args.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
-                    grad * magnitude.clamp(max=args.clamp_max) / magnitude
+                grad * magnitude.clamp(max=args.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
         return grad
 
@@ -288,7 +288,13 @@ def do_run(args, models, device) -> 'DocumentArray':
                         d.chunks.plot_image_sprites(
                             f'{args.name_docarray}-progress-{_nb}.png', show_index=True
                         )
-                        t = Thread(target=da_batches.push, args=(args.name_docarray,))
+                        t = Thread(
+                            target=_silent_push,
+                            args=(
+                                da_batches,
+                                args.name_docarray,
+                            ),
+                        )
                         threads.append(t)
                         t.start()
 
@@ -298,3 +304,10 @@ def do_run(args, models, device) -> 'DocumentArray':
         for t in threads:
             t.join()
     return da_batches
+
+
+def _silent_push(da_batches: DocumentArray, name: str) -> None:
+    try:
+        da_batches.push(name)
+    except Exception as ex:
+        logger.debug(f'push failed: {ex}')
