@@ -150,9 +150,10 @@ def create(**kwargs) -> 'DocumentArray':
             f'''
 Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/).
 
-To get it on any machine:
+You can pull it from any machine:
 
 ```python
+# pip install docarray[common]
 from docarray import DocumentArray
 
 da = DocumentArray.pull('{_args.name_docarray}')
