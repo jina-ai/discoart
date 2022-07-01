@@ -18,7 +18,7 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip install \
     numpy \
     torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116 \
-    jupyterlab ipywidgets
+    jupyterlab ipywidgets discoart
 
 RUN jupyter nbextension enable --py widgetsnbextension
 
