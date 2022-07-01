@@ -79,23 +79,37 @@ da.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
 ```
 ![](.github/all-results.png)
 
-Or the final image of one particular run:
+Note that all images perspective are preserved. You can display them one by one:
 
 ```python
 for d in da:
     d.display()
+```
 
+The length of `da` is determined by the `n_batches` parameter.
+
+You can take one particular run:
+
+```python
 da[0].display()
 ```
 
 ![](.github/display.png)
 
-You can zoom into that run and display images on the intermediate steps:
+To save the image:
+
+```python
+da[0].save_uri_to_file('discoart-result.png')
+```
+
+You can also zoom into that run and check out intermediate steps:
 
 ```python
 da[0].chunks.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
 ```
 ![](.github/chunks.png)
+
+You can `.display()` the chunks one by one, or save one via `.save_uri_to_file()`.
 
 Finally, you can review its parameters via:
 
