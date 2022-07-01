@@ -128,6 +128,8 @@ os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
 
 ## What's next?
 
+[Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).
+
 😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.2. So just unleash your creativity!
 - Note that DiscoArt does not support animation generation and `image_prompt` (which was marked as uneffective? in original DD 5.2).
 
