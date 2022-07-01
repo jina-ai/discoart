@@ -6,6 +6,7 @@
 
 <p align=center>
 <a href="https://pypi.org/project/discoart/"><img src="https://img.shields.io/pypi/v/discoart?style=flat-square&amp;label=Release" alt="PyPI"></a>
+<a href="https://hub.docker.com/repository/docker/jinaai/discoart"><img alt="Docker Cloud Build Status" src="https://img.shields.io/docker/cloud/build/jinaai/discoart?logo=docker&logoColor=white&style=flat-square"></a>
 <a href="https://slack.jina.ai"><img src="https://img.shields.io/badge/Slack-3.1k-blueviolet?logo=slack&amp;logoColor=white&style=flat-square"></a>
 <a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 </p>
@@ -127,12 +128,16 @@ os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
 
 ### Run in Docker
 
-We provide a prebuilt Docker image for running DiscoArt in Jupyter Notebook. 
+[![Docker Image Size (tag)](https://img.shields.io/docker/image-size/jinaai/discoart/latest?logo=docker&logoColor=white&style=flat-square)](https://hub.docker.com/repository/docker/jinaai/discoart)
+
+We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook. 
 
 ```bash
 docker build . -t jinaai/discoart
 docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/discoart
 ```
+
+
 
 ## What's next?
 
