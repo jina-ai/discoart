@@ -18,7 +18,9 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN pip install \
     numpy \
     torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116 \
-    jupyterlab
+    jupyterlab ipywidgets
+
+RUN jupyter nbextension enable --py widgetsnbextension
 
 CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser"]
 EXPOSE 8888
