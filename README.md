@@ -54,7 +54,7 @@ DiscoArt support parameters are [listed here](./discoart/resources/default.yml).
 ```python
 from discoart import create
 
-create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
+da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
        init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
        skip_steps=100)
 ```
@@ -82,6 +82,9 @@ da.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
 Or the final image of one particular run:
 
 ```python
+for d in da:
+    d.display()
+
 da[0].display()
 ```
 
