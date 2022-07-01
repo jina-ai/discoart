@@ -32,7 +32,7 @@ setup(
     description='Create Disco Diffusion artworks in one line',
     author='Jina AI',
     author_email='hello@jina.ai',
-    license='Apache 2.0',
+    license='MIT',
     url='https://github.com/jina-ai/discoart',
     download_url='https://github.com/jina-ai/discoart/tags',
     long_description=_long_description,
