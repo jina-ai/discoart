@@ -45,7 +45,7 @@ setup(
         'ftfy',
         'docarray',
         'pyyaml',
-        'ipywidgets'
+        'ipywidgets',
         'matplotlib'
     ],
     classifiers=[
