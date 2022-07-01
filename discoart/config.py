@@ -30,9 +30,14 @@ def load_config(
         }
     )
 
+    if cfg['batch_name']:
+        da_name = f'{__package__}-{cfg["batch_name"]}-{cfg["seed"]}'
+    else:
+        da_name = f'{__package__}-{cfg["seed"]}'
+
     cfg.update(
         **{
-            'name_docarray': f'{__package__}-{cfg["seed"]}',
+            'name_docarray': da_name
         }
     )
 

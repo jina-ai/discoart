@@ -13,7 +13,7 @@ for k, v in cfg.items():
         v_type = 'str'
     elif k == 'seed':
         v_type = 'int'
-    if v_type == 'str' and v:
+    if v_type == 'str' and v is not None:
         v = f'\'{v}\''
     if k == 'text_prompts':
         v_type = 'List[str]'

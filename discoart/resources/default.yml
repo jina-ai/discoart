@@ -40,3 +40,4 @@ cut_icgray_p: "[0.2]*400+[0]*600"
 display_rate: 10
 n_batches: 4
 batch_size: 1
+batch_name: ''

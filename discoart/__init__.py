@@ -47,6 +47,8 @@ if TYPE_CHECKING:
 
 
 # begin_create_overload
+
+
 @overload
 def create(
     text_prompts: Optional[List[str]] = [
@@ -83,6 +85,7 @@ def create(
     display_rate: Optional[int] = 10,
     n_batches: Optional[int] = 4,
     batch_size: Optional[int] = 1,
+    batch_name: Optional[str] = '',
 ):
     """
     Create Disco Diffusion artworks and save the result into a DocumentArray.
@@ -115,6 +118,7 @@ def create(
     :param cut_icgray_p: This sets the size of the border used for inner cuts.  High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
     :param display_rate: During a diffusion run, you can monitor the progress of each image being created with this variable.  If display_rate is set to 50, DD will show you the in-progress image every 50 timesteps. Setting this to a lower value, like 5 or 10, is a good way to get an early peek at where your image is heading. If you don’t like the progression, just interrupt execution, change some settings, and re-run.  If you are planning a long, unmonitored batch, it’s better to set display_rate equal to steps, because displaying interim images does slow Colab down slightly.
     :param n_batches: This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
+    :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
     :return: a DocumentArray object that has `n_batches` Documents
     """
 

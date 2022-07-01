@@ -115,7 +115,6 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
     ```
 
 
-
 ### Verbose logs
 
 You can also get verbose logs by setting the following lines before import `discoart`:
