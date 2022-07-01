@@ -46,6 +46,23 @@ That's it! It will create with the [default text prompts and parameters](./disco
 
 ![](.github/create-demo.gif)
 
+### Set prompts and parameters
+
+DiscoArt support parameters are [listed here](./discoart/resources/default.yml). You can specify them directly in `create()`:
+
+```python
+from discoart import create
+
+create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
+       init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
+       skip_steps=100)
+```
+
+![](.github/parameter-demo.gif)
+
+
+[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
+
 ### Fetch results
 
 `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
@@ -97,22 +114,7 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
     da = DocumentArray.pull('discoart-3205998582')
     ```
 
-### Specify parameters
 
-DiscoArt support parameters are [listed here](./discoart/resources/default.yml). You can specify them directly in `create()`:
-
-```python
-from discoart import create
-
-create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
-       init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
-       skip_steps=100)
-```
-
-![](.github/parameter-demo.gif)
-
-
-[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
 
 ### Verbose logs
 
@@ -133,7 +135,7 @@ os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
 - [Zippy's Disco Diffusion Cheatsheet v0.3](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
 - [EZ Charts - Diffusion Parameter Studies](https://docs.google.com/document/d/1ORymHm0Te18qKiHnhcdgGp-WSt8ZkLZvow3raiu2DVU/edit#)
 - [Disco Diffusion 70+ Artist Studies](https://weirdwonderfulai.art/resources/disco-diffusion-70-plus-artist-studies/)
-
+- [A Traveler’s Guide to the Latent Space](https://sweet-hall-e72.notion.site/A-Traveler-s-Guide-to-the-Latent-Space-85efba7e5e6a40e5bd3cae980f30235f#e122e748b86e4fc0ad6a7a50e46d6e10)
 
 <!-- start support-pitch -->
 ## Support
