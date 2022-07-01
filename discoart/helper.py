@@ -59,7 +59,10 @@ def _clone_repo_install(repo_url, repo_dir):
 
 
 def _clone_dependencies():
-    _pip_install('git+https://github.com/openai/CLIP.git')
+    try:
+        import clip
+    except ModuleNotFoundError:
+        _pip_install('git+https://github.com/openai/CLIP.git')
     _clone_repo_install(
         'https://github.com/crowsonkb/guided-diffusion', f'{cache_dir}/guided_diffusion'
     )
