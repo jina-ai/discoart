@@ -125,6 +125,14 @@ import os
 os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
 ```
 
+### Run in Docker
+
+We provide a prebuilt Docker image for running DiscoArt in Jupyter Notebook. 
+
+```bash
+docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/jupyter
+```
+
 ## What's next?
 
 [Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).

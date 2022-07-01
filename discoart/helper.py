@@ -74,7 +74,7 @@ def _clone_dependencies():
 
 def _wget(url, outputdir):
     res = subprocess.run(
-        ['wget', url, '-P', f'{outputdir}'], stdout=subprocess.PIPE
+        ['wget', url, '-q', '-P', f'{outputdir}'], stdout=subprocess.PIPE
     ).stdout.decode('utf-8')
     logger.debug(res)
 

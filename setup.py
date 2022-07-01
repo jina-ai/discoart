@@ -45,6 +45,8 @@ setup(
         'ftfy',
         'docarray',
         'pyyaml',
+        'ipywidgets'
+        'matplotlib'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
