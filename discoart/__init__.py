@@ -140,7 +140,7 @@ def create(**kwargs) -> 'DocumentArray':
         model_config, _args.diffusion_model, steps=_args.steps, device=device
     )
 
-    clip_models = load_clip_models(device, enabled=_args['clip_models'], clip_models=_clip_models_cache)
+    clip_models = load_clip_models(device, enabled=_args.clip_models, clip_models=_clip_models_cache)
 
     gc.collect()
     torch.cuda.empty_cache()
