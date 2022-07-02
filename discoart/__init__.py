@@ -127,7 +127,7 @@ def create(
 
 # end_create_overload
 
-_clip_models = {}
+_clip_models_cache = {}
 
 
 def create(**kwargs) -> 'DocumentArray':
@@ -140,12 +140,12 @@ def create(**kwargs) -> 'DocumentArray':
         model_config, _args.diffusion_model, steps=_args.steps, device=device
     )
 
-    load_clip_models(device, enabled=_args['clip_models'], clip_models=_clip_models)
+    clip_models = load_clip_models(device, enabled=_args['clip_models'], clip_models=_clip_models_cache)
 
     gc.collect()
     torch.cuda.empty_cache()
     try:
-        return do_run(_args, (model, diffusion, _clip_models, secondary_model), device)
+        return do_run(_args, (model, diffusion, clip_models, secondary_model), device)
     except KeyboardInterrupt:
         pass
     finally:

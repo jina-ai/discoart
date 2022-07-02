@@ -82,14 +82,19 @@ def _wget(url, outputdir):
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
 
-    from .config import default_args
     import clip
 
-    for k in (enabled or default_args['clip_models']):
+    # load enabled models
+    for k in enabled:
         if k not in clip_models:
             clip_models[k] = clip.load('k', jit=False)[0].eval().requires_grad_(False).to(device)
 
-    return clip_models
+    # disable not enabled models to save memory
+    for k in clip_models:
+        if k not in enabled:
+            clip_models.pop(k)
+
+    return list(clip_models.items())
 
 
 def load_all_models(
