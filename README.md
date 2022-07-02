@@ -63,9 +63,8 @@ da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trendi
 ![](.github/parameter-demo.gif)
 
 
-[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
+[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic) The minor difference on the parameters between DiscoArt and DD5.x [is explained here](#whats-next).
 
-> Unlike DD5.x, `text_prompts` in DiscoArt is just a string or a list of strings, not a dictionary, i.e. no frame index `0:` or `100:`. Multiple prompts can be specified in a list. Weights are supported as in original DD5.x.
 
 ### Fetch results
 
@@ -164,7 +163,11 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/discoart
 [Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).
 
 😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.2. So just unleash your creativity!
-- Note that DiscoArt does not support animation generation and `image_prompt` (which was marked as uneffective? in original DD 5.2).
+
+There are some differences between DiscoArt and DD5.x:
+  - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.2).
+  - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
+  - `clip_models` accepts a list of values chosen from `ViT-B/32`, `ViT-B/16`, `ViT-L/14`, `RN101`, `RN50`, `RN50x4`, `RN50x16`, `RN50x64`. Slightly different in names vs. DD5.2. 
 
 👶 **If you are a [DALL·E Flow](https://github.com/jina-ai/dalle-flow/) user**: you may want to take step by step, as Disco Diffusion works in a very different way than DALL·E. It is much more advanced and powerful: e.g. Disco Diffusion can take weighted & structured text prompts; it can initialize from a image with controlled noise; and there are way more parameters one can tweak. Impatient prompt like `"armchair avocado"` will give you nothing but confusion and frustration. I highly recommend you to check out the following resources before trying your own prompt:
 - [Zippy's Disco Diffusion Cheatsheet v0.3](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
