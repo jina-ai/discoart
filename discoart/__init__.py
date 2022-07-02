@@ -32,9 +32,9 @@ else:
 
 # download and load models, this will take some time on the first load
 
-from .helper import load_all_models, load_diffusion_model
+from .helper import load_all_models, load_diffusion_model, load_clip_models
 
-model_config, clip_models, secondary_model = load_all_models(
+model_config, secondary_model = load_all_models(
     '512x512_diffusion_uncond_finetune_008100',
     use_secondary_model=True,
     device=device,
@@ -86,6 +86,7 @@ def create(
     n_batches: Optional[int] = 4,
     batch_size: Optional[int] = 1,
     batch_name: Optional[str] = '',
+    clip_models: Optional[list] = ['ViTB32', 'ViTB16', 'RN50'],
 ):
     """
     Create Disco Diffusion artworks and save the result into a DocumentArray.
@@ -119,11 +120,14 @@ def create(
     :param display_rate: During a diffusion run, you can monitor the progress of each image being created with this variable.  If display_rate is set to 50, DD will show you the in-progress image every 50 timesteps. Setting this to a lower value, like 5 or 10, is a good way to get an early peek at where your image is heading. If you don’t like the progression, just interrupt execution, change some settings, and re-run.  If you are planning a long, unmonitored batch, it’s better to set display_rate equal to steps, because displaying interim images does slow Colab down slightly.
     :param n_batches: This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
     :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
+    :param clip_models: CLIP Model selectors. ViTB32, ViTB16, ViTL14, RN101, RN50, RN50x4, RN50x16, RN50x64.These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  You can mix in multiple models as well for different results.  However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.The rough order of speed/mem usage is (smallest/fastest to largest/slowest):VitB32RN50RN101VitB16RN50x4RN50x16RN50x64ViTL14For RN50x64 & ViTL14 you may need to use fewer cuts, depending on your VRAM.
     :return: a DocumentArray object that has `n_batches` Documents
     """
 
 
 # end_create_overload
+
+_clip_models = {}
 
 
 def create(**kwargs) -> 'DocumentArray':
@@ -136,10 +140,12 @@ def create(**kwargs) -> 'DocumentArray':
         model_config, _args.diffusion_model, steps=_args.steps, device=device
     )
 
+    load_clip_models(device, enabled=_args['clip_models'], clip_models=_clip_models)
+
     gc.collect()
     torch.cuda.empty_cache()
     try:
-        return do_run(_args, (model, diffusion, clip_models, secondary_model), device)
+        return do_run(_args, (model, diffusion, _clip_models, secondary_model), device)
     except KeyboardInterrupt:
         pass
     finally:
@@ -159,7 +165,7 @@ from docarray import DocumentArray
 da = DocumentArray.pull('{_args.name_docarray}')
 ```
 
-More usage such as plotting, post-analysis can be found  in the [README](https://github.com/jina-ai/discoart).
+More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
         '''
         )
         print(md)

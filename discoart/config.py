@@ -9,13 +9,14 @@ from yaml import Loader
 
 from . import __resources_path__
 
+with open(f'{__resources_path__}/default.yml') as ymlfile:
+    default_args = yaml.load(ymlfile, Loader=Loader)
+
 
 def load_config(
-    user_config: Dict, default_config: str = f'{__resources_path__}/default.yml'
+        user_config: Dict,
 ):
-    with open(default_config) as ymlfile:
-        cfg = yaml.load(ymlfile, Loader=Loader)
-        default_args = copy.deepcopy(cfg)
+    cfg = copy.deepcopy(default_args)
 
     if user_config:
         cfg.update(**user_config)
@@ -26,7 +27,7 @@ def load_config(
 
     cfg.update(
         **{
-            'seed': cfg['seed'] or random.randint(0, 2**32),
+            'seed': cfg['seed'] or random.randint(0, 2 ** 32),
         }
     )
 
@@ -41,12 +42,12 @@ def load_config(
         }
     )
 
-    print_args_table(cfg, default_args)
+    print_args_table(cfg)
 
     return SimpleNamespace(**cfg)
 
 
-def print_args_table(cfg, default_cfg):
+def print_args_table(cfg):
     from rich.table import Table
     from rich import box
     from rich.console import Console
@@ -65,7 +66,7 @@ def print_args_table(cfg, default_cfg):
     for k, v in sorted(cfg.items()):
         value = str(v)
 
-        if not default_cfg.get(k, None) == v:
+        if not default_args.get(k, None) == v:
             value = f'[b]{value}[/]'
 
         param_str.add_row(k, value)

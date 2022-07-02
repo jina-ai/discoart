@@ -48,7 +48,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         torch.backends.cudnn.deterministic = True
 
     model_stats = []
-    for clip_model in clip_models:
+    for clip_model in clip_models.values():
         model_stat = {
             'clip_model': None,
             'target_embeds': [],

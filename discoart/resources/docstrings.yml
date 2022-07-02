@@ -87,3 +87,17 @@ n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
 batch_name: |
   The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
+clip_models: |
+  CLIP Model selectors. ViTB32, ViTB16, ViTL14, RN101, RN50, RN50x4, RN50x16, RN50x64.
+  These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  
+  You can mix in multiple models as well for different results.  However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.
+  The rough order of speed/mem usage is (smallest/fastest to largest/slowest):
+  VitB32
+  RN50
+  RN101
+  VitB16
+  RN50x4
+  RN50x16
+  RN50x64
+  ViTL14
+  For RN50x64 & ViTL14 you may need to use fewer cuts, depending on your VRAM.

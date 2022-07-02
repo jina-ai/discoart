@@ -41,3 +41,7 @@ display_rate: 10
 n_batches: 4
 batch_size: 1
 batch_name: ''
+clip_models:
+  - ViTB32
+  - ViTB16
+  - RN50

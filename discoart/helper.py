@@ -5,6 +5,7 @@ import subprocess
 import sys
 from os.path import expanduser
 from pathlib import Path
+from typing import Dict, Any, List
 
 import torch
 
@@ -79,50 +80,15 @@ def _wget(url, outputdir):
     logger.debug(res)
 
 
-def _load_clip_model(device):
+def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
+
+    from .config import default_args
     import clip
 
-    clip_models = []
-    ViTB32 = True  # @param{type:"boolean"}
-    ViTB16 = True  # @param{type:"boolean"}
-    ViTL14 = False  # @param{type:"boolean"}
-    RN101 = False  # @param{type:"boolean"}
-    RN50 = True  # @param{type:"boolean"}
-    RN50x4 = False  # @param{type:"boolean"}
-    RN50x16 = False  # @param{type:"boolean"}
-    RN50x64 = False  # @param{type:"boolean"}
-    if ViTB32 is True:
-        clip_models.append(
-            clip.load('ViT-B/32', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if ViTB16 is True:
-        clip_models.append(
-            clip.load('ViT-B/16', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if ViTL14 is True:
-        clip_models.append(
-            clip.load('ViT-L/14', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if RN50 is True:
-        clip_models.append(
-            clip.load('RN50', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if RN50x4 is True:
-        clip_models.append(
-            clip.load('RN50x4', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if RN50x16 is True:
-        clip_models.append(
-            clip.load('RN50x16', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if RN50x64 is True:
-        clip_models.append(
-            clip.load('RN50x64', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
-    if RN101 is True:
-        clip_models.append(
-            clip.load('RN101', jit=False)[0].eval().requires_grad_(False).to(device)
-        )
+    for k in (enabled or default_args['clip_models']):
+        if k not in clip_models:
+            clip_models[k] = clip.load('k', jit=False)[0].eval().requires_grad_(False).to(device)
+
     return clip_models
 
 
@@ -321,7 +287,7 @@ def load_all_models(
         )
         secondary_model.eval().requires_grad_(False).to(device)
 
-    return model_config, _load_clip_model(device), secondary_model
+    return model_config, secondary_model
 
 
 def load_diffusion_model(model_config, diffusion_model, steps, device):
