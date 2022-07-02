@@ -94,7 +94,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
         if k not in enabled:
             clip_models.pop(k)
 
-    return list(clip_models.items())
+    return list(clip_models.values())
 
 
 def load_all_models(
