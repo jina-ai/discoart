@@ -65,6 +65,8 @@ da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trendi
 
 [This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
 
+> Unlike DD5.x, `text_prompts` in DiscoArt is just a string or a list of strings, not a dictionary, i.e. no frame index `0:` or `100:`. Multiple prompts can be specified in a list. Weights are supported as in original DD5.x.
+
 ### Fetch results
 
 `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
