@@ -87,7 +87,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
     # load enabled models
     for k in enabled:
         if k not in clip_models:
-            clip_models[k] = clip.load('k', jit=False)[0].eval().requires_grad_(False).to(device)
+            clip_models[k] = clip.load(k, jit=False)[0].eval().requires_grad_(False).to(device)
 
     # disable not enabled models to save memory
     for k in clip_models:
