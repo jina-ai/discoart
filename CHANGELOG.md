@@ -12,6 +12,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -227,4 +228,23 @@
 
  - [[```dd7cdf43```](https://github.com/jina-ai/docarray/commit/dd7cdf43475b1b82772d7cba071d2d1775eea70d)] __-__ fix readme (*Han Xiao*)
  - [[```620e24a3```](https://github.com/jina-ai/docarray/commit/620e24a3ec014e5e6fdabd058462aab3bac6dd65)] __-__ __version__: the next version will be 0.0.13 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-14></a>
+## Release Note (`0.0.14`)
+
+> Release time: 2022-07-02 20:23:09
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```8655ce61```](https://github.com/jina-ai/docarray/commit/8655ce61372f060d71999bc116f5190e6aa9417b)] __-__ add clip model selector (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```a52082b6```](https://github.com/jina-ai/docarray/commit/a52082b6bf5e8f375247e09560c82bf4728c06d3)] __-__ __version__: the next version will be 0.0.14 (*Jina Dev Bot*)
 
