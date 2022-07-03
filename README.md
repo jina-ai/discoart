@@ -177,7 +177,7 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/discoart
 
 😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.2. So just unleash your creativity!
 
-There are some differences between DiscoArt and DD5.x:
+There are some minor differences between DiscoArt and DD5.x:
   - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.2).
   - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
   - `clip_models` accepts a list of values chosen from `ViT-B/32`, `ViT-B/16`, `ViT-L/14`, `RN101`, `RN50`, `RN50x4`, `RN50x16`, `RN50x64`. Slightly different in names vs. DD5.2. 
