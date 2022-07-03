@@ -43,7 +43,7 @@ setup(
         'numpy',
         'lpips',
         'ftfy',
-        'docarray[common]',
+        'docarray[common]>=0.13.28',
         'pyyaml',
     ],
     classifiers=[

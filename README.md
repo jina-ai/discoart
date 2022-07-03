@@ -77,7 +77,7 @@ This allows you to further post-process, analyze, export the results with powerf
 For example, you can display all final images in a grid:
 
 ```python
-da.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
+da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
 ```
 ![](.github/all-results.png)
 
@@ -107,7 +107,7 @@ da[0].save_uri_to_file('discoart-result.png')
 You can also zoom into a run and check out intermediate steps:
 
 ```python
-da[0].chunks.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
+da[0].chunks.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
 ```
 ![](.github/chunks.png)
 
@@ -144,7 +144,13 @@ from discoart import create
 from docarray import DocumentArray
 
 da = DocumentArray.pull('discoart-3205998582')
-create(init_document=da[0], skip_steps=100)
+
+create(init_document=da[0],
+       cut_ic_pow=0.5,
+       tv_scale=600, 
+       cut_overview='[12]*1000', 
+       cut_innercut='[12]*1000', 
+       use_secondary_model=False)
 ```
 
 

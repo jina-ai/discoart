@@ -20,7 +20,7 @@ for k, v in cfg.items():
     elif k == 'width_height':
         v_type = 'List[int]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
-all_args.append('):')
+all_args.append(') -> \'DocumentArray\':')
 all_args.append('"""')
 all_args.append('Create Disco Diffusion artworks and save the result into a DocumentArray.\n')
 for k, v in docs.items():
