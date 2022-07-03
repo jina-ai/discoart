@@ -15,6 +15,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -289,4 +290,23 @@
 
  - [[```ddba3216```](https://github.com/jina-ai/docarray/commit/ddba32160b6dae0221444e7d66e0b1c8334b3c8d)] __-__ update readme (*Han Xiao*)
  - [[```018e59df```](https://github.com/jina-ai/docarray/commit/018e59dfa2a78fbacf0eefaaf7e8ea878d1ee6a7)] __-__ __version__: the next version will be 0.0.16 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-17></a>
+## Release Note (`0.0.17`)
+
+> Release time: 2022-07-03 10:28:18
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```5367bc26```](https://github.com/jina-ai/docarray/commit/5367bc266474473fa999282d7d266be6ea11207d)] __-__ keep sprite image aspect ratio (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```95a69f08```](https://github.com/jina-ai/docarray/commit/95a69f08bfe3c8f414f6cbac0b54136af2566cb1)] __-__ __version__: the next version will be 0.0.17 (*Jina Dev Bot*)
 
