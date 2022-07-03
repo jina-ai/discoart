@@ -41,6 +41,7 @@ def load_config(
         da_name = f'{__package__}-{cfg["batch_name"]}-{cfg["seed"]}'
     else:
         da_name = f'{__package__}-{cfg["seed"]}'
+        warnings.warn('you did not set `batch_name`, set it to have unique session ID')
 
     cfg.update(
         **{

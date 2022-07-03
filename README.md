@@ -111,7 +111,13 @@ da[0].chunks.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ra
 ```
 ![](.github/chunks.png)
 
-You can `.display()` the chunks one by one, or save one via `.save_uri_to_file()`.
+You can `.display()` the chunks one by one, or save one via `.save_uri_to_file()`, or save all intermediate steps as a GIF:
+
+```python
+da[0].chunks.save_gif('lighthouse.gif', show_index=True, inline_display=True, size_ratio=0.5)
+```
+
+![](.github/lighthouse.gif)
 
 Finally, you can review its parameters via:
 
