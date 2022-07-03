@@ -26,7 +26,7 @@ def load_config(
             warnings.warn(f'unknown argument {k}, ignored')
 
     for k, v in cfg.items():
-        if k in ('batch_size', 'display_rate', 'seed', 'skip_steps', 'steps', 'n_batches', 'cutn_batches'):
+        if k in ('batch_size', 'display_rate', 'seed', 'skip_steps', 'steps', 'n_batches', 'cutn_batches') and isinstance(v, float):
             cfg[k] = int(v)
         if k == 'width_height':
             cfg[k] = [int(vv) for vv in v]
