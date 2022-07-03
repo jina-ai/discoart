@@ -20,7 +20,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
-🎨 **Focus on creating not coding**: one-liner `create()` with a Pythonic interface and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab free tier.
+🎨 **Focus on creating not coding**: one-liner `create()` with a Pythonic interface, autocompletion in IDE, and of course powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab free tier.
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
@@ -66,7 +66,7 @@ da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trendi
 [This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic) The minor difference on the parameters between DiscoArt and DD5.x [is explained here](#whats-next).
 
 
-### Fetch results
+### Visualize results
 
 `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
 - All arguments passed to `create()` function, including seed, text prompts and model parameters.
@@ -98,13 +98,13 @@ da[0].display()
 
 ![](.github/display.png)
 
-To save the image:
+Images are stored as Data URI in `.uri`, to save it as a local file:
 
 ```python
 da[0].save_uri_to_file('discoart-result.png')
 ```
 
-You can also zoom into that run and check out intermediate steps:
+You can also zoom into a run and check out intermediate steps:
 
 ```python
 da[0].chunks.plot_image_sprites(skip_empty=True, fig_size=(10, 10), show_index=True)
@@ -120,9 +120,10 @@ da[0].tags
 ```
 ![](.github/tags.png)
 
-### Pull results
 
-If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. With DiscoArt, you can easily recover the results by pulling the last session ID.
+### Pull results anywhere anytime
+
+If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. Or sometimes you just early stop the run as the first image is not good enough, and a keyboard interrupt will prevent `.create()` to return any result. Either case, you can easily recover the results by pulling the last session ID.
 
 1. Find the session ID. It appears on top of the image. 
 ![](.github/session-id.png)
@@ -133,6 +134,18 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
 
     da = DocumentArray.pull('discoart-3205998582')
     ```
+
+### Reusing a Document for initial state
+
+One can use a Document as the initial state for the next run. Its `.tags` will be used as the initial parameters; `.uri` if presented will be used as the initial image.
+
+```python
+from discoart import create
+from docarray import DocumentArray
+
+da = DocumentArray.pull('discoart-3205998582')
+create(init_document=da[0], skip_steps=100)
+```
 
 
 ### Verbose logs
