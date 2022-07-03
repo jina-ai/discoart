@@ -3,7 +3,7 @@ import warnings
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-__version__ = '0.0.15'
+__version__ = '0.0.16'
 
 __all__ = ['create']
 
