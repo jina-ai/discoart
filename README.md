@@ -135,7 +135,7 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
     da = DocumentArray.pull('discoart-3205998582')
     ```
 
-### Reusing a Document for initial state
+### Reuse a Document as the initial state
 
 One can use a Document as the initial state for the next run. Its `.tags` will be used as the initial parameters; `.uri` if presented will be used as the initial image.
 
