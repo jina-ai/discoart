@@ -25,6 +25,12 @@ def load_config(
         if k not in cfg:
             warnings.warn(f'unknown argument {k}, ignored')
 
+    for k, v in cfg.items():
+        if k in ('batch_size', 'display_rate', 'seed', 'skip_steps', 'steps', 'n_batches', 'cutn_batches'):
+            cfg[k] = int(v)
+        if k == 'width_height':
+            cfg[k] = [int(vv) for vv in v]
+
     cfg.update(
         **{
             'seed': cfg['seed'] or random.randint(0, 2 ** 32),
