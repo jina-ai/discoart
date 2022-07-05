@@ -119,13 +119,15 @@ da[0].chunks.save_gif('lighthouse.gif', show_index=True, inline_display=True, si
 
 ![](.github/lighthouse.gif)
 
-Finally, you can review its parameters via:
+Finally, you can review its parameters from `da[0].tags` or print it in a table
 
 ```python
-da[0].tags
-```
-![](.github/tags.png)
+from discoart.config import load_config
 
+load_config(da[0].tags)
+```
+
+![](.github/tags.png)
 
 ### Pull results anywhere anytime
 
