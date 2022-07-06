@@ -16,7 +16,7 @@ with open(f'{__resources_path__}/default.yml') as ymlfile:
 
 def load_config(
     user_config: Dict,
-):
+) -> Dict:
     cfg = copy.deepcopy(default_args)
 
     if user_config:
@@ -54,9 +54,8 @@ def load_config(
 
     cfg.update(**{'name_docarray': da_name})
 
-    print_args_table(cfg)
 
-    return SimpleNamespace(**cfg)
+    return cfg
 
 
 def save_config_svg(
@@ -82,7 +81,7 @@ def save_config_svg(
     from rich.terminal_theme import MONOKAI
 
     console = Console(record=True)
-    print_args_table(cfg, console)
+    print_args_table(load_config(cfg), console)
     console.save_svg(
         output or f'{cfg["name_docarray"]}.svg',
         theme=MONOKAI,

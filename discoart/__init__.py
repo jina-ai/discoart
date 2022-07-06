@@ -1,5 +1,6 @@
 import os
 import warnings
+from types import SimpleNamespace
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
@@ -140,7 +141,7 @@ def create(init_document: 'Document') -> 'DocumentArray':
 
 
 def create(**kwargs) -> 'DocumentArray':
-    from .config import load_config
+    from .config import load_config, print_args_table
     from .runner import do_run
 
     if 'init_document' in kwargs:
@@ -159,6 +160,9 @@ def create(**kwargs) -> 'DocumentArray':
         _args = load_config(user_config=_kwargs)
     else:
         _args = load_config(user_config=kwargs)
+
+    print_args_table(_args)
+    _args = SimpleNamespace(**_args)
 
     model, diffusion = load_diffusion_model(
         model_config, _args.diffusion_model, steps=_args.steps, device=device
