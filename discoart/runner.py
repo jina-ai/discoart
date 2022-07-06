@@ -310,22 +310,26 @@ def do_run(args, models, device) -> 'DocumentArray':
 
 
 def _start_persist(threads, da_batches, name_docarray):
-    t = Thread(
-        target=_silent_push,
-        args=(
-            da_batches,
-            name_docarray,
-        ),
-    )
-    threads.append(t)
-    t.start()
+    for fn in (_silent_save, _silent_push):
+        t = Thread(
+            target=fn,
+            args=(
+                da_batches,
+                name_docarray,
+            ),
+        )
+        threads.append(t)
+        t.start()
 
 
-def _silent_push(da_batches: DocumentArray, name: str) -> None:
+def _silent_save(da_batches: DocumentArray, name: str) -> None:
     try:
         da_batches.save_binary(name, protocol='protobuf', compress='lz4')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
+
+
+def _silent_push(da_batches: DocumentArray, name: str) -> None:
     try:
         da_batches.push(name)
     except Exception as ex:

@@ -2,13 +2,11 @@ import copy
 import random
 import warnings
 from types import SimpleNamespace
-from typing import Dict, TYPE_CHECKING, Union
+from typing import Dict, Union, Optional
 
 import yaml
+from docarray import DocumentArray, Document
 from yaml import Loader
-
-if TYPE_CHECKING:
-    from docarray import DocumentArray, Document
 
 from . import __resources_path__
 
@@ -62,8 +60,15 @@ def load_config(
 
 
 def save_config_svg(
-    docs: Union['DocumentArray', 'Document', Dict], output: str
+    docs: Union['DocumentArray', 'Document', Dict],
+    output: Optional[str] = None,
 ) -> None:
+    """
+    Save the config as SVG.
+    :param docs: a DocumentArray or Document or a Document.tags dict
+    :param output: the filename to store the SVG, if not given, it will be saved as `{name_docarray}.svg`
+    :return:
+    """
     cfg = None
 
     if isinstance(docs, DocumentArray):
@@ -78,7 +83,11 @@ def save_config_svg(
 
     console = Console(record=True)
     print_args_table(cfg, console)
-    console.save_svg(output, theme=MONOKAI, title=cfg['name_docarray'])
+    console.save_svg(
+        output or f'{cfg["name_docarray"]}.svg',
+        theme=MONOKAI,
+        title=cfg['name_docarray'],
+    )
 
 
 def print_args_table(cfg, console=None):
@@ -102,7 +111,7 @@ def print_args_table(cfg, console=None):
         value = str(v)
 
         if not default_args.get(k, None) == v:
-            k = f'[b]{k}*[/]'
+            k = f'*  [b]{k}[/]'
 
         param_str.add_row(k, value)
 
