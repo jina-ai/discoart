@@ -51,7 +51,7 @@ That's it! It will create with the [default text prompts and parameters](./disco
 
 ### Set prompts and parameters
 
-Suppported parameters are [listed here](./discoart/resources/default.yml). You can specify them in `create()`:
+Supported parameters are [listed here](./discoart/resources/default.yml). You can specify them in `create()`:
 
 ```python
 from discoart import create
@@ -71,27 +71,38 @@ da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trendi
 
 `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
 - All arguments passed to `create()` function, including seed, text prompts and model parameters.
-- The generated image and its intermediate images.
+- 4 generated image and its intermediate steps' images, where `4` is determined by `n_batches` and is the default value. 
 
 This allows you to further post-process, analyze, export the results with powerful DocArray API.
 
-For example, you can display all final images in a grid:
+Images are stored as Data URI in `.uri`, to save the first image as a local file:
+
+```python
+da[0].save_uri_to_file('discoart-result.png')
+```
+
+To save all final images:
+
+```python
+for idx, d in enumerate(da):
+    d.save_uri_to_file(f'discoart-result-{idx}.png')
+```
+
+You can also display all four final images in a grid:
 
 ```python
 da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
 ```
 ![](.github/all-results.png)
 
-Note that all images perspective are preserved. You can display them one by one:
+Or display them one by one:
 
 ```python
 for d in da:
     d.display()
 ```
 
-The length of `da` is determined by the `n_batches` parameter.
-
-You can take one particular run:
+Or take one particular run:
 
 ```python
 da[0].display()
@@ -99,13 +110,9 @@ da[0].display()
 
 ![](.github/display.png)
 
-Images are stored as Data URI in `.uri`, to save it as a local file:
+### Visualize intermediate steps
 
-```python
-da[0].save_uri_to_file('discoart-result.png')
-```
-
-You can also zoom into a run and check out intermediate steps:
+You can also zoom into a run (say the first run) and check out intermediate steps:
 
 ```python
 da[0].chunks.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
@@ -120,7 +127,9 @@ da[0].chunks.save_gif('lighthouse.gif', show_index=True, inline_display=True, si
 
 ![](.github/lighthouse.gif)
 
-Finally, you can review its parameters from `da[0].tags` or export it as an SVG image:
+### Export configs
+
+You can review its parameters from `da[0].tags` or export it as an SVG image:
 
 ```python
 from discoart.config import save_config_svg
@@ -144,9 +153,9 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
     da = DocumentArray.pull('discoart-3205998582')
     ```
 
-### Reuse a Document as the initial state
+### Reuse a Document as initial state
 
-One can use a Document as the initial state for the next run. Its `.tags` will be used as the initial parameters; `.uri` if presented will be used as the initial image.
+Consider a Document as a self-contained data with config and image, one can use it as the initial state for the future run. Its `.tags` will be used as the initial parameters; `.uri` if presented will be used as the initial image.
 
 ```python
 from discoart import create
@@ -197,7 +206,7 @@ There are some minor differences between DiscoArt and DD5.x:
   - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
   - `clip_models` accepts a list of values chosen from `ViT-B/32`, `ViT-B/16`, `ViT-L/14`, `RN101`, `RN50`, `RN50x4`, `RN50x16`, `RN50x64`. Slightly different in names vs. DD5.2. 
 
-👶 **If you are a [DALL·E Flow](https://github.com/jina-ai/dalle-flow/) user**: you may want to take step by step, as Disco Diffusion works in a very different way than DALL·E. It is much more advanced and powerful: e.g. Disco Diffusion can take weighted & structured text prompts; it can initialize from a image with controlled noise; and there are way more parameters one can tweak. Impatient prompt like `"armchair avocado"` will give you nothing but confusion and frustration. I highly recommend you to check out the following resources before trying your own prompt:
+👶 **If you are a [DALL·E Flow](https://github.com/jina-ai/dalle-flow/) or new user**: you may want to take step by step, as Disco Diffusion works in a very different way than DALL·E. It is much more advanced and powerful: e.g. Disco Diffusion can take weighted & structured text prompts; it can initialize from a image with controlled noise; and there are way more parameters one can tweak. Impatient prompt like `"armchair avocado"` will give you nothing but confusion and frustration. I highly recommend you to check out the following resources before trying your own prompt:
 - [Zippy's Disco Diffusion Cheatsheet v0.3](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
 - [EZ Charts - Diffusion Parameter Studies](https://docs.google.com/document/d/1ORymHm0Te18qKiHnhcdgGp-WSt8ZkLZvow3raiu2DVU/edit#)
 - [Disco Diffusion 70+ Artist Studies](https://weirdwonderfulai.art/resources/disco-diffusion-70-plus-artist-studies/)
