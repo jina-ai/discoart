@@ -2,10 +2,13 @@ import copy
 import random
 import warnings
 from types import SimpleNamespace
-from typing import Dict
+from typing import Dict, TYPE_CHECKING, Union
 
 import yaml
 from yaml import Loader
+
+if TYPE_CHECKING:
+    from docarray import DocumentArray, Document
 
 from . import __resources_path__
 
@@ -14,7 +17,7 @@ with open(f'{__resources_path__}/default.yml') as ymlfile:
 
 
 def load_config(
-        user_config: Dict,
+    user_config: Dict,
 ):
     cfg = copy.deepcopy(default_args)
 
@@ -26,14 +29,22 @@ def load_config(
             warnings.warn(f'unknown argument {k}, ignored')
 
     for k, v in cfg.items():
-        if k in ('batch_size', 'display_rate', 'seed', 'skip_steps', 'steps', 'n_batches', 'cutn_batches') and isinstance(v, float):
+        if k in (
+            'batch_size',
+            'display_rate',
+            'seed',
+            'skip_steps',
+            'steps',
+            'n_batches',
+            'cutn_batches',
+        ) and isinstance(v, float):
             cfg[k] = int(v)
         if k == 'width_height':
             cfg[k] = [int(vv) for vv in v]
 
     cfg.update(
         **{
-            'seed': cfg['seed'] or random.randint(0, 2 ** 32),
+            'seed': cfg['seed'] or random.randint(0, 2**32),
         }
     )
 
@@ -43,23 +54,40 @@ def load_config(
         da_name = f'{__package__}-{cfg["seed"]}'
         warnings.warn('you did not set `batch_name`, set it to have unique session ID')
 
-    cfg.update(
-        **{
-            'name_docarray': da_name
-        }
-    )
+    cfg.update(**{'name_docarray': da_name})
 
     print_args_table(cfg)
 
     return SimpleNamespace(**cfg)
 
 
-def print_args_table(cfg):
+def save_config_svg(
+    docs: Union['DocumentArray', 'Document', Dict], output: str
+) -> None:
+    cfg = None
+
+    if isinstance(docs, DocumentArray):
+        cfg = docs[0].tags
+    elif isinstance(docs, Document):
+        cfg = docs.tags
+    elif isinstance(docs, dict):
+        cfg = docs
+
+    from rich.console import Console
+    from rich.terminal_theme import MONOKAI
+
+    console = Console(record=True)
+    print_args_table(cfg, console)
+    console.save_svg(output, theme=MONOKAI, title=cfg['name_docarray'])
+
+
+def print_args_table(cfg, console=None):
     from rich.table import Table
     from rich import box
     from rich.console import Console
 
-    console = Console()
+    if console is None:
+        console = Console()
 
     param_str = Table(
         title=cfg['name_docarray'],
@@ -74,7 +102,7 @@ def print_args_table(cfg):
         value = str(v)
 
         if not default_args.get(k, None) == v:
-            value = f'[b]{value}[/]'
+            k = f'[b]{k}*[/]'
 
         param_str.add_row(k, value)
 

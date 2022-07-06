@@ -324,6 +324,9 @@ def _start_persist(threads, da_batches, name_docarray):
 def _silent_push(da_batches: DocumentArray, name: str) -> None:
     try:
         da_batches.save_binary(name, protocol='protobuf', compress='lz4')
+    except Exception as ex:
+        logger.debug(f'local backup failed: {ex}')
+    try:
         da_batches.push(name)
     except Exception as ex:
         logger.debug(f'push failed: {ex}')
