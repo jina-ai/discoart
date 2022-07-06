@@ -189,6 +189,12 @@ from docarray import DocumentArray
 da = DocumentArray.pull('{_args.name_docarray}')
 ```
 
+If for some reason the cloud storage is not available, you may also download the file manually and load it from local disk:
+
+```python
+da = DocumentArray.load_binary('{_args.name_docarray}.protobuf.lz4')
+```
+
 More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
         '''
         )
