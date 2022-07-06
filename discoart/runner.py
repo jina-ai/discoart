@@ -9,7 +9,6 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from IPython import display
-from IPython.display import FileLink
 from docarray import DocumentArray, Document
 from ipywidgets import Output
 
@@ -308,16 +307,6 @@ def do_run(args, models, device) -> 'DocumentArray':
     from .config import save_config_svg
 
     save_config_svg(da_batches)
-
-    persist_file = FileLink(
-        f'{args.name_docarray}.protobuf.lz4',
-        result_html_prefix=f'▶ Click here to download the persistent file of {args.name_docarray}: ',
-    )
-    config_file = FileLink(
-        f'{args.name_docarray}.svg',
-        result_html_prefix=f'▶ Click here to download the config of {args.name_docarray} as SVG image: ',
-    )
-    display.display(persist_file, config_file)
     return da_batches
 
 

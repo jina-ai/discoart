@@ -173,26 +173,39 @@ def create(**kwargs) -> 'DocumentArray':
     except KeyboardInterrupt:
         pass
     finally:
+        from IPython.display import FileLink, display
+        _name = _args.name_docarray
+
+        persist_file = FileLink(
+            f'{_name}.protobuf.lz4',
+            result_html_prefix=f'▶ (in case cloud storage failed) Download the result backup: ',
+        )
+        config_file = FileLink(
+            f'{_name}.svg',
+            result_html_prefix=f'▶ Download the config as SVG image: ',
+        )
+        display(persist_file, config_file)
+
         from rich import print
         from rich.markdown import Markdown
 
         md = Markdown(
             f'''
-Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/).
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) and synced to the cloud.
 
-You can pull it from any machine:
+You can simply pull it from any machine:
 
 ```python
 # pip install docarray[common]
 from docarray import DocumentArray
 
-da = DocumentArray.pull('{_args.name_docarray}')
+da = DocumentArray.pull('{_name}')
 ```
 
 If for some reason the cloud storage is not available, you may also download the file manually and load it from local disk:
 
 ```python
-da = DocumentArray.load_binary('{_args.name_docarray}.protobuf.lz4')
+da = DocumentArray.load_binary('{_name}.protobuf.lz4')
 ```
 
 More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
