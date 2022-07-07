@@ -141,7 +141,7 @@ def create(init_document: 'Document') -> 'DocumentArray':
 
 
 def create(**kwargs) -> 'DocumentArray':
-    from .config import load_config, print_args_table
+    from .config import load_config, print_args_table, save_config_svg
     from .runner import do_run
 
     if 'init_document' in kwargs:
@@ -162,6 +162,8 @@ def create(**kwargs) -> 'DocumentArray':
         _args = load_config(user_config=kwargs)
 
     print_args_table(_args)
+    save_config_svg(_args)
+
     _args = SimpleNamespace(**_args)
 
     model, diffusion = load_diffusion_model(

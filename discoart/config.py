@@ -110,7 +110,7 @@ def print_args_table(cfg, console=None):
         value = str(v)
 
         if not default_args.get(k, None) == v:
-            k = f'[b]{k}[/]'
+            k = f'[b]{k}*[/]'
 
         param_str.add_row(k, value)
 

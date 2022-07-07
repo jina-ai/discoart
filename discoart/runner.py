@@ -304,9 +304,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     da_batches.plot_image_sprites(
         skip_empty=True, show_index=True, keep_aspect_ratio=True
     )
-    from .config import save_config_svg
 
-    save_config_svg(da_batches)
     return da_batches
 
 
