@@ -1,7 +1,6 @@
 import copy
 import random
 import warnings
-from types import SimpleNamespace
 from typing import Dict, Union, Optional
 
 import yaml
@@ -53,7 +52,6 @@ def load_config(
         warnings.warn('you did not set `batch_name`, set it to have unique session ID')
 
     cfg.update(**{'name_docarray': da_name})
-
 
     return cfg
 

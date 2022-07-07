@@ -178,6 +178,7 @@ def create(**kwargs) -> 'DocumentArray':
     except KeyboardInterrupt:
         pass
     finally:
+        print_args_table(vars(_args))
         from IPython.display import FileLink, display
         _name = _args.name_docarray
 
