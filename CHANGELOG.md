@@ -23,6 +23,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -456,4 +457,23 @@
 ### 🍹 Other Improvements
 
  - [[```daf6af98```](https://github.com/jina-ai/docarray/commit/daf6af9825bb830ca4b69e93e1e36a64cdb1f713)] __-__ __version__: the next version will be 0.0.24 (*Jina Dev Bot*)
+
+<a name=release-note-0-0-25></a>
+## Release Note (`0.0.25`)
+
+> Release time: 2022-07-08 20:26:06
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```9b58a474```](https://github.com/jina-ai/docarray/commit/9b58a474a01d5a3e0b2ab7b8f866a8fb315f074a)] __-__ add open clip pretrained models (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```5953759f```](https://github.com/jina-ai/docarray/commit/5953759f4bce5c6db18e9d46e948ebd2c1b550c5)] __-__ __version__: the next version will be 0.0.25 (*Jina Dev Bot*)
 
