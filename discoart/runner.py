@@ -292,9 +292,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                             keep_aspect_ratio=True,
                         )
 
-                    if cur_t == -1:
-                        d.load_pil_image_to_datauri(image)
-
+                    # root doc always update with the latest progress
+                    d.uri = c.uri
                     _start_persist(threads, da_batches, args.name_docarray)
 
         for t in threads:
