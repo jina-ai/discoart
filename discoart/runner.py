@@ -12,6 +12,7 @@ from IPython import display
 from docarray import DocumentArray, Document
 from ipywidgets import Output
 
+from .config import print_args_table
 from .helper import parse_prompt, logger
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
@@ -19,6 +20,7 @@ from .nn.sec_diff import alpha_sigma_to_t
 
 
 def do_run(args, models, device) -> 'DocumentArray':
+    _set_seed(args.seed)
     logger.info('preparing models...')
     model, diffusion, clip_models, secondary_model = models
     normalize = T.Normalize(
@@ -35,18 +37,9 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
-    seed = args.seed
-
     skip_steps = args.skip_steps
 
     loss_values = []
-
-    if seed is not None:
-        np.random.seed(seed)
-        random.seed(seed)
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
 
     model_stats = []
     for clip_model in clip_models:
@@ -231,8 +224,11 @@ def do_run(args, models, device) -> 'DocumentArray':
     da_batches = DocumentArray()
 
     for _nb in range(args.n_batches):
+        args.seed += 1
+        _set_seed(args.seed)
+
         display.clear_output(wait=True)
-        display.display(args.name_docarray, image_display)
+        display.display(print_args_table(args), image_display)
         gc.collect()
         torch.cuda.empty_cache()
 
@@ -280,22 +276,22 @@ def do_run(args, models, device) -> 'DocumentArray':
                 if j % args.display_rate == 0 or cur_t == -1:
                     for _, image in enumerate(sample['pred_xstart']):
                         image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                        image.save('progress.png')
                         c = Document(tags={'cur_t': cur_t})
                         c.load_pil_image_to_datauri(image)
                         d.chunks.append(c)
                         display.clear_output(wait=True)
-                        display.display(display.Image('progress.png'))
+                        display.display(image)
                         d.chunks.plot_image_sprites(
                             f'{args.name_docarray}-progress-{_nb}.png',
                             skip_empty=True,
                             show_index=True,
                             keep_aspect_ratio=True,
                         )
-                        _start_persist(threads, da_batches, args.name_docarray)
 
                     if cur_t == -1:
                         d.load_pil_image_to_datauri(image)
+
+                    _start_persist(threads, da_batches, args.name_docarray)
 
         for t in threads:
             t.join()
@@ -316,6 +312,14 @@ def _start_persist(threads, da_batches, name_docarray):
         )
         threads.append(t)
         t.start()
+
+
+def _set_seed(seed: int) -> None:
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def _silent_save(da_batches: DocumentArray, name: str) -> None:

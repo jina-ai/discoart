@@ -87,7 +87,9 @@ def save_config_svg(
     )
 
 
-def print_args_table(cfg, console=None):
+def print_args_table(
+    cfg, console=None, only_non_default: bool = False, console_print: bool = True
+):
     from rich.table import Table
     from rich import box
     from rich.console import Console
@@ -106,10 +108,15 @@ def print_args_table(cfg, console=None):
 
     for k, v in sorted(cfg.items()):
         value = str(v)
-
+        _non_default = False
         if not default_args.get(k, None) == v:
-            k = f'[b]{k}*[/]'
+            if not only_non_default:
+                k = f'[b]{k}*[/]'
+            _non_default = True
 
-        param_str.add_row(k, value)
+        if not only_non_default or _non_default:
+            param_str.add_row(k, value)
 
-    console.print(param_str)
+    if console_print:
+        console.print(param_str)
+    return param_str
