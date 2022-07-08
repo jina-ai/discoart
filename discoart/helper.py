@@ -83,11 +83,17 @@ def _wget(url, outputdir):
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
 
     import clip
+    import open_clip
 
     # load enabled models
     for k in enabled:
         if k not in clip_models:
-            clip_models[k] = clip.load(k, jit=False)[0].eval().requires_grad_(False).to(device)
+            if '::' in k:
+                # use open_clip loader
+                k1, k2 = k.split('::')
+                clip_models[k] = open_clip.create_model_and_transforms(k1, pretrained=k2)[0].eval().requires_grad_(False).to(device)
+            else:
+                clip_models[k] = clip.load(k, jit=False)[0].eval().requires_grad_(False).to(device)
 
     # disable not enabled models to save memory
     for k in clip_models:

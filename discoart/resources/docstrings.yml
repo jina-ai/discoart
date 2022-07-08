@@ -101,3 +101,4 @@ clip_models: |
   RN50x64
   ViT-L/14
   For RN50x64 & ViTL14 you may need to use fewer cuts, depending on your VRAM.
+  Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface

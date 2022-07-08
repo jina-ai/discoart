@@ -2,7 +2,7 @@ import gc
 import random
 from threading import Thread
 
-import clip
+import open_clip as clip
 import lpips
 import numpy as np
 import torch

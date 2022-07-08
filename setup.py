@@ -45,6 +45,7 @@ setup(
         'ftfy',
         'docarray[common]>=0.13.30',
         'pyyaml',
+        'open_clip_torch'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

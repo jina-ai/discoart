@@ -204,7 +204,7 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/discoart
 There are some minor differences between DiscoArt and DD5.x:
   - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.2).
   - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
-  - `clip_models` accepts a list of values chosen from `ViT-B/32`, `ViT-B/16`, `ViT-L/14`, `RN101`, `RN50`, `RN50x4`, `RN50x16`, `RN50x64`. Slightly different in names vs. DD5.2. 
+  - `clip_models` accepts a list of values from [all open-clip pretrained models and weights](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
 
 👶 **If you are a [DALL·E Flow](https://github.com/jina-ai/dalle-flow/) or new user**: you may want to take step by step, as Disco Diffusion works in a very different way than DALL·E. It is much more advanced and powerful: e.g. Disco Diffusion can take weighted & structured text prompts; it can initialize from a image with controlled noise; and there are way more parameters one can tweak. Impatient prompt like `"armchair avocado"` will give you nothing but confusion and frustration. I highly recommend you to check out the following resources before trying your own prompt:
 - [Zippy's Disco Diffusion Cheatsheet v0.3](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic)
