@@ -55,42 +55,42 @@ _clip_models_cache = {}
 
 @overload
 def create(
-        text_prompts: Optional[List[str]] = [
-            'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
-            'yellow color scheme',
-        ],
-        init_image: Optional[str] = None,
-        width_height: Optional[List[int]] = [1280, 768],
-        skip_steps: Optional[int] = 10,
-        steps: Optional[int] = 250,
-        cut_ic_pow: Optional[int] = 1,
-        init_scale: Optional[int] = 1000,
-        clip_guidance_scale: Optional[int] = 5000,
-        tv_scale: Optional[int] = 0,
-        range_scale: Optional[int] = 150,
-        sat_scale: Optional[int] = 0,
-        cutn_batches: Optional[int] = 4,
-        diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
-        use_secondary_model: Optional[bool] = True,
-        diffusion_sampling_mode: Optional[str] = 'ddim',
-        perlin_init: Optional[bool] = False,
-        perlin_mode: Optional[str] = 'mixed',
-        seed: Optional[int] = None,
-        eta: Optional[float] = 0.8,
-        clamp_grad: Optional[bool] = True,
-        clamp_max: Optional[float] = 0.05,
-        randomize_class: Optional[bool] = True,
-        clip_denoised: Optional[bool] = False,
-        fuzzy_prompt: Optional[bool] = False,
-        rand_mag: Optional[float] = 0.05,
-        cut_overview: Optional[str] = '[12]*400+[4]*600',
-        cut_innercut: Optional[str] = '[4]*400+[12]*600',
-        cut_icgray_p: Optional[str] = '[0.2]*400+[0]*600',
-        display_rate: Optional[int] = 10,
-        n_batches: Optional[int] = 4,
-        batch_size: Optional[int] = 1,
-        batch_name: Optional[str] = '',
-        clip_models: Optional[list] = ['ViTB32', 'ViTB16', 'RN50'],
+    text_prompts: Optional[List[str]] = [
+        'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
+        'yellow color scheme',
+    ],
+    init_image: Optional[str] = None,
+    width_height: Optional[List[int]] = [1280, 768],
+    skip_steps: Optional[int] = 10,
+    steps: Optional[int] = 250,
+    cut_ic_pow: Optional[int] = 1,
+    init_scale: Optional[int] = 1000,
+    clip_guidance_scale: Optional[int] = 5000,
+    tv_scale: Optional[int] = 0,
+    range_scale: Optional[int] = 150,
+    sat_scale: Optional[int] = 0,
+    cutn_batches: Optional[int] = 4,
+    diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
+    use_secondary_model: Optional[bool] = True,
+    diffusion_sampling_mode: Optional[str] = 'ddim',
+    perlin_init: Optional[bool] = False,
+    perlin_mode: Optional[str] = 'mixed',
+    seed: Optional[int] = None,
+    eta: Optional[float] = 0.8,
+    clamp_grad: Optional[bool] = True,
+    clamp_max: Optional[float] = 0.05,
+    randomize_class: Optional[bool] = True,
+    clip_denoised: Optional[bool] = False,
+    fuzzy_prompt: Optional[bool] = False,
+    rand_mag: Optional[float] = 0.05,
+    cut_overview: Optional[str] = '[12]*400+[4]*600',
+    cut_innercut: Optional[str] = '[4]*400+[12]*600',
+    cut_icgray_p: Optional[str] = '[0.2]*400+[0]*600',
+    display_rate: Optional[int] = 10,
+    n_batches: Optional[int] = 4,
+    batch_size: Optional[int] = 1,
+    batch_name: Optional[str] = '',
+    clip_models: Optional[list] = ['ViTB32', 'ViTB16', 'RN50'],
 ) -> 'DocumentArray':
     """
     Create Disco Diffusion artworks and save the result into a DocumentArray.
@@ -131,6 +131,7 @@ def create(
 
 # end_create_overload
 
+
 @overload
 def create(init_document: 'Document') -> 'DocumentArray':
     """
@@ -155,7 +156,9 @@ def create(**kwargs) -> 'DocumentArray':
             warnings.warn('init_document has no .uri, fallback to no init image')
         kwargs.pop('init_document')
         if kwargs:
-            warnings.warn('init_document has .tags and .uri, but kwargs are also present, will override .tags')
+            warnings.warn(
+                'init_document has .tags and .uri, but kwargs are also present, will override .tags'
+            )
             _kwargs.update(kwargs)
         _args = load_config(user_config=_kwargs)
     else:
@@ -169,27 +172,35 @@ def create(**kwargs) -> 'DocumentArray':
         model_config, _args.diffusion_model, steps=_args.steps, device=device
     )
 
-    clip_models = load_clip_models(device, enabled=_args.clip_models, clip_models=_clip_models_cache)
+    clip_models = load_clip_models(
+        device, enabled=_args.clip_models, clip_models=_clip_models_cache
+    )
 
     gc.collect()
     torch.cuda.empty_cache()
+
+    result = None
+
     try:
-        return do_run(_args, (model, diffusion, clip_models, secondary_model), device)
+        result = do_run(_args, (model, diffusion, clip_models, secondary_model), device)
     except KeyboardInterrupt:
         pass
     finally:
         from IPython import display
+
         display.clear_output(wait=True)
 
         _name = _args.name_docarray
 
         if os.path.exists(f'{_name}.protobuf.lz4'):
             from docarray import DocumentArray
+
             _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
             if _da and _da[0].uri:
                 _da.plot_image_sprites(
                     skip_empty=True, show_index=True, keep_aspect_ratio=True
                 )
+            result = _da
 
         print_args_table(vars(_args))
         from IPython.display import FileLink, display
@@ -230,5 +241,8 @@ More usage such as plotting, post-analysis can be found in the [README](https://
         '''
         )
         print(md)
+
         gc.collect()
         torch.cuda.empty_cache()
+
+    return result
