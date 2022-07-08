@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-__version__ = '0.0.24'
+__version__ = '0.0.25'
 
 __all__ = ['create']
 
