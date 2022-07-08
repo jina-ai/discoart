@@ -223,9 +223,13 @@ def do_run(args, models, device) -> 'DocumentArray':
     image_display = Output()
     da_batches = DocumentArray()
 
+    org_seed = args.seed
     for _nb in range(args.n_batches):
-        args.seed += 1
-        _set_seed(args.seed)
+
+        # set seed for each image in the batch
+        new_seed = org_seed + _nb
+        _set_seed(new_seed)
+        args.seed = new_seed
 
         display.clear_output(wait=True)
         display.display(print_args_table(vars(args), only_non_default=True, console_print=False), image_display)
