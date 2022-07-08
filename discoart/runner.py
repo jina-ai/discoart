@@ -301,9 +301,6 @@ def do_run(args, models, device) -> 'DocumentArray':
             t.join()
     display.clear_output(wait=True)
     logger.info(f'done! {args.name_docarray}')
-    da_batches.plot_image_sprites(
-        skip_empty=True, show_index=True, keep_aspect_ratio=True
-    )
 
     return da_batches
 

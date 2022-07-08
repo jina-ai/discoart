@@ -178,9 +178,16 @@ def create(**kwargs) -> 'DocumentArray':
     except KeyboardInterrupt:
         pass
     finally:
+        _name = _args.name_docarray
+
+        if os.path.exists(f'{_name}.protobuf.lz4'):
+            from docarray import DocumentArray
+            DocumentArray.load_binary(f'{_name}.protobuf.lz4').plot_image_sprites(
+                skip_empty=True, show_index=True, keep_aspect_ratio=True
+            )
+
         print_args_table(vars(_args))
         from IPython.display import FileLink, display
-        _name = _args.name_docarray
 
         persist_file = FileLink(
             f'{_name}.protobuf.lz4',
