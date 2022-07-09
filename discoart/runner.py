@@ -241,9 +241,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     logger.info('creating artwork...')
 
     image_display = Output()
-    is_idle_evs = [threading.Event(), threading.Event()]
-    for _e in is_idle_evs:
-        _e.set()
+    is_busy_evs = [threading.Event(), threading.Event()]
 
     da_batches = DocumentArray()
 
@@ -325,7 +323,13 @@ def do_run(args, models, device) -> 'DocumentArray':
 
                     # root doc always update with the latest progress
                     d.uri = c.uri
-                    _start_persist(threads, da_batches, args.name_docarray, is_idle_evs)
+                    _start_persist(
+                        threads,
+                        da_batches,
+                        args.name_docarray,
+                        is_busy_evs,
+                        force=cur_t == -1,
+                    )
 
         for t in threads:
             t.join()
@@ -335,15 +339,11 @@ def do_run(args, models, device) -> 'DocumentArray':
     return da_batches
 
 
-def _start_persist(threads, da_batches, name_docarray, is_idle_evs):
-    for fn, idle_ev in zip((_silent_save, _silent_push), is_idle_evs):
+def _start_persist(threads, da_batches, name_docarray, is_busy_evs, force):
+    for fn, idle_ev in zip((_silent_save, _silent_push), is_busy_evs):
         t = Thread(
             target=fn,
-            args=(
-                da_batches,
-                name_docarray,
-                idle_ev,
-            ),
+            args=(da_batches, name_docarray, idle_ev, force),
         )
         threads.append(t)
         t.start()
@@ -357,23 +357,37 @@ def _set_seed(seed: int) -> None:
     torch.backends.cudnn.deterministic = True
 
 
-def _silent_save(da_batches: DocumentArray, name: str, event: threading.Event) -> None:
-    event.wait()  # wait until is_idle set
-    event.clear()
+def _silent_save(
+    da_batches: DocumentArray,
+    name: str,
+    is_busy_event: threading.Event,
+    force: bool = False,
+) -> None:
+    if is_busy_event.is_set() and not force:
+        logger.debug(f'another save is running, skipping')
+        return
+    is_busy_event.set()
     try:
         logger.debug(f'local backup to {name}.protobuf.lz4')
         da_batches.save_binary(f'{name}.protobuf.lz4')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
-    event.set()
+    is_busy_event.clear()
 
 
-def _silent_push(da_batches: DocumentArray, name: str, event: threading.Event) -> None:
-    event.wait()  # wait until is_idle set
-    event.clear()
+def _silent_push(
+    da_batches: DocumentArray,
+    name: str,
+    is_busy_event: threading.Event,
+    force: bool = False,
+) -> None:
+    if is_busy_event.is_set() and not force:
+        logger.debug(f'another save is running, skipping')
+        return
+    is_busy_event.set()
     try:
         logger.debug(f'cloud backup to {name}')
         da_batches.push(name)
     except Exception as ex:
-        logger.debug(f'push failed: {ex}')
-    event.set()
+        logger.debug(f'cloud backup failed: {ex}')
+    is_busy_event.clear()
