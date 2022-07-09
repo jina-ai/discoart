@@ -15,14 +15,18 @@ for k, v in cfg.items():
         v_type = 'int'
     if v_type == 'str' and v is not None:
         v = f'\'{v}\''
-    if k == 'text_prompts':
+    if k in ('text_prompts', 'clip_models'):
         v_type = 'List[str]'
     elif k == 'width_height':
         v_type = 'List[int]'
+    elif k == 'transformation_percent':
+        v_type = 'List[float]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
 all_args.append(') -> \'DocumentArray\':')
 all_args.append('"""')
-all_args.append('Create Disco Diffusion artworks and save the result into a DocumentArray.\n')
+all_args.append(
+    'Create Disco Diffusion artworks and save the result into a DocumentArray.\n'
+)
 for k, v in docs.items():
     if v:
         _v = v.replace("\n", "").strip()

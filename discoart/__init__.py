@@ -92,7 +92,16 @@ def create(
     n_batches: Optional[int] = 4,
     batch_size: Optional[int] = 1,
     batch_name: Optional[str] = '',
-    clip_models: Optional[list] = ['ViT-B/32', 'ViT-B/16', 'RN50'],
+    clip_models: Optional[List[str]] = [
+        'ViT-B-32::openai',
+        'ViT-B-16::openai',
+        'RN50::openai',
+    ],
+    use_vertical_symmetry: Optional[bool] = False,
+    use_horizontal_symmetry: Optional[bool] = False,
+    transformation_percent: Optional[List[float]] = [0.09],
+    skip_augs: Optional[bool] = False,
+    on_misspelled_token: Optional[str] = 'ignore',
 ) -> 'DocumentArray':
     """
     Create Disco Diffusion artworks and save the result into a DocumentArray.
@@ -126,7 +135,12 @@ def create(
     :param display_rate: During a diffusion run, you can monitor the progress of each image being created with this variable.  If display_rate is set to 50, DD will show you the in-progress image every 50 timesteps. Setting this to a lower value, like 5 or 10, is a good way to get an early peek at where your image is heading. If you don’t like the progression, just interrupt execution, change some settings, and re-run.  If you are planning a long, unmonitored batch, it’s better to set display_rate equal to steps, because displaying interim images does slow Colab down slightly.
     :param n_batches: This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
     :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
-    :param clip_models: CLIP Model selectors. ViT-B/32, ViT-B/16, ViT-L/14, RN101, RN50, RN50x4, RN50x16, RN50x64.These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  You can mix in multiple models as well for different results.  However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.The rough order of speed/mem usage is (smallest/fastest to largest/slowest):ViT-B/32RN50RN101ViT-B/16RN50x4RN50x16RN50x64ViT-L/14For RN50x64 & ViTL14 you may need to use fewer cuts, depending on your VRAM.Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface
+    :param clip_models: CLIP Model selectors. These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  You can mix in multiple models as well for different results. However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface RN50::openai RN50::yfcc15m RN50::cc12m RN50-quickgelu::openai RN50-quickgelu::yfcc15m RN50-quickgelu::cc12m RN101::openai RN101::yfcc15m RN101-quickgelu::openai RN101-quickgelu::yfcc15m RN50x4::openai RN50x16::openai RN50x64::openai ViT-B-32::openai ViT-B-32::laion2b_e16 ViT-B-32::laion400m_e31 ViT-B-32::laion400m_e32 ViT-B-32-quickgelu::openai ViT-B-32-quickgelu::laion400m_e31 ViT-B-32-quickgelu::laion400m_e32 ViT-B-16::openai ViT-B-16::laion400m_e31 ViT-B-16::laion400m_e32 ViT-B-16-plus-240::laion400m_e31 ViT-B-16-plus-240::laion400m_e32 ViT-L-14::openai ViT-L-14-336::openai
+    :param use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+    :param use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+    :param transformation_steps: Steps (expressed in percentages) in which the symmetry is enforced
+    :param skip_augs: Controls whether to skip torchvision augmentations
+    :param on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
     :return: a DocumentArray object that has `n_batches` Documents
     """
 
