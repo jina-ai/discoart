@@ -43,7 +43,7 @@ check_model_SHA = False
 def _clone_repo_install(repo_url, repo_dir, commit_hash):
     if os.path.exists(repo_dir):
         res = subprocess.run(
-            ['cd', repo_dir, '&&', 'git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE
+            ['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE, cwd=repo_dir
         ).stdout.decode('utf-8')
         logger.debug(f'commit hash: {res}')
         if res.strip() == commit_hash:
