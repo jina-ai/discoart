@@ -49,3 +49,4 @@ clip_models:
 use_vertical_symmetry: False
 use_horizontal_symmetry: False
 transformation_percent: [0.09]
+skip_augs: False
