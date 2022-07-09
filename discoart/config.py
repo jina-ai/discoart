@@ -45,10 +45,11 @@ def load_config(
         }
     )
 
+    _id = random.getrandbits(128).to_bytes(16, 'big').hex()
     if cfg['batch_name']:
-        da_name = f'{__package__}-{cfg["batch_name"]}-{cfg["seed"]}'
+        da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
-        da_name = f'{__package__}-{cfg["seed"]}'
+        da_name = f'{__package__}-{_id}'
         warnings.warn('you did not set `batch_name`, set it to have unique session ID')
 
     cfg.update(**{'name_docarray': da_name})
