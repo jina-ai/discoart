@@ -286,6 +286,23 @@ def load_all_models(
                 'use_scale_shift_norm': True,
             }
         )
+    elif os.path.isfile(diffusion_model):
+        model_config.update({
+            'attention_resolutions': '16',
+            'class_cond': False,
+            'diffusion_steps': 1000,
+            'rescale_timesteps': True,
+            'timestep_respacing': 'ddim100',
+            'image_size': 256,
+            'learn_sigma': True,
+            'noise_schedule': 'linear',
+            'num_channels': 128,
+            'num_heads': 1,
+            'num_res_blocks': 2,
+            'use_checkpoint': True,
+            'use_fp16': device != 'cpu',
+            'use_scale_shift_norm': False,
+        })
 
     secondary_model = None
     if use_secondary_model:
@@ -317,8 +334,13 @@ def load_diffusion_model(model_config, diffusion_model, steps, device):
     )
 
     model, diffusion = create_model_and_diffusion(**model_config)
+    if os.path.isfile(diffusion_model):
+        logger.debug(f'loading customized diffusion model from {diffusion_model}')
+        _model_path = diffusion_model
+    else:
+        _model_path = f'{cache_dir}/{diffusion_model}.pt'
     model.load_state_dict(
-        torch.load(f'{cache_dir}/{diffusion_model}.pt', map_location='cpu')
+        torch.load(_model_path, map_location='cpu')
     )
     model.requires_grad_(False).eval().to(device)
     for name, param in model.named_parameters():

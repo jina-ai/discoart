@@ -17,6 +17,7 @@ from .helper import parse_prompt, logger
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
+from .nn.transform import symmetry_transformation_fn
 
 
 def do_run(args, models, device) -> 'DocumentArray':
@@ -160,6 +161,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         InnerCrop=cut_innercut[1000 - t_int],
                         IC_Size_Pow=args.cut_ic_pow,
                         IC_Grey_P=cut_icgray_p[1000 - t_int],
+                        skip_augs=args.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     image_embeds = (
@@ -258,6 +260,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                 init_image=init,
                 randomize_class=args.randomize_class,
                 eta=args.eta,
+                transformation_fn=lambda x: symmetry_transformation_fn(x, args.use_horizontal_symmetry, args.use_vertical_symmetry),
+                transformation_percent=args.transformation_percent
             )
         else:
             samples = sample_fn(

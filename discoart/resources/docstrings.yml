@@ -119,3 +119,8 @@ clip_models: |
    ViT-B-16-plus-240::laion400m_e32
    ViT-L-14::openai
    ViT-L-14-336::openai
+
+use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+transformation_steps: Steps (expressed in percentages) in which the symmetry is enforced
+skip_augs: Controls whether to skip torchvision augmentations
