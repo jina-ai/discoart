@@ -250,6 +250,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     is_busy_evs = [threading.Event(), threading.Event()]
 
     da_batches = DocumentArray()
+    from rich.text import Text
 
     org_seed = args.seed
     for _nb in range(args.n_batches):
@@ -258,10 +259,10 @@ def do_run(args, models, device) -> 'DocumentArray':
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
-        pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb)
+        pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb - 1)
 
         display.display(
-            f'Batch: {pgbar} ({args.n_batches})',
+            Text(f'Batch: [g]{pgbar}[/] ({args.n_batches})'),
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )
