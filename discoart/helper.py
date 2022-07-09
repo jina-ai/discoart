@@ -30,8 +30,10 @@ logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     logger.info(
-        f'looks like you are running {__package__} for the first time, the first time will take longer time as it will download models. '
-        f'You wont see this message on the second run.'
+        '''
+Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
+You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
+'''
     )
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
@@ -48,6 +50,7 @@ def _clone_repo_install(repo_url, repo_dir, commit_hash):
         logger.debug(f'commit hash: {res}')
         if res.strip() == commit_hash:
             logger.debug(f'{repo_dir} is already cloned and up to date')
+            sys.path.append(repo_dir)
             return
 
     import shutil
