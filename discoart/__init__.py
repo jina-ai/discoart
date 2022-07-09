@@ -240,7 +240,8 @@ da = DocumentArray.load_binary('{_name}.protobuf.lz4')
 ```
 
 More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
-        '''
+        ''',
+            code_theme='igor',
         )
         print(md)
 
