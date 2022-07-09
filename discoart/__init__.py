@@ -185,8 +185,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
         do_run(_args, (model, diffusion, clip_models, secondary_model), device)
     except KeyboardInterrupt:
         pass
-    except Exception:
-        raise
+    except Exception as ex:
+        from .helper import logger
+
+        logger.exception(f'{ex!r}')
     finally:
 
         _name = _args.name_docarray

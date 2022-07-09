@@ -37,8 +37,6 @@ def do_run(args, models, device) -> 'DocumentArray':
     cut_innercut = eval(args.cut_innercut)
     cut_icgray_p = eval(args.cut_icgray_p)
 
-    pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
-
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
     skip_steps = args.skip_steps
@@ -52,7 +50,8 @@ def do_run(args, models, device) -> 'DocumentArray':
     if isinstance(args.text_prompts, str):
         args.text_prompts = [args.text_prompts]
 
-    txt_weights = [pmp.parse(prompt) for prompt in args.txt_weights]
+    pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
+    txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
     for clip_model in clip_models:
         model_stat = {
