@@ -78,7 +78,6 @@ def _wget(url, outputdir):
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
 
-
     import open_clip
 
     # load enabled models
@@ -87,14 +86,21 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
             if '::' in k:
                 # use open_clip loader
                 k1, k2 = k.split('::')
-                clip_models[k] = open_clip.create_model_and_transforms(k1, pretrained=k2)[0].eval().requires_grad_(False).to(device)
+                clip_models[k] = (
+                    open_clip.create_model_and_transforms(k1, pretrained=k2)[0]
+                    .eval()
+                    .requires_grad_(False)
+                    .to(device)
+                )
             else:
-                raise ValueError(f'''
+                raise ValueError(
+                    f'''
 Since v0.1, DiscoArt depends on `open-clip` which supports more CLIP variants and pretrained weights. 
 The new names is now a string in the format of `<model_name>::<pretrained_weights_name>`, e.g. 
 `ViT-B-32::openai` or `ViT-B-32::laion2b_e16`. The full list of supported models and weights can be found here:
 https://github.com/mlfoundations/open_clip#pretrained-model-interface
-''')
+'''
+                )
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):
@@ -287,22 +293,24 @@ def load_all_models(
             }
         )
     elif os.path.isfile(diffusion_model):
-        model_config.update({
-            'attention_resolutions': '16',
-            'class_cond': False,
-            'diffusion_steps': 1000,
-            'rescale_timesteps': True,
-            'timestep_respacing': 'ddim100',
-            'image_size': 256,
-            'learn_sigma': True,
-            'noise_schedule': 'linear',
-            'num_channels': 128,
-            'num_heads': 1,
-            'num_res_blocks': 2,
-            'use_checkpoint': True,
-            'use_fp16': device != 'cpu',
-            'use_scale_shift_norm': False,
-        })
+        model_config.update(
+            {
+                'attention_resolutions': '16',
+                'class_cond': False,
+                'diffusion_steps': 1000,
+                'rescale_timesteps': True,
+                'timestep_respacing': 'ddim100',
+                'image_size': 256,
+                'learn_sigma': True,
+                'noise_schedule': 'linear',
+                'num_channels': 128,
+                'num_heads': 1,
+                'num_res_blocks': 2,
+                'use_checkpoint': True,
+                'use_fp16': device != 'cpu',
+                'use_scale_shift_norm': False,
+            }
+        )
 
     secondary_model = None
     if use_secondary_model:
@@ -339,9 +347,7 @@ def load_diffusion_model(model_config, diffusion_model, steps, device):
         _model_path = diffusion_model
     else:
         _model_path = f'{cache_dir}/{diffusion_model}.pt'
-    model.load_state_dict(
-        torch.load(_model_path, map_location='cpu')
-    )
+    model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
     for name, param in model.named_parameters():
         if 'qkv' in name or 'norm' in name or 'proj' in name:
