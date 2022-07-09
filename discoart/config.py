@@ -1,6 +1,5 @@
 import copy
 import random
-import warnings
 from typing import Dict, Union, Optional
 
 import yaml
@@ -20,8 +19,7 @@ def load_config(
 
     for k in list(user_config.keys()):
         if k not in cfg and k != 'name_docarray':
-            warnings.warn(f'unknown argument {k}, ignored')
-            user_config.pop(k)
+            raise AttributeError(f'unknown argument {k}, misspelled?')
 
     if user_config:
         cfg.update(**user_config)
@@ -51,7 +49,9 @@ def load_config(
         da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
         da_name = f'{__package__}-{_id}'
-        warnings.warn('you did not set `batch_name`, set it to have unique session ID')
+        from .helper import logger
+
+        logger.info('you did not set `batch_name`, set it to have unique session ID')
 
     cfg.update(**{'name_docarray': da_name})
 
