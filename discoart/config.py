@@ -18,12 +18,13 @@ def load_config(
 ) -> Dict:
     cfg = copy.deepcopy(default_args)
 
-    if user_config:
-        cfg.update(**user_config)
-
-    for k in user_config.keys():
+    for k in list(user_config.keys()):
         if k not in cfg:
             warnings.warn(f'unknown argument {k}, ignored')
+            user_config.pop(k)
+
+    if user_config:
+        cfg.update(**user_config)
 
     for k, v in cfg.items():
         if k in (
