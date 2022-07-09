@@ -49,6 +49,8 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     display.clear_output(wait=True)
 
+    txt_weights = (pmp.parse(prompt) for prompt in args.txt_weights)
+
     for clip_model in clip_models:
         model_stat = {
             'clip_model': clip_model,
@@ -60,8 +62,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         if isinstance(args.text_prompts, str):
             args.text_prompts = [args.text_prompts]
 
-        for prompt in args.text_prompts:
-            txt, weight = pmp.parse(prompt)
+        for txt, weight in txt_weights:
             txt = clip_model.encode_text(clip.tokenize(txt).to(device)).float()
 
             if args.fuzzy_prompt:
