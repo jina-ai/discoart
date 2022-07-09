@@ -22,7 +22,6 @@ from .nn.transform import symmetry_transformation_fn
 
 
 def do_run(args, models, device) -> 'DocumentArray':
-    display.clear_output(wait=True)
     _set_seed(args.seed)
     logger.info('preparing models...')
     model, diffusion, clip_models, secondary_model = models
@@ -47,6 +46,9 @@ def do_run(args, models, device) -> 'DocumentArray':
     loss_values = []
 
     model_stats = []
+
+    display.clear_output(wait=True)
+
     for clip_model in clip_models:
         model_stat = {
             'clip_model': clip_model,
