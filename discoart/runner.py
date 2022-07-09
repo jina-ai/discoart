@@ -338,7 +338,8 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         for t in threads:
             t.join()
-    display.clear_output(wait=True)
+        display.clear_output(wait=True)
+
     logger.info(f'done! {args.name_docarray}')
 
     return da_batches
