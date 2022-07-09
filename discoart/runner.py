@@ -258,8 +258,10 @@ def do_run(args, models, device) -> 'DocumentArray':
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
+        pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb)
 
         display.display(
+            f'Batch: {pgbar} ({args.n_batches})',
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )
