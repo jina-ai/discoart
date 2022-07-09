@@ -102,7 +102,7 @@ def print_args_table(
         title=cfg['name_docarray'],
         caption=f'showing only non-default args'
         if only_non_default
-        else 'showing all args ([b]bold[/] args with `*` are non-default)',
+        else 'showing all args ([b]bold *[/] args are non-default)',
         box=box.ROUNDED,
         highlight=True,
         title_justify='left',

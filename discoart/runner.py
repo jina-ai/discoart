@@ -368,8 +368,8 @@ def _silent_save(
         return
     is_busy_event.set()
     try:
-        logger.debug(f'local backup to {name}.protobuf.lz4')
         da_batches.save_binary(f'{name}.protobuf.lz4')
+        logger.debug(f'local backup to {name}.protobuf.lz4')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
     is_busy_event.clear()
@@ -386,8 +386,8 @@ def _silent_push(
         return
     is_busy_event.set()
     try:
-        logger.debug(f'cloud backup to {name}')
         da_batches.push(name)
+        logger.debug(f'cloud backup to {name}')
     except Exception as ex:
         logger.debug(f'cloud backup failed: {ex}')
     is_busy_event.clear()
