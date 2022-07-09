@@ -124,3 +124,5 @@ use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps 
 use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
 transformation_steps: Steps (expressed in percentages) in which the symmetry is enforced
 skip_augs: Controls whether to skip torchvision augmentations
+
+on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.

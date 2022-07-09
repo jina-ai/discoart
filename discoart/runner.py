@@ -14,7 +14,7 @@ from docarray import DocumentArray, Document
 from ipywidgets import Output
 
 from .config import print_args_table
-from .helper import parse_prompt, logger
+from .helper import logger, PromptParser
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
@@ -37,6 +37,8 @@ def do_run(args, models, device) -> 'DocumentArray':
     cut_innercut = eval(args.cut_innercut)
     cut_icgray_p = eval(args.cut_icgray_p)
 
+    pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
+
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
     skip_steps = args.skip_steps
@@ -56,7 +58,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             args.text_prompts = [args.text_prompts]
 
         for prompt in args.text_prompts:
-            txt, weight = parse_prompt(prompt)
+            txt, weight = pmp.parse(prompt)
             txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
 
             if args.fuzzy_prompt:
@@ -71,11 +73,12 @@ def do_run(args, models, device) -> 'DocumentArray':
                 model_stat['target_embeds'].append(txt)
                 model_stat['weights'].append(weight)
 
+        sum_weight = model_stat['weights'].sum().abs()
+        if sum_weight < 1e-3:
+            raise ValueError(f'The weights must not sum to 0 but given {sum_weight}')
         model_stat['target_embeds'] = torch.cat(model_stat['target_embeds'])
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
-        if model_stat['weights'].sum().abs() < 1e-3:
-            raise RuntimeError('The weights must not sum to 0.')
-        model_stat['weights'] /= model_stat['weights'].sum().abs()
+        model_stat['weights'] /= sum_weight
         model_stats.append(model_stat)
 
     init = None

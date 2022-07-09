@@ -5,9 +5,13 @@ import subprocess
 import sys
 from os.path import expanduser
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 
+import regex as re
 import torch
+from open_clip import SimpleTokenizer
+from open_clip.tokenizer import whitespace_clean, basic_clean
+from spellchecker import SpellChecker
 
 cache_dir = f'{expanduser("~")}/.cache/{__package__}'
 
@@ -364,11 +368,42 @@ def load_diffusion_model(model_config, diffusion_model, steps, device):
     return model, diffusion
 
 
-def parse_prompt(prompt):
-    if prompt.startswith('http://') or prompt.startswith('https://'):
-        vals = prompt.rsplit(':', 2)
-        vals = [vals[0] + ':' + vals[1], *vals[2:]]
-    else:
-        vals = prompt.rsplit(':', 1)
-    vals = vals + ['', '1'][len(vals) :]
-    return vals[0], float(vals[1])
+class PromptParser(SimpleTokenizer):
+    def __init__(self, on_misspelled_token: str, **kwargs):
+        super().__init__(**kwargs)
+        self.spell = SpellChecker()
+        self.on_misspelled_token = on_misspelled_token
+
+    @staticmethod
+    def _split_weight(prompt):
+        if ':' in prompt:
+            vals = prompt.rsplit(':', 1)
+        else:
+            vals = [prompt, 1]
+        return vals[0], float(vals[1])
+
+    def parse(self, text: str) -> Tuple[str, float]:
+        text, weight = self._split_weight(text)
+        text = whitespace_clean(basic_clean(text)).lower()
+        all_tokens = []
+        for token in re.findall(self.pat, text):
+            token = ''.join(self.byte_encoder[b] for b in token.encode('utf-8'))
+            all_tokens.append(token)
+        unknowns = self.spell.unknown(all_tokens)
+        if unknowns:
+            for v in unknowns:
+                vc = self.spell.correction(v)
+                if self.on_misspelled_token == 'correct':
+                    logger.warning(f'Misspelled token: `{v}` corrected to `{vc}`')
+                    for idx, ov in enumerate(all_tokens):
+                        if ov == v:
+                            all_tokens[idx] = vc
+                else:
+                    logger.warning(f'Misspelled token: `{v}`, do you mean `{vc}`?')
+                    if self.on_misspelled_token == 'raise':
+                        raise ValueError(
+                            f'Misspelled token: `{v}`, do you mean `{vc}`?'
+                        )
+
+        logger.debug(f'prompt: {all_tokens}, weight: {weight}')
+        return ' '.join(all_tokens), weight
