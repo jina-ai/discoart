@@ -1,10 +1,11 @@
 import gc
 import random
+import threading
 from threading import Thread
 
-import open_clip as clip
 import lpips
 import numpy as np
+import open_clip as clip
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
@@ -86,19 +87,19 @@ def do_run(args, models, device) -> 'DocumentArray':
     if args.perlin_init:
         if args.perlin_mode == 'color':
             init = create_perlin_noise(
-                [1.5**-i * 0.5 for i in range(12)], 1, 1, False
+                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
             )
             init2 = create_perlin_noise(
-                [1.5**-i * 0.5 for i in range(8)], 4, 4, False
+                [1.5 ** -i * 0.5 for i in range(8)], 4, 4, False
             )
         elif args.perlin_mode == 'gray':
-            init = create_perlin_noise([1.5**-i * 0.5 for i in range(12)], 1, 1, True)
-            init2 = create_perlin_noise([1.5**-i * 0.5 for i in range(8)], 4, 4, True)
+            init = create_perlin_noise([1.5 ** -i * 0.5 for i in range(12)], 1, 1, True)
+            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
         else:
             init = create_perlin_noise(
-                [1.5**-i * 0.5 for i in range(12)], 1, 1, False
+                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
             )
-            init2 = create_perlin_noise([1.5**-i * 0.5 for i in range(8)], 4, 4, True)
+            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
         # init = TF.to_tensor(init).add(TF.to_tensor(init2)).div(2).to(device)
         init = (
             TF.to_tensor(init)
@@ -145,7 +146,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             for model_stat in model_stats:
                 for i in range(args.cutn_batches):
                     t_int = (
-                        int(t.item()) + 1
+                            int(t.item()) + 1
                     )  # errors on last step without +1, need to find source
                     # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
                     try:
@@ -183,10 +184,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                         losses.sum().item()
                     )  # log loss, probably shouldn't do per cutn_batch
                     x_in_grad += (
-                        torch.autograd.grad(
-                            losses.sum() * args.clip_guidance_scale, x_in
-                        )[0]
-                        / args.cutn_batches
+                            torch.autograd.grad(
+                                losses.sum() * args.clip_guidance_scale, x_in
+                            )[0]
+                            / args.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
             if secondary_model:
@@ -195,9 +196,9 @@ def do_run(args, models, device) -> 'DocumentArray':
                 range_losses = range_loss(out['pred_xstart'])
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
             loss = (
-                tv_losses.sum() * args.tv_scale
-                + range_losses.sum() * args.range_scale
-                + sat_losses.sum() * args.sat_scale
+                    tv_losses.sum() * args.tv_scale
+                    + range_losses.sum() * args.range_scale
+                    + sat_losses.sum() * args.sat_scale
             )
             if init is not None and args.init_scale:
                 init_losses = lpips_model(x_in, init)
@@ -211,7 +212,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         if args.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
-                grad * magnitude.clamp(max=args.clamp_max) / magnitude
+                    grad * magnitude.clamp(max=args.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
         return grad
 
@@ -223,6 +224,10 @@ def do_run(args, models, device) -> 'DocumentArray':
     logger.info('creating artwork...')
 
     image_display = Output()
+    is_idle_evs = [threading.Event(), threading.Event()]
+    for _e in is_idle_evs:
+        _e.set()
+
     da_batches = DocumentArray()
 
     org_seed = args.seed
@@ -303,7 +308,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
                     # root doc always update with the latest progress
                     d.uri = c.uri
-                    _start_persist(threads, da_batches, args.name_docarray)
+                    _start_persist(threads, da_batches, args.name_docarray, is_idle_evs)
 
         for t in threads:
             t.join()
@@ -313,13 +318,14 @@ def do_run(args, models, device) -> 'DocumentArray':
     return da_batches
 
 
-def _start_persist(threads, da_batches, name_docarray):
-    for fn in (_silent_save, _silent_push):
+def _start_persist(threads, da_batches, name_docarray, is_idle_evs):
+    for fn, idle_ev in (zip((_silent_save, _silent_push), is_idle_evs)):
         t = Thread(
             target=fn,
             args=(
                 da_batches,
                 name_docarray,
+                idle_ev,
             ),
         )
         threads.append(t)
@@ -334,15 +340,23 @@ def _set_seed(seed: int) -> None:
     torch.backends.cudnn.deterministic = True
 
 
-def _silent_save(da_batches: DocumentArray, name: str) -> None:
+def _silent_save(da_batches: DocumentArray, name: str, event: threading.Event) -> None:
+    event.wait()  # wait until is_idle set
+    event.clear()
     try:
+        logger.debug(f'local backup to {name}.protobuf.lz4')
         da_batches.save_binary(f'{name}.protobuf.lz4')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
+    event.set()
 
 
-def _silent_push(da_batches: DocumentArray, name: str) -> None:
+def _silent_push(da_batches: DocumentArray, name: str, event: threading.Event) -> None:
+    event.wait()  # wait until is_idle set
+    event.clear()
     try:
+        logger.debug(f'cloud backup to {name}')
         da_batches.push(name)
     except Exception as ex:
         logger.debug(f'push failed: {ex}')
+    event.set()
