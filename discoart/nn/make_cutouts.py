@@ -157,7 +157,8 @@ class MakeCutoutsDango(nn.Module):
 
         cutouts = torch.cat(cutouts)
         if skip_augs is not True:
-            cutouts = self.augs(cutouts)
+            for i in range(cutouts.shape[0]):
+                cutouts[i] = self.augs(cutouts[i])
         return cutouts
 
 
