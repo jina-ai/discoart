@@ -19,7 +19,7 @@ def load_config(
 
     for k in list(user_config.keys()):
         if k not in cfg and k != 'name_docarray':
-            raise AttributeError(f'unknown argument {k}, misspelled?')
+            raise AttributeError(f'unknown argument `{k}`, misspelled?')
 
     if user_config:
         cfg.update(**user_config)
