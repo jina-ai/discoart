@@ -186,20 +186,18 @@ def create(**kwargs) -> Optional['DocumentArray']:
     except KeyboardInterrupt:
         pass
     except Exception:
-        from IPython import display
-
-        display.clear_output()
         raise
     finally:
-        from IPython import display
-
-        display.clear_output(wait=True)
 
         _name = _args.name_docarray
 
         if not os.path.exists(f'{_name}.protobuf.lz4'):
             # not even a single document was created
             return
+
+        from IPython import display
+
+        display.clear_output(wait=True)
 
         from docarray import DocumentArray
 
