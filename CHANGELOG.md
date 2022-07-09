@@ -27,6 +27,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -537,4 +538,23 @@
 ### 🍹 Other Improvements
 
  - [[```d2a46815```](https://github.com/jina-ai/docarray/commit/d2a468152c06df9172534a8bb1173b7ace4ca729)] __-__ __version__: the next version will be 0.1.1 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-2></a>
+## Release Note (`0.1.2`)
+
+> Release time: 2022-07-09 21:21:52
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```f71b49bc```](https://github.com/jina-ai/docarray/commit/f71b49bc4d1945f3f2ed7917846b731819504d5a)] __-__ check unknown args (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```a9b785c3```](https://github.com/jina-ai/docarray/commit/a9b785c3290cb3e48c3c7b8b2f80849375d23394)] __-__ __version__: the next version will be 0.1.2 (*Jina Dev Bot*)
 
