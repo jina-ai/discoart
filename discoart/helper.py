@@ -376,7 +376,9 @@ class PromptParser(SimpleTokenizer):
         from . import __resources_path__
 
         with open(f'{__resources_path__}/vocab.txt') as fp:
-            self.spell.word_frequency.load_words(fp)
+            self.spell.word_frequency.load_words(
+                line.strip() for line in fp if len(line.strip()) > 1
+            )
         self.on_misspelled_token = on_misspelled_token
 
     @staticmethod
