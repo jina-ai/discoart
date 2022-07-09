@@ -22,6 +22,7 @@ from .nn.transform import symmetry_transformation_fn
 
 
 def do_run(args, models, device) -> 'DocumentArray':
+    display.clear_output(wait=True)
     _set_seed(args.seed)
     logger.info('preparing models...')
     model, diffusion, clip_models, secondary_model = models
@@ -59,7 +60,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         for prompt in args.text_prompts:
             txt, weight = pmp.parse(prompt)
-            txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
+            txt = clip_model.encode_text(clip.tokenize(txt).to(device)).float()
 
             if args.fuzzy_prompt:
                 for i in range(25):
