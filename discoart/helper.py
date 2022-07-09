@@ -59,9 +59,10 @@ def _clone_repo_install(repo_url, repo_dir, commit_hash):
             sys.path.append(repo_dir)
             return
 
-    import shutil
+        import shutil
 
-    shutil.rmtree(repo_dir)
+        shutil.rmtree(repo_dir)
+
     res = subprocess.run(
         ['git', 'clone', '--depth', '1', repo_url, repo_dir], stdout=subprocess.PIPE
     ).stdout.decode('utf-8')
