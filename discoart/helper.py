@@ -402,22 +402,27 @@ class PromptParser(SimpleTokenizer):
             pairs = []
             for v in unknowns:
                 vc = self.spell.correction(v)
-                pairs.append((v, vc))
-                if self.on_misspelled_token == 'correct':
-                    for idx, ov in enumerate(all_tokens):
-                        if ov == v:
-                            all_tokens[idx] = vc
+                if v != vc:
+                    pairs.append((v, vc))
+                    if self.on_misspelled_token == 'correct':
+                        for idx, ov in enumerate(all_tokens):
+                            if ov == v:
+                                all_tokens[idx] = vc
 
-            warning_str = '\n'.join(
-                f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
-            )
-            warning_str += '\nset `on_misspelled_token` to `correct` to correct it or `ignore` to ignore it.'
-            if self.on_misspelled_token == 'raise':
-                raise ValueError(warning_str)
-            elif self.on_misspelled_token == 'correct':
-                logger.warning('auto-corrected the following tokens:\n' + warning_str)
-            else:
-                logger.warning('Found misspelled tokens in the prompt:\n' + warning_str)
+            if pairs:
+                warning_str = '\n'.join(
+                    f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
+                )
+                if self.on_misspelled_token == 'raise':
+                    raise ValueError(warning_str)
+                elif self.on_misspelled_token == 'correct':
+                    logger.warning(
+                        'auto-corrected the following tokens:\n' + warning_str
+                    )
+                else:
+                    logger.warning(
+                        'Found misspelled tokens in the prompt:\n' + warning_str
+                    )
 
         logger.debug(f'prompt: {all_tokens}, weight: {weight}')
         return ' '.join(all_tokens), weight

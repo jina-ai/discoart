@@ -262,7 +262,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb - 1)
 
         display.display(
-            Text(f'Batch: [g]{pgbar}[/] ({args.n_batches})'),
+            Text(f'Batch: {pgbar} ({args.n_batches})'),
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )
