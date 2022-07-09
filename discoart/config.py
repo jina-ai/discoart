@@ -19,7 +19,7 @@ def load_config(
     cfg = copy.deepcopy(default_args)
 
     for k in list(user_config.keys()):
-        if k not in cfg:
+        if k not in cfg and k != 'name_docarray':
             warnings.warn(f'unknown argument {k}, ignored')
             user_config.pop(k)
 
