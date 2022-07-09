@@ -397,17 +397,20 @@ class PromptParser(SimpleTokenizer):
         for token in re.findall(self.pat, text):
             token = ''.join(self.byte_encoder[b] for b in token.encode('utf-8'))
             all_tokens.append(token)
-        unknowns = self.spell.unknown(all_tokens)
+        unknowns = [
+            v
+            for v in self.spell.unknown(all_tokens)
+            if len(v) > 2 and self.spell.correction(v) != v
+        ]
         if unknowns:
             pairs = []
             for v in unknowns:
                 vc = self.spell.correction(v)
-                if v != vc:
-                    pairs.append((v, vc))
-                    if self.on_misspelled_token == 'correct':
-                        for idx, ov in enumerate(all_tokens):
-                            if ov == v:
-                                all_tokens[idx] = vc
+                pairs.append((v, vc))
+                if self.on_misspelled_token == 'correct':
+                    for idx, ov in enumerate(all_tokens):
+                        if ov == v:
+                            all_tokens[idx] = vc
 
             if pairs:
                 warning_str = '\n'.join(
