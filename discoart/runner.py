@@ -73,7 +73,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                 model_stat['target_embeds'].append(txt)
                 model_stat['weights'].append(weight)
 
-        sum_weight = model_stat['weights'].sum().abs()
+        sum_weight = abs(sum(model_stat['weights']))
         if sum_weight < 1e-3:
             raise ValueError(f'The weights must not sum to 0 but given {sum_weight}')
         model_stat['target_embeds'] = torch.cat(model_stat['target_embeds'])
