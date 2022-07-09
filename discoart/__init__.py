@@ -188,7 +188,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     except Exception:
         from IPython import display
 
-        display.clear_output(wait=True)
+        display.clear_output()
         raise
     finally:
         from IPython import display
