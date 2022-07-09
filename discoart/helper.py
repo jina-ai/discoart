@@ -373,6 +373,10 @@ class PromptParser(SimpleTokenizer):
     def __init__(self, on_misspelled_token: str, **kwargs):
         super().__init__(**kwargs)
         self.spell = SpellChecker()
+        from . import __resources_path__
+
+        with open(f'{__resources_path__}/vocab.txt') as fp:
+            self.spell.word_frequency.load_words(fp)
         self.on_misspelled_token = on_misspelled_token
 
     @staticmethod
@@ -392,20 +396,25 @@ class PromptParser(SimpleTokenizer):
             all_tokens.append(token)
         unknowns = self.spell.unknown(all_tokens)
         if unknowns:
+            pairs = []
             for v in unknowns:
                 vc = self.spell.correction(v)
+                pairs.append((v, vc))
                 if self.on_misspelled_token == 'correct':
-                    logger.warning(f'Misspelled token: `{v}` corrected to `{vc}`')
                     for idx, ov in enumerate(all_tokens):
                         if ov == v:
                             all_tokens[idx] = vc
-                else:
-                    logger.warning(f'Misspelled token: `{v}`, do you mean `{vc}`?')
-                    if self.on_misspelled_token == 'raise':
-                        raise ValueError(
-                            f'''Misspelled token: `{v}`, do you mean `{vc}`? 
-                            set `on_misspelled_token` to `correct` to correct it or `ignore` to ignore it.'''
-                        )
+
+            warning_str = '\n'.join(
+                f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
+            )
+            warning_str += '\nset `on_misspelled_token` to `correct` to correct it or `ignore` to ignore it.'
+            if self.on_misspelled_token == 'raise':
+                raise ValueError(warning_str)
+            elif self.on_misspelled_token == 'correct':
+                logger.warning('auto-corrected the following tokens:\n' + warning_str)
+            else:
+                logger.warning('Found misspelled tokens in the prompt:\n' + warning_str)
 
         logger.debug(f'prompt: {all_tokens}, weight: {weight}')
         return ' '.join(all_tokens), weight
