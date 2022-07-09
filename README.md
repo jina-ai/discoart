@@ -19,6 +19,8 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
+💯 **Best-in-class**: top-notch code quality, aim for correctness; include bug-fixes and feature improvements over original DD5.x. 
+
 🎨 **Focus on create not code**: one-liner `create()` with a Pythonic interface, autocompletion in IDE, and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab. Set initial state easily for more efficient parameter exploration.
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
@@ -59,9 +61,11 @@ Supported parameters are [listed here](./discoart/resources/default.yml). You ca
 ```python
 from discoart import create
 
-da = create(text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
-            init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
-            skip_steps=100)
+da = create(
+    text_prompts='A painting of sea cliffs in a tumultuous storm, Trending on ArtStation.',
+    init_image='https://d2vyhzeko0lke5.cloudfront.net/2f4f6dfa5a05e078469ebe57e77b72f0.png',
+    skip_steps=100,
+)
 ```
 
 ![](.github/parameter-demo.gif)
@@ -118,14 +122,18 @@ da[0].display()
 You can also zoom into a run (say the first run) and check out intermediate steps:
 
 ```python
-da[0].chunks.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
+da[0].chunks.plot_image_sprites(
+    skip_empty=True, show_index=True, keep_aspect_ratio=True
+)
 ```
 ![](.github/chunks.png)
 
 You can `.display()` the chunks one by one, or save one via `.save_uri_to_file()`, or save all intermediate steps as a GIF:
 
 ```python
-da[0].chunks.save_gif('lighthouse.gif', show_index=True, inline_display=True, size_ratio=0.5)
+da[0].chunks.save_gif(
+    'lighthouse.gif', show_index=True, inline_display=True, size_ratio=0.5
+)
 ```
 
 ![](.github/lighthouse.gif)
@@ -166,12 +174,14 @@ from docarray import DocumentArray
 
 da = DocumentArray.pull('discoart-3205998582')
 
-create(init_document=da[0],
-       cut_ic_pow=0.5,
-       tv_scale=600, 
-       cut_overview='[12]*1000', 
-       cut_innercut='[12]*1000', 
-       use_secondary_model=False)
+create(
+    init_document=da[0],
+    cut_ic_pow=0.5,
+    tv_scale=600,
+    cut_overview='[12]*1000',
+    cut_innercut='[12]*1000',
+    use_secondary_model=False,
+)
 ```
 
 
