@@ -26,6 +26,7 @@ def _get_logger():
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     ch.setFormatter(formatter)
+    logger.handlers.clear()
     logger.addHandler(ch)
     return logger
 
