@@ -256,7 +256,6 @@ def do_run(args, models, device) -> 'DocumentArray':
         _set_seed(new_seed)
         args.seed = new_seed
 
-        display.clear_output(wait=True)
         display.display(
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,

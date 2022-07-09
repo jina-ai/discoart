@@ -402,7 +402,8 @@ class PromptParser(SimpleTokenizer):
                     logger.warning(f'Misspelled token: `{v}`, do you mean `{vc}`?')
                     if self.on_misspelled_token == 'raise':
                         raise ValueError(
-                            f'Misspelled token: `{v}`, do you mean `{vc}`?'
+                            f'''Misspelled token: `{v}`, do you mean `{vc}`? 
+                            set `on_misspelled_token` to `correct` to correct it or `ignore` to ignore it.'''
                         )
 
         logger.debug(f'prompt: {all_tokens}, weight: {weight}')

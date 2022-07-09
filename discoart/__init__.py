@@ -143,7 +143,7 @@ def create(init_document: 'Document') -> 'DocumentArray':
     """
 
 
-def create(**kwargs) -> 'DocumentArray':
+def create(**kwargs) -> Optional['DocumentArray']:
     from .config import load_config, print_args_table, save_config_svg
     from .runner import do_run
 
@@ -181,41 +181,42 @@ def create(**kwargs) -> 'DocumentArray':
     gc.collect()
     torch.cuda.empty_cache()
 
-    result = None
-
     try:
-        result = do_run(_args, (model, diffusion, clip_models, secondary_model), device)
+        do_run(_args, (model, diffusion, clip_models, secondary_model), device)
     except KeyboardInterrupt:
         pass
     finally:
+        _name = _args.name_docarray
+
+        if not os.path.exists(f'{_name}.protobuf.lz4'):
+            # not even a single document was created
+            return
+
         from IPython import display
 
         display.clear_output(wait=True)
 
-        _name = _args.name_docarray
+        from docarray import DocumentArray
 
-        if os.path.exists(f'{_name}.protobuf.lz4'):
-            from docarray import DocumentArray
-
-            _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
-            if _da and _da[0].uri:
-                _da.plot_image_sprites(
-                    skip_empty=True, show_index=True, keep_aspect_ratio=True
-                )
-            result = _da
+        _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
+        if _da and _da[0].uri:
+            _da.plot_image_sprites(
+                skip_empty=True, show_index=True, keep_aspect_ratio=True
+            )
+        result = _da
 
         print_args_table(vars(_args))
         from IPython.display import FileLink, display
 
         persist_file = FileLink(
             f'{_name}.protobuf.lz4',
-            result_html_prefix=f'▶ (in case cloud storage failed) Download the result backup: ',
+            result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
         )
         config_file = FileLink(
             f'{_name}.svg',
             result_html_prefix=f'▶ Download the config as SVG image: ',
         )
-        display(persist_file, config_file)
+        display(config_file, persist_file)
 
         from rich import print
         from rich.markdown import Markdown
