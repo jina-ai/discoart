@@ -33,9 +33,10 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     side_x = (args.width_height[0] // 64) * 64
     side_y = (args.width_height[1] // 64) * 64
-    cut_overview = eval(args.cut_overview)
-    cut_innercut = eval(args.cut_innercut)
-    cut_icgray_p = eval(args.cut_icgray_p)
+    cut_overview = _eval_scheduling_str(args.cut_overview)
+    cut_innercut = _eval_scheduling_str(args.cut_innercut)
+    cut_icgray_p = _eval_scheduling_str(args.cut_icgray_p)
+    cut_ic_pow = _eval_scheduling_str(args.cut_ic_pow)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
@@ -183,7 +184,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         input_resolution,
                         Overview=cut_overview[1000 - t_int],
                         InnerCrop=cut_innercut[1000 - t_int],
-                        IC_Size_Pow=args.cut_ic_pow,
+                        IC_Size_Pow=cut_ic_pow[1000 - t_int],
                         IC_Grey_P=cut_icgray_p[1000 - t_int],
                         skip_augs=args.skip_augs,
                     )
@@ -400,3 +401,10 @@ def _silent_push(
     except Exception as ex:
         logger.debug(f'cloud backup failed: {ex}')
     is_busy_event.clear()
+
+
+def _eval_scheduling_str(val):
+    if isinstance(val, str):
+        return eval(val)
+    elif isinstance(val, (int, float)):
+        return [val] * 1000
