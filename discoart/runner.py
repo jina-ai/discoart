@@ -49,7 +49,10 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     display.clear_output(wait=True)
 
-    txt_weights = (pmp.parse(prompt) for prompt in args.txt_weights)
+    if isinstance(args.text_prompts, str):
+        args.text_prompts = [args.text_prompts]
+
+    txt_weights = [pmp.parse(prompt) for prompt in args.txt_weights]
 
     for clip_model in clip_models:
         model_stat = {
@@ -58,9 +61,6 @@ def do_run(args, models, device) -> 'DocumentArray':
             'make_cutouts': None,
             'weights': [],
         }
-
-        if isinstance(args.text_prompts, str):
-            args.text_prompts = [args.text_prompts]
 
         for txt, weight in txt_weights:
             txt = clip_model.encode_text(clip.tokenize(txt).to(device)).float()
