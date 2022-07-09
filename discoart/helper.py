@@ -28,6 +28,7 @@ def _get_logger():
     ch.setFormatter(formatter)
     logger.handlers.clear()
     logger.addHandler(ch)
+    logger.propagate = False
     return logger
 
 
