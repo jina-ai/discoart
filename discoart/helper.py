@@ -61,10 +61,6 @@ def _clone_repo_install(repo_url, repo_dir):
 
 
 def _clone_dependencies():
-    try:
-        import clip
-    except ModuleNotFoundError:
-        _pip_install('git+https://github.com/openai/CLIP.git')
     _clone_repo_install(
         'https://github.com/crowsonkb/guided-diffusion', f'{cache_dir}/guided_diffusion'
     )
@@ -82,7 +78,7 @@ def _wget(url, outputdir):
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
 
-    import clip
+
     import open_clip
 
     # load enabled models
@@ -93,7 +89,12 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                 k1, k2 = k.split('::')
                 clip_models[k] = open_clip.create_model_and_transforms(k1, pretrained=k2)[0].eval().requires_grad_(False).to(device)
             else:
-                clip_models[k] = clip.load(k, jit=False)[0].eval().requires_grad_(False).to(device)
+                raise ValueError(f'''
+Since v0.1, DiscoArt depends on `open-clip` which supports more CLIP variants and pretrained weights. 
+The new names is now a string in the format of `<model_name>::<pretrained_weights_name>`, e.g. 
+`ViT-B-32::openai` or `ViT-B-32::laion2b_e16`. The full list of supported models and weights can be found here:
+https://github.com/mlfoundations/open_clip#pretrained-model-interface
+''')
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):
