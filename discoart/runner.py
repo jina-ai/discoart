@@ -46,12 +46,11 @@ def do_run(args, models, device) -> 'DocumentArray':
     model_stats = []
     for clip_model in clip_models:
         model_stat = {
-            'clip_model': None,
+            'clip_model': clip_model,
             'target_embeds': [],
             'make_cutouts': None,
             'weights': [],
         }
-        model_stat['clip_model'] = clip_model
 
         if isinstance(args.text_prompts, str):
             args.text_prompts = [args.text_prompts]
@@ -87,19 +86,37 @@ def do_run(args, models, device) -> 'DocumentArray':
     if args.perlin_init:
         if args.perlin_mode == 'color':
             init = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
+                [1.5**-i * 0.5 for i in range(12)],
+                1,
+                1,
+                False,
+                side_y,
+                side_x,
+                device,
             )
             init2 = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(8)], 4, 4, False
+                [1.5**-i * 0.5 for i in range(8)], 4, 4, False, side_y, side_x, device
             )
         elif args.perlin_mode == 'gray':
-            init = create_perlin_noise([1.5 ** -i * 0.5 for i in range(12)], 1, 1, True)
-            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
+            init = create_perlin_noise(
+                [1.5**-i * 0.5 for i in range(12)], 1, 1, True, side_y, side_x, device
+            )
+            init2 = create_perlin_noise(
+                [1.5**-i * 0.5 for i in range(8)], 4, 4, True, side_y, side_x, device
+            )
         else:
             init = create_perlin_noise(
-                [1.5 ** -i * 0.5 for i in range(12)], 1, 1, False
+                [1.5**-i * 0.5 for i in range(12)],
+                1,
+                1,
+                False,
+                side_y,
+                side_x,
+                device,
             )
-            init2 = create_perlin_noise([1.5 ** -i * 0.5 for i in range(8)], 4, 4, True)
+            init2 = create_perlin_noise(
+                [1.5**-i * 0.5 for i in range(8)], 4, 4, True, side_y, side_x, device
+            )
         # init = TF.to_tensor(init).add(TF.to_tensor(init2)).div(2).to(device)
         init = (
             TF.to_tensor(init)
@@ -146,7 +163,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             for model_stat in model_stats:
                 for i in range(args.cutn_batches):
                     t_int = (
-                            int(t.item()) + 1
+                        int(t.item()) + 1
                     )  # errors on last step without +1, need to find source
                     # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
                     try:
@@ -184,10 +201,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                         losses.sum().item()
                     )  # log loss, probably shouldn't do per cutn_batch
                     x_in_grad += (
-                            torch.autograd.grad(
-                                losses.sum() * args.clip_guidance_scale, x_in
-                            )[0]
-                            / args.cutn_batches
+                        torch.autograd.grad(
+                            losses.sum() * args.clip_guidance_scale, x_in
+                        )[0]
+                        / args.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
             if secondary_model:
@@ -196,9 +213,9 @@ def do_run(args, models, device) -> 'DocumentArray':
                 range_losses = range_loss(out['pred_xstart'])
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
             loss = (
-                    tv_losses.sum() * args.tv_scale
-                    + range_losses.sum() * args.range_scale
-                    + sat_losses.sum() * args.sat_scale
+                tv_losses.sum() * args.tv_scale
+                + range_losses.sum() * args.range_scale
+                + sat_losses.sum() * args.sat_scale
             )
             if init is not None and args.init_scale:
                 init_losses = lpips_model(x_in, init)
@@ -212,7 +229,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         if args.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
-                    grad * magnitude.clamp(max=args.clamp_max) / magnitude
+                grad * magnitude.clamp(max=args.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
         return grad
 
@@ -319,7 +336,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
 
 def _start_persist(threads, da_batches, name_docarray, is_idle_evs):
-    for fn, idle_ev in (zip((_silent_save, _silent_push), is_idle_evs)):
+    for fn, idle_ev in zip((_silent_save, _silent_push), is_idle_evs):
         t = Thread(
             target=fn,
             args=(
