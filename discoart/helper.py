@@ -5,9 +5,13 @@ import subprocess
 import sys
 from os.path import expanduser
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 
+import regex as re
 import torch
+from open_clip import SimpleTokenizer
+from open_clip.tokenizer import whitespace_clean, basic_clean
+from spellchecker import SpellChecker
 
 cache_dir = f'{expanduser("~")}/.cache/{__package__}'
 
@@ -22,7 +26,9 @@ def _get_logger():
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     ch.setFormatter(formatter)
+    logger.handlers.clear()
     logger.addHandler(ch)
+    logger.propagate = False
     return logger
 
 
@@ -30,8 +36,10 @@ logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     logger.info(
-        f'looks like you are running {__package__} for the first time, the first time will take longer time as it will download models. '
-        f'You wont see this message on the second run.'
+        '''
+Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
+You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
+'''
     )
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
@@ -40,36 +48,37 @@ logger.debug(f'`.cache` dir is set to: {cache_dir}')
 check_model_SHA = False
 
 
-def _gitclone(url, dest):
+def _clone_repo_install(repo_url, repo_dir, commit_hash):
+    if os.path.exists(repo_dir):
+        res = subprocess.run(
+            ['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE, cwd=repo_dir
+        ).stdout.decode('utf-8')
+        logger.debug(f'commit hash: {res}')
+        if res.strip() == commit_hash:
+            logger.debug(f'{repo_dir} is already cloned and up to date')
+            sys.path.append(repo_dir)
+            return
+
+    import shutil
+
+    shutil.rmtree(repo_dir)
     res = subprocess.run(
-        ['git', 'clone', '--depth', '1', url, dest], stdout=subprocess.PIPE
+        ['git', 'clone', '--depth', '1', repo_url, repo_dir], stdout=subprocess.PIPE
     ).stdout.decode('utf-8')
-    logger.debug(f'cloned {url} to {dest}: {res}')
-
-
-def _pip_install(url):
-    res = subprocess.run(['pip', 'install', url], stdout=subprocess.PIPE).stdout.decode(
-        'utf-8'
-    )
-    logger.debug(f'pip installed {url}: {res}')
-
-
-def _clone_repo_install(repo_url, repo_dir):
-    if not os.path.exists(repo_dir):
-        _gitclone(repo_url, repo_dir)
+    logger.debug(f'cloned {repo_url} to {repo_dir}: {res}')
     sys.path.append(repo_dir)
 
 
 def _clone_dependencies():
-    try:
-        import clip
-    except ModuleNotFoundError:
-        _pip_install('git+https://github.com/openai/CLIP.git')
     _clone_repo_install(
-        'https://github.com/crowsonkb/guided-diffusion', f'{cache_dir}/guided_diffusion'
+        'https://github.com/kostarion/guided-diffusion',
+        f'{cache_dir}/guided_diffusion',
+        commit_hash='99afa5eb238f32aadaad38ae7107318ec4d987d3',
     )
     _clone_repo_install(
-        'https://github.com/assafshocher/ResizeRight', f'{cache_dir}/resize_right'
+        'https://github.com/assafshocher/ResizeRight',
+        f'{cache_dir}/resize_right',
+        commit_hash='510d4d5b67dccf4efdee9f311ed42609a71f17c5',
     )
 
 
@@ -81,8 +90,6 @@ def _wget(url, outputdir):
 
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
-
-    import clip
     import open_clip
 
     # load enabled models
@@ -91,9 +98,21 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
             if '::' in k:
                 # use open_clip loader
                 k1, k2 = k.split('::')
-                clip_models[k] = open_clip.create_model_and_transforms(k1, pretrained=k2)[0].eval().requires_grad_(False).to(device)
+                clip_models[k] = (
+                    open_clip.create_model_and_transforms(k1, pretrained=k2)[0]
+                    .eval()
+                    .requires_grad_(False)
+                    .to(device)
+                )
             else:
-                clip_models[k] = clip.load(k, jit=False)[0].eval().requires_grad_(False).to(device)
+                raise ValueError(
+                    f'''
+Since v0.1, DiscoArt depends on `open-clip` which supports more CLIP variants and pretrained weights. 
+The new names is now a string in the format of `<model_name>::<pretrained_weights_name>`, e.g. 
+`ViT-B-32::openai` or `ViT-B-32::laion2b_e16`. The full list of supported models and weights can be found here:
+https://github.com/mlfoundations/open_clip#pretrained-model-interface
+'''
+                )
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):
@@ -285,6 +304,25 @@ def load_all_models(
                 'use_scale_shift_norm': True,
             }
         )
+    elif os.path.isfile(diffusion_model):
+        model_config.update(
+            {
+                'attention_resolutions': '16',
+                'class_cond': False,
+                'diffusion_steps': 1000,
+                'rescale_timesteps': True,
+                'timestep_respacing': 'ddim100',
+                'image_size': 256,
+                'learn_sigma': True,
+                'noise_schedule': 'linear',
+                'num_channels': 128,
+                'num_heads': 1,
+                'num_res_blocks': 2,
+                'use_checkpoint': True,
+                'use_fp16': device != 'cpu',
+                'use_scale_shift_norm': False,
+            }
+        )
 
     secondary_model = None
     if use_secondary_model:
@@ -316,9 +354,12 @@ def load_diffusion_model(model_config, diffusion_model, steps, device):
     )
 
     model, diffusion = create_model_and_diffusion(**model_config)
-    model.load_state_dict(
-        torch.load(f'{cache_dir}/{diffusion_model}.pt', map_location='cpu')
-    )
+    if os.path.isfile(diffusion_model):
+        logger.debug(f'loading customized diffusion model from {diffusion_model}')
+        _model_path = diffusion_model
+    else:
+        _model_path = f'{cache_dir}/{diffusion_model}.pt'
+    model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
     for name, param in model.named_parameters():
         if 'qkv' in name or 'norm' in name or 'proj' in name:
@@ -329,11 +370,62 @@ def load_diffusion_model(model_config, diffusion_model, steps, device):
     return model, diffusion
 
 
-def parse_prompt(prompt):
-    if prompt.startswith('http://') or prompt.startswith('https://'):
-        vals = prompt.rsplit(':', 2)
-        vals = [vals[0] + ':' + vals[1], *vals[2:]]
-    else:
-        vals = prompt.rsplit(':', 1)
-    vals = vals + ['', '1'][len(vals) :]
-    return vals[0], float(vals[1])
+class PromptParser(SimpleTokenizer):
+    def __init__(self, on_misspelled_token: str, **kwargs):
+        super().__init__(**kwargs)
+        self.spell = SpellChecker()
+        from . import __resources_path__
+
+        with open(f'{__resources_path__}/vocab.txt') as fp:
+            self.spell.word_frequency.load_words(
+                line.strip() for line in fp if len(line.strip()) > 1
+            )
+        self.on_misspelled_token = on_misspelled_token
+
+    @staticmethod
+    def _split_weight(prompt):
+        if ':' in prompt:
+            vals = prompt.rsplit(':', 1)
+        else:
+            vals = [prompt, 1]
+        return vals[0], float(vals[1])
+
+    def parse(self, text: str) -> Tuple[str, float]:
+        text, weight = self._split_weight(text)
+        text = whitespace_clean(basic_clean(text)).lower()
+        all_tokens = []
+        for token in re.findall(self.pat, text):
+            token = ''.join(self.byte_encoder[b] for b in token.encode('utf-8'))
+            all_tokens.append(token)
+        unknowns = [
+            v
+            for v in self.spell.unknown(all_tokens)
+            if len(v) > 2 and self.spell.correction(v) != v
+        ]
+        if unknowns:
+            pairs = []
+            for v in unknowns:
+                vc = self.spell.correction(v)
+                pairs.append((v, vc))
+                if self.on_misspelled_token == 'correct':
+                    for idx, ov in enumerate(all_tokens):
+                        if ov == v:
+                            all_tokens[idx] = vc
+
+            if pairs:
+                warning_str = '\n'.join(
+                    f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
+                )
+                if self.on_misspelled_token == 'raise':
+                    raise ValueError(warning_str)
+                elif self.on_misspelled_token == 'correct':
+                    logger.warning(
+                        'auto-corrected the following tokens:\n' + warning_str
+                    )
+                else:
+                    logger.warning(
+                        'Found misspelled tokens in the prompt:\n' + warning_str
+                    )
+
+        logger.debug(f'prompt: {all_tokens}, weight: {weight}')
+        return ' '.join(all_tokens), weight

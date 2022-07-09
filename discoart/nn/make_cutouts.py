@@ -7,8 +7,6 @@ from torch.nn import functional as F
 from torchvision import transforms as T
 from torchvision.transforms import functional as TF
 
-skip_augs = False  # @param{type: 'boolean'}
-
 
 def sinc(x):
     return torch.where(x != 0, torch.sin(math.pi * x) / (math.pi * x), x.new_ones([]))
@@ -70,7 +68,7 @@ class MakeCutouts(nn.Module):
                 )
                 offsetx = torch.randint(0, abs(sideX - size + 1), ())
                 offsety = torch.randint(0, abs(sideY - size + 1), ())
-                cutout = input[:, :, offsety: offsety + size, offsetx: offsetx + size]
+                cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
 
             if not self.skip_augs:
                 cutout = self.augs(cutout)
@@ -83,7 +81,13 @@ class MakeCutouts(nn.Module):
 
 class MakeCutoutsDango(nn.Module):
     def __init__(
-            self, cut_size, Overview=4, InnerCrop=0, IC_Size_Pow=0.5, IC_Grey_P=0.2
+        self,
+        cut_size,
+        Overview=4,
+        InnerCrop=0,
+        IC_Size_Pow=0.5,
+        IC_Grey_P=0.2,
+        skip_augs=False,
     ):
         super().__init__()
         self.cut_size = cut_size
@@ -91,6 +95,7 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
+        self.skip_augs = skip_augs
         self.augs = T.Compose(
             [
                 T.RandomHorizontalFlip(p=0.5),
@@ -149,15 +154,16 @@ class MakeCutoutsDango(nn.Module):
                 )
                 offsetx = torch.randint(0, sideX - size + 1, ())
                 offsety = torch.randint(0, sideY - size + 1, ())
-                cutout = input[:, :, offsety: offsety + size, offsetx: offsetx + size]
+                cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
                 if i <= int(self.IC_Grey_P * self.InnerCrop):
                     cutout = gray(cutout)
                 cutout = resize(cutout, out_shape=output_shape)
                 cutouts.append(cutout)
 
         cutouts = torch.cat(cutouts)
-        if skip_augs is not True:
-            cutouts = self.augs(cutouts)
+        if not self.skip_augs:
+            for i in range(cutouts.shape[0]):
+                cutouts[i] = self.augs(cutouts[i])
         return cutouts
 
 

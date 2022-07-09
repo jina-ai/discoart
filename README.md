@@ -31,7 +31,10 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 pip install discoart
 ```
 
-If you are not using DiscoArt under Google Colab, then other dependencies might be required.
+If you are not using DiscoArt on Google Colab, then other dependencies might be required, [as described in the Dockerfile](./Dockerfile).
+
+If you want to start a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
+
 
 ## Get Started
 
@@ -190,7 +193,7 @@ We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook.
 
 ```bash
 # docker build . -t jinaai/discoart  # if you want to build yourself
-docker run -p 51000:8888 -v $(pwd):/home/jovyan/ --gpus all jinaai/discoart
+docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
 ```
 
 

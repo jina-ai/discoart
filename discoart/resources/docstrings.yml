@@ -88,17 +88,41 @@ n_batches: |
 batch_name: |
   The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
 clip_models: |
-  CLIP Model selectors. ViT-B/32, ViT-B/16, ViT-L/14, RN101, RN50, RN50x4, RN50x16, RN50x64.
+  CLIP Model selectors. 
   These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  
-  You can mix in multiple models as well for different results.  However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.
-  The rough order of speed/mem usage is (smallest/fastest to largest/slowest):
-  ViT-B/32
-  RN50
-  RN101
-  ViT-B/16
-  RN50x4
-  RN50x16
-  RN50x64
-  ViT-L/14
-  For RN50x64 & ViTL14 you may need to use fewer cuts, depending on your VRAM.
+  You can mix in multiple models as well for different results. However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.
   Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface
+   RN50::openai
+   RN50::yfcc15m
+   RN50::cc12m
+   RN50-quickgelu::openai
+   RN50-quickgelu::yfcc15m
+   RN50-quickgelu::cc12m
+   RN101::openai
+   RN101::yfcc15m
+   RN101-quickgelu::openai
+   RN101-quickgelu::yfcc15m
+   RN50x4::openai
+   RN50x16::openai
+   RN50x64::openai
+   ViT-B-32::openai
+   ViT-B-32::laion2b_e16
+   ViT-B-32::laion400m_e31
+   ViT-B-32::laion400m_e32
+   ViT-B-32-quickgelu::openai
+   ViT-B-32-quickgelu::laion400m_e31
+   ViT-B-32-quickgelu::laion400m_e32
+   ViT-B-16::openai
+   ViT-B-16::laion400m_e31
+   ViT-B-16::laion400m_e32
+   ViT-B-16-plus-240::laion400m_e31
+   ViT-B-16-plus-240::laion400m_e32
+   ViT-L-14::openai
+   ViT-L-14-336::openai
+
+use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+transformation_steps: Steps (expressed in percentages) in which the symmetry is enforced
+skip_augs: Controls whether to skip torchvision augmentations
+
+on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
