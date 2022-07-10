@@ -18,7 +18,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 </sup></sub>
 
 
-💯 **Best-in-class**: top-notch code quality, correctness-first; include bug fixes and feature improvements over original DD5.x. 
+💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements vs. the original DD5.x. 
 
 👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
@@ -195,6 +195,8 @@ You can set environment variables to control the behavior of DiscoArt. The envir
 ```bash
 DISCOART_LOG_LEVEL='DEBUG' # more verbose logs
 DISCOART_OPTOUT_CLOUD_BACKUP='1' # opt-out from cloud backup
+DISCOART_DISABLE_IPYTHON='1' # disable ipython dependency
+DISCOART_DISABLE_RESULT_SUMMARY='1' # disable result summary after the run ends
 ```
 
 ### Run in Docker

@@ -4,9 +4,7 @@ from types import SimpleNamespace
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-
 __version__ = '0.1.8'
-
 
 __all__ = ['create']
 
@@ -29,9 +27,12 @@ import torch
 if torch.cuda.is_available():
     device = torch.device('cuda:0')
 else:
-    raise RuntimeError(
-        'CUDA is not available. DiscoArt is unbearably slow on CPU. '
-        'Please switch to GPU device, if you are using Google Colab, then free tier would work.'
+    device = torch.device('cpu')
+    warnings.warn(
+        '''
+        !!!!CUDA is not available. DiscoArt is running on CPU. `create()` will be unbearably slow on CPU!!!!
+        Please switch to a GPU device. If you are using Google Colab, then free tier would just work.
+        '''
     )
 
 # download and load models, this will take some time on the first load
@@ -205,46 +206,63 @@ def create(**kwargs) -> Optional['DocumentArray']:
     except Exception as ex:
         from .helper import logger
 
-        logger.error(f'{ex!r}')
+        logger.error(ex, exc_info=True)
     finally:
 
         _name = _args.name_docarray
 
         if not os.path.exists(f'{_name}.protobuf.lz4'):
             # not even a single document was created
+            _clear()
             return
-
-        from IPython import display
-
-        display.clear_output(wait=True)
 
         from docarray import DocumentArray
 
         _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
-        if _da and _da[0].uri:
-            _da.plot_image_sprites(
-                skip_empty=True, show_index=True, keep_aspect_ratio=True
-            )
         result = _da
 
-        print_args_table(vars(_args))
-        from IPython.display import FileLink, display
+        if (
+            'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+            and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+        ):
+            _show_result_summary(_da, _name, _args)
 
-        persist_file = FileLink(
-            f'{_name}.protobuf.lz4',
-            result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
-        )
-        config_file = FileLink(
-            f'{_name}.svg',
-            result_html_prefix=f'▶ Download the config as SVG image: ',
-        )
-        display(config_file, persist_file)
+        _clear()
 
-        from rich import print
-        from rich.markdown import Markdown
+    return result
 
-        md = Markdown(
-            f'''
+
+def _clear():
+    gc.collect()
+    torch.cuda.empty_cache()
+
+
+def _show_result_summary(_da, _name, _args):
+    from .config import print_args_table
+    from .helper import get_ipython_funcs
+
+    _dp1, _fl, _ = get_ipython_funcs()
+
+    _dp1.clear_output(wait=True)
+
+    if _da and _da[0].uri:
+        _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
+
+    print_args_table(vars(_args))
+
+    persist_file = _fl(
+        f'{_name}.protobuf.lz4',
+        result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
+    )
+    config_file = _fl(
+        f'{_name}.svg',
+        result_html_prefix=f'▶ Download the config as SVG image: ',
+    )
+
+    from rich.markdown import Markdown
+
+    md = Markdown(
+        f'''
 Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) and synced to the cloud.
 
 You can simply pull it from any machine:
@@ -263,12 +281,7 @@ da = DocumentArray.load_binary('{_name}.protobuf.lz4')
 ```
 
 More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
-        ''',
-            code_theme='igor',
-        )
-        print(md)
-
-        gc.collect()
-        torch.cuda.empty_cache()
-
-    return result
+            ''',
+        code_theme='igor',
+    )
+    _dp1.display(config_file, persist_file, md)

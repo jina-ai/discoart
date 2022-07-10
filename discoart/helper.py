@@ -16,6 +16,47 @@ from spellchecker import SpellChecker
 cache_dir = f'{expanduser("~")}/.cache/{__package__}'
 
 
+def is_jupyter() -> bool:  # pragma: no cover
+    """
+    Check if we're running in a Jupyter notebook, using magic command `get_ipython` that only available in Jupyter.
+
+    :return: True if run in a Jupyter notebook else False.
+    """
+    if 'DISCOART_DISABLE_IPYTHON' in os.environ:
+        return False
+
+    try:
+        get_ipython  # noqa: F821
+    except NameError:
+        return False
+    shell = get_ipython().__class__.__name__  # noqa: F821
+    if shell == 'ZMQInteractiveShell':
+        return True  # Jupyter notebook or qtconsole
+    elif shell == 'Shell':
+        return True  # Google colab
+    elif shell == 'TerminalInteractiveShell':
+        return False  # Terminal running IPython
+    else:
+        return False  # Other type (?)
+
+
+def get_ipython_funcs():
+    class NOP:
+        def __call__(self, *args, **kwargs):
+            return NOP()
+
+        __getattr__ = __enter__ = __exit__ = __call__
+
+    if is_jupyter():
+        from IPython import display as dp1
+        from IPython.display import FileLink as fl
+        from ipywidgets import Output
+
+        return dp1, fl, Output
+    else:
+        return NOP(), NOP(), NOP()
+
+
 def _get_logger():
     logger = logging.getLogger(__package__)
     _log_level = os.environ.get('DISCOART_LOG_LEVEL', 'INFO')
@@ -179,7 +220,9 @@ def load_all_models(
                     model_256_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(diffusion_model, use_secondary_model, True)
+                    load_all_models(
+                        diffusion_model, use_secondary_model, True, device=device
+                    )
         elif (
             os.path.exists(model_256_path)
             and not check_model_SHA
@@ -194,7 +237,7 @@ def load_all_models(
                 model_256_downloaded = True
             else:
                 logger.debug('First URL Failed using FallBack')
-                load_all_models(diffusion_model, True)
+                load_all_models(diffusion_model, True, device=device)
     elif diffusion_model == '512x512_diffusion_uncond_finetune_008100':
         if os.path.exists(model_512_path) and check_model_SHA:
             logger.debug('Checking 512 Diffusion File')
@@ -207,7 +250,9 @@ def load_all_models(
                     model_512_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(diffusion_model, use_secondary_model, True)
+                    load_all_models(
+                        diffusion_model, use_secondary_model, True, device=device
+                    )
             else:
                 logger.debug("512 Model SHA doesn't match, redownloading...")
                 _wget(model_512_link, cache_dir)
@@ -215,7 +260,9 @@ def load_all_models(
                     model_512_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(diffusion_model, use_secondary_model, True)
+                    load_all_models(
+                        diffusion_model, use_secondary_model, True, device=device
+                    )
         elif (
             os.path.exists(model_512_path)
             and not check_model_SHA
@@ -244,7 +291,9 @@ def load_all_models(
                     model_secondary_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(diffusion_model, use_secondary_model, True)
+                    load_all_models(
+                        diffusion_model, use_secondary_model, True, device=device
+                    )
         elif (
             os.path.exists(model_secondary_path)
             and not check_model_SHA
@@ -259,7 +308,9 @@ def load_all_models(
                 model_secondary_downloaded = True
             else:
                 logger.debug('First URL Failed using FallBack')
-                load_all_models(diffusion_model, use_secondary_model, True)
+                load_all_models(
+                    diffusion_model, use_secondary_model, True, device=device
+                )
 
     from guided_diffusion.script_util import (
         model_and_diffusion_defaults,
@@ -282,7 +333,7 @@ def load_all_models(
                 'num_head_channels': 64,
                 'num_res_blocks': 2,
                 'resblock_updown': True,
-                'use_fp16': device != 'cpu',
+                'use_fp16': device.type != 'cpu',
                 'use_scale_shift_norm': True,
             }
         )
@@ -301,7 +352,7 @@ def load_all_models(
                 'num_head_channels': 64,
                 'num_res_blocks': 2,
                 'resblock_updown': True,
-                'use_fp16': device != 'cpu',
+                'use_fp16': device.type != 'cpu',
                 'use_scale_shift_norm': True,
             }
         )
@@ -320,7 +371,7 @@ def load_all_models(
                 'num_heads': 1,
                 'num_res_blocks': 2,
                 'use_checkpoint': True,
-                'use_fp16': device != 'cpu',
+                'use_fp16': device.type != 'cpu',
                 'use_scale_shift_norm': False,
             }
         )
