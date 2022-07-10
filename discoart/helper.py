@@ -161,7 +161,7 @@ https://github.com/mlfoundations/open_clip#pretrained-model-interface
         if k not in enabled:
             clip_models.pop(k)
 
-    return list(clip_models.values())
+    return clip_models
 
 
 def load_all_models(

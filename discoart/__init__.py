@@ -45,7 +45,7 @@ model_config, secondary_model = load_all_models(
     device=device,
 )
 
-from typing import TYPE_CHECKING, overload, List, Optional
+from typing import TYPE_CHECKING, overload, List, Optional, Dict
 
 if TYPE_CHECKING:
     from docarray import DocumentArray, Document
@@ -53,6 +53,7 @@ if TYPE_CHECKING:
 _clip_models_cache = {}
 
 
+ALWAYS_SCHEDULED = "[1] * 1000"
 # begin_create_overload
 
 
@@ -98,6 +99,11 @@ def create(
         'ViT-B-16::openai',
         'RN50::openai',
     ],
+    clip_models_schedules: Optional[Dict[str, str]] = {
+        'ViT-B-32::openai': ALWAYS_SCHEDULED,
+        'ViT-B-16::openai': ALWAYS_SCHEDULED,
+        'RN50::openai': ALWAYS_SCHEDULED,
+    },
     use_vertical_symmetry: Optional[bool] = False,
     use_horizontal_symmetry: Optional[bool] = False,
     transformation_percent: Optional[List[float]] = [0.09],
@@ -149,6 +155,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param n_batches: This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
     :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
     :param clip_models: CLIP Model selectors. These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  You can mix in multiple models as well for different results. However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface RN50::openai RN50::yfcc15m RN50::cc12m RN50-quickgelu::openai RN50-quickgelu::yfcc15m RN50-quickgelu::cc12m RN101::openai RN101::yfcc15m RN101-quickgelu::openai RN101-quickgelu::yfcc15m RN50x4::openai RN50x16::openai RN50x64::openai ViT-B-32::openai ViT-B-32::laion2b_e16 ViT-B-32::laion400m_e31 ViT-B-32::laion400m_e32 ViT-B-32-quickgelu::openai ViT-B-32-quickgelu::laion400m_e31 ViT-B-32-quickgelu::laion400m_e32 ViT-B-16::openai ViT-B-16::laion400m_e31 ViT-B-16::laion400m_e32 ViT-B-16-plus-240::laion400m_e31 ViT-B-16-plus-240::laion400m_e32 ViT-L-14::openai ViT-L-14-336::openai
+    :param clip_models_schedules: Model schedules use a similar mechanism to cut_overview and cut_innercut. For example, `{"RN101::openai": "[1]*400+[0]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[1]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
     :param use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
     :param use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
     :param transformation_percent: Steps expressed in percentages in which the symmetry is enforced
