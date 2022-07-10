@@ -207,24 +207,32 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         if not os.path.exists(f'{_name}.protobuf.lz4'):
             # not even a single document was created
+            _clear()
             return
 
         from docarray import DocumentArray
 
         _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
-        if _da and _da[0].uri:
-            _da.plot_image_sprites(
-                skip_empty=True, show_index=True, keep_aspect_ratio=True
-            )
         result = _da
 
-        if 'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ:
+        if (
+            'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+            and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+        ):
+            if _da and _da[0].uri:
+                _da.plot_image_sprites(
+                    skip_empty=True, show_index=True, keep_aspect_ratio=True
+                )
             _show_result_summary(_name, _args)
 
-        gc.collect()
-        torch.cuda.empty_cache()
+        _clear()
 
     return result
+
+
+def _clear():
+    gc.collect()
+    torch.cuda.empty_cache()
 
 
 def _show_result_summary(_name, _args):
