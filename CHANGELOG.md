@@ -32,6 +32,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -639,4 +640,23 @@
 ### 🍹 Other Improvements
 
  - [[```40f39e59```](https://github.com/jina-ai/docarray/commit/40f39e59c96780169a59244ddff0aba99e187aa0)] __-__ __version__: the next version will be 0.1.6 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-7></a>
+## Release Note (`0.1.7`)
+
+> Release time: 2022-07-10 15:08:51
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```e45aa207```](https://github.com/jina-ai/docarray/commit/e45aa2078baf5ddb6c0fbe61ab81459b24397487)] __-__ bad naming in docstring for transformation_percent (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```60a20902```](https://github.com/jina-ai/docarray/commit/60a20902b6f5124848301de1565c22f1b32ae6db)] __-__ __version__: the next version will be 0.1.7 (*Jina Dev Bot*)
 
