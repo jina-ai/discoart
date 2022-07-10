@@ -219,11 +219,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
             'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
             and 'DISCOART_DISABLE_IPYTHON' not in os.environ
         ):
-            if _da and _da[0].uri:
-                _da.plot_image_sprites(
-                    skip_empty=True, show_index=True, keep_aspect_ratio=True
-                )
-            _show_result_summary(_name, _args)
+            _show_result_summary(_da, _name, _args)
 
         _clear()
 
@@ -235,13 +231,16 @@ def _clear():
     torch.cuda.empty_cache()
 
 
-def _show_result_summary(_name, _args):
+def _show_result_summary(_da, _name, _args):
     from .config import print_args_table
     from .helper import get_ipython_funcs
 
     _dp1, _fl, _ = get_ipython_funcs()
 
     _dp1.clear_output(wait=True)
+
+    if _da and _da[0].uri:
+        _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
 
     print_args_table(vars(_args))
 
