@@ -3,6 +3,7 @@ import os
 import random
 import threading
 from threading import Thread
+from typing import List
 
 import lpips
 import numpy as np
@@ -408,7 +409,7 @@ def _silent_push(
     is_busy_event.clear()
 
 
-def _eval_scheduling_str(val):
+def _eval_scheduling_str(val) -> List[float]:
     if isinstance(val, str):
         r = eval(val)
     elif isinstance(val, (int, float)):
@@ -418,3 +419,4 @@ def _eval_scheduling_str(val):
 
     if len(r) != 1000:
         raise ValueError(f'invalid scheduling string: {val}')
+    return r
