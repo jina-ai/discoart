@@ -98,11 +98,11 @@ def create(
         'ViT-B-16::openai',
         'RN50::openai',
     ],
-    clip_models_schedules: Optional[Dict[str, str]] = [
+    clip_models_schedules: Optional[Dict[str, str]] = {
         'ViT-B-32::openai': ALWAYS_SCHEDULED,
         'ViT-B-16::openai': ALWAYS_SCHEDULED,
         'RN50::openai': ALWAYS_SCHEDULED,
-    ],
+    },
     use_vertical_symmetry: Optional[bool] = False,
     use_horizontal_symmetry: Optional[bool] = False,
     transformation_percent: Optional[List[float]] = [0.09],
