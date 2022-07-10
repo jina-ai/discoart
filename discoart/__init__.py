@@ -200,7 +200,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     except Exception as ex:
         from .helper import logger
 
-        logger.error(f'{ex!r}')
+        logger.error(ex, exc_info=True)
     finally:
 
         _name = _args.name_docarray
