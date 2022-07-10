@@ -43,7 +43,7 @@ def is_jupyter() -> bool:  # pragma: no cover
 def get_ipython_funcs():
     class NOP:
         def __call__(self, *args, **kwargs):
-            pass
+            return NOP()
 
         __getattr__ = __enter__ = __exit__ = __call__
 
