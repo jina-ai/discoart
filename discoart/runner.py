@@ -11,12 +11,10 @@ import open_clip as clip
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
-from IPython import display
 from docarray import DocumentArray, Document
-from ipywidgets import Output
 
 from .config import print_args_table
-from .helper import logger, PromptParser
+from .helper import logger, PromptParser, get_ipython_funcs
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
@@ -48,7 +46,8 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     model_stats = []
 
-    display.clear_output(wait=True)
+    _dp1, _, _, _output_fn = get_ipython_funcs()
+    _dp1.clear_output(wait=True)
 
     if isinstance(args.text_prompts, str):
         args.text_prompts = [args.text_prompts]
@@ -251,7 +250,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     logger.info('creating artwork...')
 
-    image_display = Output()
+    image_display = _output_fn()
     is_busy_evs = [threading.Event(), threading.Event()]
 
     da_batches = DocumentArray()
@@ -266,7 +265,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         args.seed = new_seed
         pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb - 1)
 
-        display.display(
+        _dp1.display(
             Text(f'n_batches={args.n_batches}: {pgbar}'),
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
@@ -325,8 +324,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                         c = Document(tags={'cur_t': cur_t})
                         c.load_pil_image_to_datauri(image)
                         d.chunks.append(c)
-                        display.clear_output(wait=True)
-                        display.display(image)
+                        _dp1.clear_output(wait=True)
+                        _dp1.display(image)
                         d.chunks.plot_image_sprites(
                             f'{args.name_docarray}-progress-{_nb}.png',
                             skip_empty=True,
@@ -346,7 +345,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         for t in threads:
             t.join()
-        display.clear_output(wait=True)
+        _dp1.clear_output(wait=True)
 
     logger.info(f'done! {args.name_docarray}')
 
