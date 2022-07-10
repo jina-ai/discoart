@@ -17,9 +17,10 @@ DiscoArt is an elegant way of creating compelling Disco Diffusion<sup><a href="#
 Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion to allow one to create compelling and beautiful images from text prompts.
 </sup></sub>
 
-👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
 💯 **Best-in-class**: top-notch code quality, correctness-first; include bug fixes and feature improvements over original DD5.x. 
+
+👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
 
 🎨 **Focus on create not code**: one-liner `create()` with a Pythonic interface, autocompletion in IDE, and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab. Set initial state easily for more efficient parameter exploration.
 
