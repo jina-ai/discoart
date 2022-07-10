@@ -52,6 +52,7 @@ if TYPE_CHECKING:
 _clip_models_cache = {}
 
 
+ALWAYS_SCHEDULED = "[1] * 1000"
 # begin_create_overload
 
 
@@ -96,6 +97,11 @@ def create(
         'ViT-B-32::openai',
         'ViT-B-16::openai',
         'RN50::openai',
+    ],
+    clip_models_schedules: Optional[Dict[str, str]] = [
+        'ViT-B-32::openai': ALWAYS_SCHEDULED,
+        'ViT-B-16::openai': ALWAYS_SCHEDULED,
+        'RN50::openai': ALWAYS_SCHEDULED,
     ],
     use_vertical_symmetry: Optional[bool] = False,
     use_horizontal_symmetry: Optional[bool] = False,

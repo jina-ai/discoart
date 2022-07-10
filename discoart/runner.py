@@ -40,6 +40,12 @@ def do_run(args, models, device) -> 'DocumentArray':
     cut_icgray_p = _eval_scheduling_str(args.cut_icgray_p)
     cut_ic_pow = _eval_scheduling_str(args.cut_ic_pow)
 
+    default_model_schedule = "[1] * 1000"
+    clip_models_schedules = {
+        model_name: _eval_scheduling_str(args.clip_models_schedules.get(model_name, default_model_schedule))
+        for model_name in clip_models
+    }
+
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
     skip_steps = args.skip_steps
@@ -56,12 +62,13 @@ def do_run(args, models, device) -> 'DocumentArray':
     pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
-    for clip_model in clip_models:
+    for clip_model_name, clip_model in clip_models.items():
         model_stat = {
             'clip_model': clip_model,
             'target_embeds': [],
             'make_cutouts': None,
             'weights': [],
+            'schedule': clip_models_schedules[clip_model_name],
         }
 
         for txt, weight in txt_weights:
@@ -173,10 +180,15 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             for model_stat in model_stats:
                 for i in range(args.cutn_batches):
+                    scheduled = model_stat["schedule"][1000 - t_int]
+                    if not scheduled:
+                        continue
+
                     t_int = (
                         int(t.item()) + 1
                     )  # errors on last step without +1, need to find source
                     # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
+
                     try:
                         input_resolution = model_stat[
                             'clip_model'
