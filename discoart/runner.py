@@ -1,4 +1,5 @@
 import gc
+import os
 import random
 import threading
 from threading import Thread
@@ -393,8 +394,10 @@ def _silent_push(
     is_busy_event: threading.Event,
     force: bool = False,
 ) -> None:
+    if 'DISCOART_OPTOUT_CLOUD_BACKUP' in os.environ:
+        return
     if is_busy_event.is_set() and not force:
-        logger.debug(f'another save is running, skipping')
+        logger.debug(f'another cloud backup is running, skipping')
         return
     is_busy_event.set()
     try:

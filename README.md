@@ -188,14 +188,13 @@ create(
 ```
 
 
-### Verbose logs
+### Environment variables
 
-You can also get verbose logs by setting the following lines before import `discoart`:
+You can set environment variables to control the behavior of DiscoArt. The environment variables must be set before importing DiscoArt:
 
-```python
-import os
-
-os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
+```bash
+DISCOART_LOG_LEVEL='DEBUG' # more verbose logs
+DISCOART_OPTOUT_CLOUD_BACKUP='1' # opt-out from cloud backup
 ```
 
 ### Run in Docker
