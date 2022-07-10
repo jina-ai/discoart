@@ -79,7 +79,9 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         sum_weight = abs(sum(model_stat['weights']))
         if sum_weight < 1e-3:
-            raise ValueError(f'The weights must not sum to 0 but given {sum_weight}')
+            raise ValueError(
+                f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
+            )
         model_stat['target_embeds'] = torch.cat(model_stat['target_embeds'])
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
         model_stat['weights'] /= sum_weight
@@ -405,6 +407,11 @@ def _silent_push(
 
 def _eval_scheduling_str(val):
     if isinstance(val, str):
-        return eval(val)
+        r = eval(val)
     elif isinstance(val, (int, float)):
-        return [val] * 1000
+        r = [val] * 1000
+    else:
+        raise ValueError(f'unsupported cut scheduling type: {val}: {type(val)}')
+
+    if len(r) != 1000:
+        raise ValueError(f'invalid scheduling string: {val}')

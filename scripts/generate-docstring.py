@@ -22,7 +22,7 @@ for k, v in cfg.items():
     elif k == 'transformation_percent':
         v_type = 'List[float]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
-all_args.append(') -> \'DocumentArray\':')
+all_args.append(') -> Optional[\'DocumentArray\']:')
 all_args.append('"""')
 all_args.append(
     'Create Disco Diffusion artworks and save the result into a DocumentArray.\n'
