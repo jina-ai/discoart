@@ -231,7 +231,7 @@ def _show_result_summary(_name, _args):
     from .config import print_args_table
     from .helper import get_ipython_funcs
 
-    _dp1, _dp2, _fl, _ = get_ipython_funcs()
+    _dp1, _fl, _ = get_ipython_funcs()
 
     _dp1.clear_output(wait=True)
 
@@ -245,32 +245,30 @@ def _show_result_summary(_name, _args):
         f'{_name}.svg',
         result_html_prefix=f'▶ Download the config as SVG image: ',
     )
-    _dp2(config_file, persist_file)
 
-    from rich import print
     from rich.markdown import Markdown
 
     md = Markdown(
         f'''
-    Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) and synced to the cloud.
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) and synced to the cloud.
 
-    You can simply pull it from any machine:
+You can simply pull it from any machine:
 
-    ```python
-    # pip install docarray[common]
-    from docarray import DocumentArray
+```python
+# pip install docarray[common]
+from docarray import DocumentArray
 
-    da = DocumentArray.pull('{_name}')
-    ```
+da = DocumentArray.pull('{_name}')
+```
 
-    If for some reason the cloud storage is not available, you may also download the file manually and load it from local disk:
+If for some reason the cloud storage is not available, you may also download the file manually and load it from local disk:
 
-    ```python
-    da = DocumentArray.load_binary('{_name}.protobuf.lz4')
-    ```
+```python
+da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+```
 
-    More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
+More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
             ''',
         code_theme='igor',
     )
-    print(md)
+    _dp1.display(config_file, persist_file, md)

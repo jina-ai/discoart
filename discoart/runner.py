@@ -46,7 +46,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     model_stats = []
 
-    _dp1, _, _, _output_fn = get_ipython_funcs()
+    _dp1, _, _output_fn = get_ipython_funcs()
     _dp1.clear_output(wait=True)
 
     if isinstance(args.text_prompts, str):

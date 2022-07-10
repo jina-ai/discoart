@@ -49,13 +49,12 @@ def get_ipython_funcs():
 
     if is_jupyter():
         from IPython import display as dp1
-        from IPython.display import display as dp2
         from IPython.display import FileLink as fl
         from ipywidgets import Output
 
-        return dp1, dp2, fl, Output
+        return dp1, fl, Output
     else:
-        return NOP(), NOP(), NOP(), NOP()
+        return NOP(), NOP(), NOP()
 
 
 def _get_logger():
