@@ -191,7 +191,7 @@ jobs:
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
-    needs: import-test
+    needs: core-test
     if: always()
     runs-on: ubuntu-latest
     steps:

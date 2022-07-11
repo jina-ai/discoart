@@ -1,4 +1,7 @@
 import os
+
+os.environ['DISCOART_LOG_LEVEL'] = 'DEBUG'
+
 import tempfile
 
 import pytest

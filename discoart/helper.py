@@ -215,7 +215,7 @@ def download_diffusion_models(
         elif (
             os.path.exists(model_256_path)
             and not check_model_SHA
-            or model_256_downloaded == True
+            or model_256_downloaded
         ):
             logger.debug(
                 '256 Model already downloaded, check check_model_SHA if the file is corrupt'
@@ -251,7 +251,7 @@ def download_diffusion_models(
         elif (
             os.path.exists(model_512_path)
             and not check_model_SHA
-            or model_512_downloaded == True
+            or model_512_downloaded
         ):
             logger.debug(
                 '512 Model already downloaded, check check_model_SHA if the file is corrupt'
