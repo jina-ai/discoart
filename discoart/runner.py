@@ -37,6 +37,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     cut_innercut = _eval_scheduling_str(args.cut_innercut)
     cut_icgray_p = _eval_scheduling_str(args.cut_icgray_p)
     cut_ic_pow = _eval_scheduling_str(args.cut_ic_pow)
+    use_secondary_model = _eval_scheduling_str(args.use_secondary_model)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
@@ -154,11 +155,15 @@ def do_run(args, models, device) -> 'DocumentArray':
     cur_t = None
 
     def cond_fn(x, t, y=None):
+        t_int = int(t.item()) + 1  # errors on last step without +1, need to find source
+
+        num_step = 1000 - t_int
+
         with torch.enable_grad():
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
-            if secondary_model:
+            if use_secondary_model[num_step]:
                 alpha = torch.tensor(
                     diffusion.sqrt_alphas_cumprod[cur_t],
                     device=device,
@@ -185,12 +190,6 @@ def do_run(args, models, device) -> 'DocumentArray':
 
             for model_stat in model_stats:
                 for _ in range(args.cutn_batches):
-                    t_int = (
-                        int(t.item()) + 1
-                    )  # errors on last step without +1, need to find source
-
-                    num_step = 1000 - t_int
-
                     if not model_stat['schedules'][num_step]:
                         continue
 
@@ -228,7 +227,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         / args.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
-            if secondary_model:
+            if use_secondary_model[num_step]:
                 range_losses = range_loss(out)
             else:
                 range_losses = range_loss(out['pred_xstart'])

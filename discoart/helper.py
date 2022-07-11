@@ -135,6 +135,7 @@ def _wget(url, outputdir):
 
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
+    logger.debug('loading clip models...')
     import open_clip
 
     # load enabled models
@@ -167,45 +168,32 @@ https://github.com/mlfoundations/open_clip#pretrained-model-interface
     return clip_models
 
 
-def load_all_models(
+def download_diffusion_models(
     diffusion_model,
-    use_secondary_model,
     fallback=False,
     device=torch.device('cuda:0'),
 ):
     _clone_dependencies()
     model_256_downloaded = False
     model_512_downloaded = False
-    model_secondary_downloaded = False
 
     model_256_SHA = '983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a'
     model_512_SHA = '9c111ab89e214862b76e1fa6a1b3f1d329b1a88281885943d2cdbe357ad57648'
-    model_secondary_SHA = (
-        '983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a'
-    )
 
     model_256_link = 'https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt'
     model_512_link = 'https://v-diffusion.s3.us-west-2.amazonaws.com/512x512_diffusion_uncond_finetune_008100.pt'
-    model_secondary_link = (
-        'https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth'
-    )
 
     model_256_link_fb = (
         'https://www.dropbox.com/s/9tqnqo930mpnpcn/256x256_diffusion_uncond.pt'
     )
     model_512_link_fb = 'https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt'
-    model_secondary_link_fb = (
-        'https://the-eye.eu/public/AI/models/v-diffusion/secondary_model_imagenet_2.pth'
-    )
 
     model_256_path = f'{cache_dir}/256x256_diffusion_uncond.pt'
     model_512_path = f'{cache_dir}/512x512_diffusion_uncond_finetune_008100.pt'
-    model_secondary_path = f'{cache_dir}/secondary_model_imagenet_2.pth'
 
     if fallback:
         model_256_link = model_256_link_fb
         model_512_link = model_512_link_fb
-        model_secondary_link = model_secondary_link_fb
     # Download the diffusion model
     if diffusion_model == '256x256_diffusion_uncond':
         if os.path.exists(model_256_path) and check_model_SHA:
@@ -223,9 +211,7 @@ def load_all_models(
                     model_256_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(
-                        diffusion_model, use_secondary_model, True, device=device
-                    )
+                    download_diffusion_models(diffusion_model, True, device=device)
         elif (
             os.path.exists(model_256_path)
             and not check_model_SHA
@@ -240,7 +226,7 @@ def load_all_models(
                 model_256_downloaded = True
             else:
                 logger.debug('First URL Failed using FallBack')
-                load_all_models(diffusion_model, True, device=device)
+                download_diffusion_models(diffusion_model, True, device=device)
     elif diffusion_model == '512x512_diffusion_uncond_finetune_008100':
         if os.path.exists(model_512_path) and check_model_SHA:
             logger.debug('Checking 512 Diffusion File')
@@ -253,9 +239,7 @@ def load_all_models(
                     model_512_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(
-                        diffusion_model, use_secondary_model, True, device=device
-                    )
+                    download_diffusion_models(diffusion_model, True, device=device)
             else:
                 logger.debug("512 Model SHA doesn't match, redownloading...")
                 _wget(model_512_link, cache_dir)
@@ -263,9 +247,7 @@ def load_all_models(
                     model_512_downloaded = True
                 else:
                     logger.debug('First URL Failed using FallBack')
-                    load_all_models(
-                        diffusion_model, use_secondary_model, True, device=device
-                    )
+                    download_diffusion_models(diffusion_model, True, device=device)
         elif (
             os.path.exists(model_512_path)
             and not check_model_SHA
@@ -277,44 +259,11 @@ def load_all_models(
         else:
             _wget(model_512_link, cache_dir)
             model_512_downloaded = True
-    # Download the secondary diffusion model v2
-    if use_secondary_model:
-        if os.path.exists(model_secondary_path) and check_model_SHA:
-            logger.debug('Checking Secondary Diffusion File')
-            with open(model_secondary_path, "rb") as f:
-                bytes = f.read()
-                hash = hashlib.sha256(bytes).hexdigest()
-            if hash == model_secondary_SHA:
-                logger.debug('Secondary Model SHA matches')
-                model_secondary_downloaded = True
-            else:
-                logger.debug("Secondary Model SHA doesn't match, redownloading...")
-                _wget(model_secondary_link, cache_dir)
-                if os.path.exists(model_secondary_path):
-                    model_secondary_downloaded = True
-                else:
-                    logger.debug('First URL Failed using FallBack')
-                    load_all_models(
-                        diffusion_model, use_secondary_model, True, device=device
-                    )
-        elif (
-            os.path.exists(model_secondary_path)
-            and not check_model_SHA
-            or model_secondary_downloaded == True
-        ):
-            logger.debug(
-                'Secondary Model already downloaded, check check_model_SHA if the file is corrupt'
-            )
-        else:
-            _wget(model_secondary_link, cache_dir)
-            if os.path.exists(model_secondary_path):
-                model_secondary_downloaded = True
-            else:
-                logger.debug('First URL Failed using FallBack')
-                load_all_models(
-                    diffusion_model, use_secondary_model, True, device=device
-                )
 
+
+def get_default_diffusion_config(
+    diffusion_model, device=torch.device('cuda:0')
+) -> Dict[str, Any]:
     from guided_diffusion.script_util import (
         model_and_diffusion_defaults,
     )
@@ -385,22 +334,74 @@ def load_all_models(
             }
         )
 
-    secondary_model = None
-    if use_secondary_model:
-        from discoart.nn.sec_diff import SecondaryDiffusionImageNet2
+    return model_config
 
-        secondary_model = SecondaryDiffusionImageNet2()
-        secondary_model.load_state_dict(
-            torch.load(
-                f'{cache_dir}/secondary_model_imagenet_2.pth', map_location='cpu'
-            )
+
+def load_secondary_model(fallback: bool = False, device=torch.device('cuda:0')):
+    logger.debug('loading secondary model...')
+
+    model_secondary_downloaded = False
+
+    model_secondary_path = f'{cache_dir}/secondary_model_imagenet_2.pth'
+
+    model_secondary_link_fb = (
+        'https://the-eye.eu/public/AI/models/v-diffusion/secondary_model_imagenet_2.pth'
+    )
+
+    model_secondary_SHA = (
+        '983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a'
+    )
+
+    model_secondary_link = (
+        'https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth'
+    )
+
+    if fallback:
+        model_secondary_link = model_secondary_link_fb
+
+    if os.path.exists(model_secondary_path) and check_model_SHA:
+        logger.debug('Checking Secondary Diffusion File')
+        with open(model_secondary_path, "rb") as f:
+            bytes = f.read()
+            hash = hashlib.sha256(bytes).hexdigest()
+        if hash == model_secondary_SHA:
+            logger.debug('Secondary Model SHA matches')
+        else:
+            logger.debug("Secondary Model SHA doesn't match, redownloading...")
+            _wget(model_secondary_link, cache_dir)
+            if os.path.exists(model_secondary_path):
+                model_secondary_downloaded = True
+            else:
+                logger.debug('First URL Failed using FallBack')
+                load_secondary_model(True)
+    elif (
+        os.path.exists(model_secondary_path)
+        and not check_model_SHA
+        or model_secondary_downloaded
+    ):
+        logger.debug(
+            'Secondary Model already downloaded, check check_model_SHA if the file is corrupt'
         )
-        secondary_model.eval().requires_grad_(False).to(device)
+    else:
+        _wget(model_secondary_link, cache_dir)
+        if os.path.exists(model_secondary_path):
+            model_secondary_downloaded = True
+        else:
+            logger.debug('First URL Failed using FallBack')
+            load_secondary_model(True)
 
-    return model_config, secondary_model
+    from discoart.nn.sec_diff import SecondaryDiffusionImageNet2
+
+    secondary_model = SecondaryDiffusionImageNet2()
+    secondary_model.load_state_dict(
+        torch.load(f'{cache_dir}/secondary_model_imagenet_2.pth', map_location='cpu')
+    )
+    secondary_model.eval().requires_grad_(False).to(device)
+    return secondary_model
 
 
 def load_diffusion_model(model_config, diffusion_model, device):
+    logger.debug('loading diffusion model...')
     from guided_diffusion.script_util import (
         create_model_and_diffusion,
     )

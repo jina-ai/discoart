@@ -38,12 +38,21 @@ else:
 
 # download and load models, this will take some time on the first load
 
-from .helper import load_all_models, load_diffusion_model, load_clip_models
+from .helper import (
+    download_diffusion_models,
+    load_diffusion_model,
+    load_clip_models,
+    load_secondary_model,
+    get_default_diffusion_config,
+)
 
-model_config, secondary_model = load_all_models(
-    '512x512_diffusion_uncond_finetune_008100',
-    use_secondary_model=True,
+DEFAULT_DIFFUSION_MODEL = '512x512_diffusion_uncond_finetune_008100'
+download_diffusion_models(
+    DEFAULT_DIFFUSION_MODEL,
     device=device,
+)
+default_model_config = get_default_diffusion_config(
+    DEFAULT_DIFFUSION_MODEL, device=device
 )
 
 from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any
@@ -197,7 +206,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     timestep_respacing = f'ddim{steps}'
     diffusion_steps = (1000 // steps) * steps if steps < 1000 else steps
-    _new_config = copy.deepcopy(model_config)
+    _new_config = copy.deepcopy(default_model_config)
 
     _new_config.update(
         {
@@ -217,10 +226,13 @@ def create(**kwargs) -> Optional['DocumentArray']:
         device, enabled=_args.clip_models, clip_models=_clip_models_cache
     )
 
-    _clear()
+    secondary_model = None
+    if _args.use_secondary_model and any(_args.use_secondary_model):
+        secondary_model = load_secondary_model(device=device)
 
+    _free()
     try:
-        do_run(_args, (model, diffusion, clip_models, secondary_model), device)
+        do_run(_args, (model, diffusion, clip_models, secondary_model), device=device)
     except KeyboardInterrupt:
         pass
     except Exception as ex:
@@ -233,7 +245,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         if not os.path.exists(f'{_name}.protobuf.lz4'):
             # not even a single document was created
-            _clear()
+            _free()
             return
 
         from docarray import DocumentArray
@@ -247,12 +259,12 @@ def create(**kwargs) -> Optional['DocumentArray']:
         ):
             _show_result_summary(_da, _name, _args)
 
-        _clear()
+        _free()
 
     return result
 
 
-def _clear():
+def _free():
     gc.collect()
     torch.cuda.empty_cache()
 
