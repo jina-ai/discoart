@@ -143,7 +143,7 @@ def cheatsheet():
 
     param_tab = Table(
         caption=f'Cheatsheet for all supported parameters',
-        box=box.ROUNDED,
+        box=box.SIMPLE,
         highlight=True,
         title_justify='left',
     )
