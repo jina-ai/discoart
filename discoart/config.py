@@ -155,6 +155,12 @@ def cheatsheet():
     for k, v in sorted(cfg.items()):
         value = str(v)
         if k in docs:
-            param_tab.add_row(str(k), value, docs[k])
+            d_string = docs[k]
+            param_tab.add_row(
+                str(k),
+                value,
+                d_string,
+                style='bold yellow on blue' if '[DiscoArt]' in d_string else None,
+            )
 
     console.print(param_tab)
