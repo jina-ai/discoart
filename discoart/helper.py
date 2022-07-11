@@ -7,6 +7,9 @@ from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
+import yaml
+from yaml import Loader
+
 import regex as re
 import torch
 from open_clip import SimpleTokenizer

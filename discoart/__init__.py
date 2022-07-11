@@ -7,7 +7,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 __version__ = '0.1.9'
 
-__all__ = ['create']
+__all__ = ['create', 'cheatsheet']
 
 import sys
 
@@ -106,7 +106,6 @@ def create(
     use_vertical_symmetry: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
-
     ...
 
 
@@ -303,3 +302,6 @@ More usage such as plotting, post-analysis can be found in the [README](https://
         code_theme='igor',
     )
     _dp1.display(config_file, persist_file, md)
+
+
+from .config import cheatsheet
