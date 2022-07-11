@@ -153,6 +153,6 @@ def cheatsheet():
 
     for k, v in sorted(cfg.items()):
         value = str(v)
-        param_tab.add_row(k, value, docs.get(k, '[dim]Unknown[/]'))
+        param_tab.add_row(str(k), value, str(docs.get(k, '[dim]Unknown[/]')))
 
     console.print(param_tab)
