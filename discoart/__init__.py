@@ -1,3 +1,4 @@
+import copy
 import os
 import warnings
 from types import SimpleNamespace
@@ -194,7 +195,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     timestep_respacing = f'ddim{steps}'
     diffusion_steps = (1000 // steps) * steps if steps < 1000 else steps
-    model_config.update(
+    _new_config = copy.deepcopy(model_config)
+
+    _new_config.update(
         {
             'timestep_respacing': timestep_respacing,
             'diffusion_steps': diffusion_steps,
@@ -202,10 +205,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
     )
 
     if _args.diffusion_model_config:
-        model_config.update(_args.diffusion_model_config)
+        _new_config.update(_args.diffusion_model_config)
 
     model, diffusion = load_diffusion_model(
-        model_config, _args.diffusion_model, device=device
+        _new_config, _args.diffusion_model, device=device
     )
 
     clip_models = load_clip_models(
