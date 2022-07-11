@@ -73,7 +73,7 @@ da = create(
 
 ![](.github/parameter-demo.gif)
 
-In case you forgot a parameter, just lookup the cheat sheet:
+In case you forgot a parameter, just lookup the cheatsheet at anytime:
 
 ```python
 from discoart import cheatsheet
