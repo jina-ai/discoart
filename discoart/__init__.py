@@ -45,7 +45,7 @@ model_config, secondary_model = load_all_models(
     device=device,
 )
 
-from typing import TYPE_CHECKING, overload, List, Optional
+from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any
 
 if TYPE_CHECKING:
     from docarray import DocumentArray, Document
@@ -98,11 +98,13 @@ def create(
         'ViT-B-16::openai',
         'RN50::openai',
     ],
+    clip_models_schedules: Optional[Dict[str, str]] = None,
     use_vertical_symmetry: Optional[bool] = False,
     use_horizontal_symmetry: Optional[bool] = False,
     transformation_percent: Optional[List[float]] = [0.09],
     skip_augs: Optional[bool] = False,
     on_misspelled_token: Optional[str] = 'ignore',
+    diffusion_model_config: Optional[Dict[str, Any]] = None,
 ) -> Optional['DocumentArray']:
     ...
 
@@ -117,8 +119,8 @@ def create(init_document: 'Document') -> Optional['DocumentArray']:
 
 def create(**kwargs) -> Optional['DocumentArray']:
     """
-    Create Disco Diffusion artworks and save the result into a DocumentArray.
-    :param init_document: its ``.tags`` will be used as parameters, ``.uri`` (if present) will be used as init image.
+    Create Disco Diffusion artworks and return the result as a DocumentArray object.
+
     :param text_prompts: Phrase, sentence, or string of words and phrases describing what the image should look like.  The words will be analyzed by the AI and will guide the diffusion process toward the image(s) you describe. These can include commas and weights to adjust the relative importance of each element.  E.g. "A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation."Notice that this prompt loosely follows a structure: [subject], [prepositional details], [setting], [meta modifiers and artist]; this is a good starting point for your experiments. Developing text prompts takes practice and experience, and is not the subject of this guide.  If you are a beginner to writing text prompts, a good place to start is on a simple AI art app like Night Cafe, starry ai or WOMBO prior to using DD, to get a feel for how text gets translated into images by GAN tools.  These other apps use different technologies, but many of the same principles apply.
     :param init_image: Recall that in the image sequence above, the first image shown is just noise.  If an init_image is provided, diffusion will replace the noise with the init_image as its starting state.  To use an init_image, upload the image to the Colab instance or your Google Drive, and enter the full image path here. If using an init_image, you may need to increase skip_steps to ~ 50% of total steps to retain the character of the init. See skip_steps above for further discussion.
     :param width_height: Desired final image size, in pixels. You can have a square, wide, or tall image, but each edge length should be set to a multiple of 64px, and a minimum of 512px on the default CLIP model setting.  If you forget to use multiples of 64px in your dimensions, DD will adjust the dimensions of your image to make it so.
@@ -154,6 +156,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param transformation_percent: Steps expressed in percentages in which the symmetry is enforced
     :param skip_augs: Controls whether to skip torchvision augmentations
     :param on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
+    :param clip_models_schedules: CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
+    :param diffusion_model_config: The customized diffusion model config, if specified will override the default diffusion model config.
     :return: a DocumentArray object that has `n_batches` Documents
     """
     from .config import load_config, print_args_table, save_config_svg

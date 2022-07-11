@@ -23,11 +23,13 @@ for k, v in cfg.items():
         v_type = 'List[float]'
     elif k == 'clip_models_schedules':
         v_type = 'Dict[str, str]'
+    elif k == 'diffusion_model_config':
+        v_type = 'Dict[str, Any]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
 all_args.append(') -> Optional[\'DocumentArray\']:')
 all_args.append('"""')
 all_args.append(
-    'Create Disco Diffusion artworks and save the result into a DocumentArray.\n'
+    'Create Disco Diffusion artworks and return the result as a DocumentArray object.\n'
 )
 for k, v in docs.items():
     if v:
