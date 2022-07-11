@@ -128,3 +128,5 @@ skip_augs: Controls whether to skip torchvision augmentations
 on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
 clip_models_schedules: |
   CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
+diffusion_model_config: |
+  The customized diffusion model config, if specified will override the default diffusion model config.
