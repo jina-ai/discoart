@@ -106,7 +106,7 @@ def print_args_table(
         else 'showing all args ([b]bold *[/] args are non-default)',
         box=box.ROUNDED,
         highlight=True,
-        title_justify='left',
+        title_justify='center',
     )
     param_str.add_column('Argument', justify='right')
     param_str.add_column('Value', justify='left')
@@ -154,6 +154,7 @@ def cheatsheet():
 
     for k, v in sorted(cfg.items()):
         value = str(v)
-        param_tab.add_row(str(k), value, str(docs.get(k, '[dim]Unknown[/]')))
+        if k in docs:
+            param_tab.add_row(str(k), value, docs[k])
 
     console.print(param_tab)
