@@ -3,13 +3,12 @@ import logging
 import os
 import subprocess
 import sys
+import urllib.parse
+import urllib.request
 from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-
-import yaml
-from yaml import Loader
-
+from tqdm import tqdm
 import regex as re
 import torch
 from open_clip import SimpleTokenizer
@@ -128,10 +127,29 @@ def _clone_dependencies():
 
 
 def _wget(url, outputdir):
-    res = subprocess.run(
-        ['wget', url, '-q', '-P', f'{outputdir}'], stdout=subprocess.PIPE
-    ).stdout.decode('utf-8')
-    logger.debug(res)
+    logger.debug(f'downloading from {url}...')
+    try:
+        basename = os.path.basename(url)
+
+        with urllib.request.urlopen(url) as source, open(
+            os.path.join(outputdir, basename), 'wb'
+        ) as output:
+            with tqdm(
+                total=int(source.info().get("Content-Length")),
+                ncols=80,
+                unit='iB',
+                unit_scale=True,
+            ) as loop:
+                while True:
+                    buffer = source.read(8192)
+                    if not buffer:
+                        break
+
+                    output.write(buffer)
+                    loop.update(len(buffer))
+        logger.debug(f'write to {outputdir}')
+    except:
+        logger.error(f'failed to download {url}')
 
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
@@ -181,7 +199,7 @@ def download_diffusion_models(
     model_512_SHA = '9c111ab89e214862b76e1fa6a1b3f1d329b1a88281885943d2cdbe357ad57648'
 
     model_256_link = 'https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt'
-    model_512_link = 'https://v-diffusion.s3.us-west-2.amazonaws.com/512x512_diffusion_uncond_finetune_008100.pt'
+    model_512_link = 'https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt'
 
     model_256_link_fb = (
         'https://www.dropbox.com/s/9tqnqo930mpnpcn/256x256_diffusion_uncond.pt'
@@ -373,7 +391,7 @@ def load_secondary_model(fallback: bool = False, device=torch.device('cuda:0')):
                 model_secondary_downloaded = True
             else:
                 logger.debug('First URL Failed using FallBack')
-                load_secondary_model(True)
+                load_secondary_model(True, device=device)
     elif (
         os.path.exists(model_secondary_path)
         and not check_model_SHA
@@ -388,7 +406,7 @@ def load_secondary_model(fallback: bool = False, device=torch.device('cuda:0')):
             model_secondary_downloaded = True
         else:
             logger.debug('First URL Failed using FallBack')
-            load_secondary_model(True)
+            load_secondary_model(True, device=device)
 
     from discoart.nn.sec_diff import SecondaryDiffusionImageNet2
 

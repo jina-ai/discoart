@@ -227,7 +227,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     )
 
     secondary_model = None
-    if _args.use_secondary_model and any(_args.use_secondary_model):
+    if _args.use_secondary_model or any(_args.use_secondary_model):
         secondary_model = load_secondary_model(device=device)
 
     _free()
