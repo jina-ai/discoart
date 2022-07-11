@@ -40,7 +40,7 @@ cut_ic_pow: "[1]*1000"
 display_rate: 20
 n_batches: 4
 batch_size: 1
-batch_name: ''
+batch_name:
 clip_models:
   - ViT-B-32::openai
   - ViT-B-16::openai

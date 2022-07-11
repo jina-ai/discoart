@@ -129,4 +129,7 @@ on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', '
 clip_models_schedules: |
   CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
 diffusion_model_config: |
-  The customized diffusion model config, if specified will override the default diffusion model config.
+  The customized diffusion model config as a dictionary, if specified will override the values with the same name in the default model config.
+
+init_document: |
+  Use a Document object as the initial state for DD: its ``.tags`` will be used as parameters, ``.uri`` (if present) will be used as init image.

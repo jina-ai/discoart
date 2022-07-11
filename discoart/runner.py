@@ -64,7 +64,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             input_resolution = 224
 
         schedules = [True] * 1000
-        if model_name in args.clip_models_schedules:
+        if args.clip_models_schedules and model_name in args.clip_models_schedules:
             schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
 
         model_stat = {
