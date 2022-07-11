@@ -142,10 +142,11 @@ def cheatsheet():
         docs = yaml.load(ymlfile, Loader=Loader)
 
     param_tab = Table(
-        caption=f'Cheatsheet for all supported parameters',
-        box=box.SIMPLE,
+        title=f'Cheatsheet for all supported parameters',
+        box=box.ROUNDED,
         highlight=True,
-        title_justify='left',
+        show_lines=True,
+        title_justify='center',
     )
     param_tab.add_column('Argument', justify='right')
     param_tab.add_column('Default', justify='left')
