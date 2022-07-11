@@ -103,6 +103,7 @@ def create(
     seed: Optional[int] = None,
     skip_augs: Optional[bool] = False,
     skip_steps: Optional[int] = 0,
+    steps: Optional[int] = 250,
     text_prompts: Optional[List[str]] = [
         'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
         'yellow color scheme',
