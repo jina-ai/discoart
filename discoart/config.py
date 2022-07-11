@@ -160,7 +160,7 @@ def cheatsheet():
                 str(k),
                 value,
                 d_string,
-                style='bold yellow on blue' if '[DiscoArt]' in d_string else None,
+                style='bold' if '[DiscoArt]' in d_string else None,
             )
 
     console.print(param_tab)
