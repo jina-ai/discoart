@@ -149,12 +149,17 @@ def cheatsheet():
         title_justify='center',
     )
     param_tab.add_column('Argument', justify='right')
-    param_tab.add_column('Default', justify='left')
+    param_tab.add_column('Default', justify='left', max_width=10, overflow='fold')
     param_tab.add_column('Description', justify='left')
 
     for k, v in sorted(cfg.items()):
         value = str(v)
         if k in docs:
-            param_tab.add_row(str(k), value, docs[k])
+            d_string = docs[k]
+            param_tab.add_row(
+                str(k),
+                value,
+                d_string.replace('[DiscoArt]', '[bold white on red]:new: DiscoArt[/]'),
+            )
 
     console.print(param_tab)

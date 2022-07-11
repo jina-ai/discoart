@@ -48,6 +48,21 @@ setup(
         'open_clip_torch',
         'pyspellchecker',
     ],
+    extras_require={
+        'test': [
+            'pytest',
+            'pytest-timeout',
+            'pytest-mock',
+            'pytest-cov',
+            'pytest-repeat',
+            'pytest-reraise',
+            'mock',
+            'pytest-custom_exit_code',
+            'black==22.3.0',
+            'torch==1.9.0',
+            'torchvision==0.10.0',
+        ],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
