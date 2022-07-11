@@ -21,6 +21,8 @@ for k, v in cfg.items():
         v_type = 'List[int]'
     elif k == 'transformation_percent':
         v_type = 'List[float]'
+    elif k == 'clip_models_schedules':
+        v_type = 'Dict[str, str]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
 all_args.append(') -> Optional[\'DocumentArray\']:')
 all_args.append('"""')

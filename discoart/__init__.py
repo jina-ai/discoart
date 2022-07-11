@@ -190,8 +190,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         device, enabled=_args.clip_models, clip_models=_clip_models_cache
     )
 
-    gc.collect()
-    torch.cuda.empty_cache()
+    _clear()
 
     try:
         do_run(_args, (model, diffusion, clip_models, secondary_model), device)

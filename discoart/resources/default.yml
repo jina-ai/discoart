@@ -45,6 +45,7 @@ clip_models:
   - ViT-B-32::openai
   - ViT-B-16::openai
   - RN50::openai
+clip_models_schedules:
 
 use_vertical_symmetry: False
 use_horizontal_symmetry: False

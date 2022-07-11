@@ -77,7 +77,7 @@ logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     logger.info(
-        '''
+        f'''
 Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
 You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
 '''
@@ -161,7 +161,7 @@ https://github.com/mlfoundations/open_clip#pretrained-model-interface
         if k not in enabled:
             clip_models.pop(k)
 
-    return list(clip_models.values())
+    return clip_models
 
 
 def load_all_models(
