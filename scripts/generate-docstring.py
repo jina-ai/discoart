@@ -20,8 +20,12 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'int'
     if v_type == 'str' and v is not None:
         v = f'\'{v}\''
-    if k in ('text_prompts', 'clip_models'):
+    elif k in ('text_prompts', 'clip_models'):
         v_type = 'List[str]'
+    elif k in ('cut_ic_pow', 'cut_overview', 'cut_innercut', 'cut_icgray_p'):
+        v_type = 'Union[float, str]'
+    elif k in ('use_secondary_model',):
+        v_type = 'Union[bool, str]'
     elif k in ('batch_name',):
         v_type = 'str'
     elif k == 'width_height':
@@ -29,7 +33,7 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
     elif k == 'transformation_percent':
         v_type = 'List[float]'
     elif k == 'clip_models_schedules':
-        v_type = 'Dict[str, str]'
+        v_type = 'Dict[str, Union[str, List[str]]]'
     elif k == 'diffusion_model_config':
         v_type = 'Dict[str, Any]'
     all_args.append(f'{k}: Optional[{v_type}] = {v},')

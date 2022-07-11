@@ -55,7 +55,7 @@ default_model_config = get_default_diffusion_config(
     DEFAULT_DIFFUSION_MODEL, device=device
 )
 
-from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any
+from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any, Union
 
 if TYPE_CHECKING:
     from docarray import DocumentArray, Document
@@ -77,7 +77,7 @@ def create(
         'ViT-B-16::openai',
         'RN50::openai',
     ],
-    clip_models_schedules: Optional[Dict[str, str]] = None,
+    clip_models_schedules: Optional[Dict[str, Union[str, List[str]]]] = None,
     cut_ic_pow: Optional[str] = '[1]*1000',
     cut_icgray_p: Optional[str] = '[0.2]*400+[0]*600',
     cut_innercut: Optional[str] = '[4]*400+[12]*600',
@@ -111,7 +111,7 @@ def create(
     transformation_percent: Optional[List[float]] = [0.09],
     tv_scale: Optional[int] = 0,
     use_horizontal_symmetry: Optional[bool] = False,
-    use_secondary_model: Optional[bool] = True,
+    use_secondary_model: Optional[Union[bool, str]] = True,
     use_vertical_symmetry: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
@@ -169,7 +169,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param transformation_percent: Steps expressed in percentages in which the symmetry is enforced
     :param tv_scale: Total variance denoising. Optional, set to zero to turn off. Controls ‘smoothness’ of final output. If used, tv_scale will try to smooth out your final image to reduce overall noise. If your image is too ‘crunchy’, increase tv_scale. TV denoising is good at preserving edges while smoothing away noise in flat regions.  See https://en.wikipedia.org/wiki/Total_variation_denoising
     :param use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
-    :param use_secondary_model: Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.[DiscoArt] It can be also an boolean list represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.
+    :param use_secondary_model: Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.[DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.
     :param use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
     :param width_height: Desired final image size, in pixels. You can have a square, wide, or tall image, but each edge length should be set to a multiple of 64px, and a minimum of 512px on the default CLIP model setting.  If you forget to use multiples of 64px in your dimensions, DD will adjust the dimensions of your image to make it so.
     :return: a DocumentArray object that has `n_batches` Documents

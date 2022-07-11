@@ -50,7 +50,7 @@ diffusion_model: Diffusion_model of choice.
 
 use_secondary_model: |
   Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.
-  [DiscoArt] It can be also an boolean list represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.   
+  [DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.   
 
 diffusion_sampling_mode: |
   Two alternate diffusion denoising algorithms. ddim has been around longer, and is more established and tested.  plms is a newly added alternate method that promises good diffusion results in fewer steps, but has not been as fully tested and may have side effects. This new plms mode is actively being researched in the #settings-and-techniques channel in the DD Discord.
