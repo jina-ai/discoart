@@ -73,8 +73,15 @@ da = create(
 
 ![](.github/parameter-demo.gif)
 
+In case you forgot a parameter, just lookup the cheat sheet:
 
-[This docs explains those parameters in very details.](https://docs.google.com/document/d/1l8s7uS2dGqjztYSjPpzlmXLjl5PM3IGkRWI3IiCuK7g/mobilebasic) The minor difference on the parameters between DiscoArt and DD5.x [is explained here](#whats-next).
+```python
+from discoart import cheatsheet
+
+cheatsheet()
+```
+
+The difference on the parameters between DiscoArt and DD5.x [is explained here](#whats-next). 
 
 
 ### Visualize results
