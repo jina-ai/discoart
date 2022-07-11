@@ -92,7 +92,7 @@ display_rate: |
 n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
 batch_name: |
-  The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
+  The name of the batch, the batch id will be named as "discoart-[batch_name]-[uuid]". To avoid your artworks be overridden by other users, please use a unique name.
 clip_models: |
   [DiscoArt] CLIP Model selectors provided by open-clip package. 
   These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  
