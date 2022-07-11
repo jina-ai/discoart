@@ -40,11 +40,12 @@ cut_ic_pow: "[1]*1000"
 display_rate: 20
 n_batches: 4
 batch_size: 1
-batch_name: ''
+batch_name:
 clip_models:
   - ViT-B-32::openai
   - ViT-B-16::openai
   - RN50::openai
+clip_models_schedules:
 
 use_vertical_symmetry: False
 use_horizontal_symmetry: False
@@ -52,3 +53,4 @@ transformation_percent: [0.09]
 skip_augs: False
 
 on_misspelled_token: ignore
+diffusion_model_config:

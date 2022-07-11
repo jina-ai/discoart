@@ -106,7 +106,7 @@ def print_args_table(
         else 'showing all args ([b]bold *[/] args are non-default)',
         box=box.ROUNDED,
         highlight=True,
-        title_justify='left',
+        title_justify='center',
     )
     param_str.add_column('Argument', justify='right')
     param_str.add_column('Value', justify='left')
@@ -125,3 +125,36 @@ def print_args_table(
     if console_print:
         console.print(param_str)
     return param_str
+
+
+def cheatsheet():
+    from . import __resources_path__
+
+    from rich.table import Table
+    from rich import box
+    from rich.console import Console
+
+    console = Console()
+
+    with open(f'{__resources_path__}/default.yml') as ymlfile:
+        cfg = yaml.load(ymlfile, Loader=Loader)
+    with open(f'{__resources_path__}/docstrings.yml') as ymlfile:
+        docs = yaml.load(ymlfile, Loader=Loader)
+
+    param_tab = Table(
+        title=f'Cheatsheet for all supported parameters',
+        box=box.ROUNDED,
+        highlight=True,
+        show_lines=True,
+        title_justify='center',
+    )
+    param_tab.add_column('Argument', justify='right')
+    param_tab.add_column('Default', justify='left')
+    param_tab.add_column('Description', justify='left')
+
+    for k, v in sorted(cfg.items()):
+        value = str(v)
+        if k in docs:
+            param_tab.add_row(str(k), value, docs[k])
+
+    console.print(param_tab)

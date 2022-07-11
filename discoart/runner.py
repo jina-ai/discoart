@@ -55,19 +55,31 @@ def do_run(args, models, device) -> 'DocumentArray':
     pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
-    for clip_model in clip_models:
+    for model_name, clip_model in clip_models.items():
+
+        # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
+        try:
+            input_resolution = clip_model.visual.input_resolution
+        except:
+            input_resolution = 224
+
+        schedules = [True] * 1000
+        if args.clip_models_schedules and model_name in args.clip_models_schedules:
+            schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
+
         model_stat = {
             'clip_model': clip_model,
             'target_embeds': [],
-            'make_cutouts': None,
             'weights': [],
+            'schedules': schedules,
+            'input_resolution': input_resolution,
         }
 
         for txt, weight in txt_weights:
             txt = clip_model.encode_text(clip.tokenize(txt).to(device)).float()
 
             if args.fuzzy_prompt:
-                for i in range(25):
+                for _ in range(25):
                     model_stat['target_embeds'].append(
                         (txt + torch.randn(txt.shape).cuda() * args.rand_mag).clamp(
                             0, 1
@@ -170,25 +182,24 @@ def do_run(args, models, device) -> 'DocumentArray':
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
+
             for model_stat in model_stats:
-                for i in range(args.cutn_batches):
+                for _ in range(args.cutn_batches):
                     t_int = (
                         int(t.item()) + 1
                     )  # errors on last step without +1, need to find source
-                    # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
-                    try:
-                        input_resolution = model_stat[
-                            'clip_model'
-                        ].visual.input_resolution
-                    except:
-                        input_resolution = 224
+
+                    num_step = 1000 - t_int
+
+                    if not model_stat['schedules'][num_step]:
+                        continue
 
                     cuts = MakeCutoutsDango(
-                        input_resolution,
-                        Overview=cut_overview[1000 - t_int],
-                        InnerCrop=cut_innercut[1000 - t_int],
-                        IC_Size_Pow=cut_ic_pow[1000 - t_int],
-                        IC_Grey_P=cut_icgray_p[1000 - t_int],
+                        model_stat['input_resolution'],
+                        Overview=cut_overview[num_step],
+                        InnerCrop=cut_innercut[num_step],
+                        IC_Size_Pow=cut_ic_pow[num_step],
+                        IC_Grey_P=cut_icgray_p[num_step],
                         skip_augs=args.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
@@ -201,7 +212,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     dists = dists.view(
                         [
-                            cut_overview[1000 - t_int] + cut_innercut[1000 - t_int],
+                            cut_overview[num_step] + cut_innercut[num_step],
                             n,
                             -1,
                         ]
@@ -411,10 +422,10 @@ def _silent_push(
 def _eval_scheduling_str(val) -> List[float]:
     if isinstance(val, str):
         r = eval(val)
-    elif isinstance(val, (int, float)):
+    elif isinstance(val, (int, float, bool)):
         r = [val] * 1000
     else:
-        raise ValueError(f'unsupported cut scheduling type: {val}: {type(val)}')
+        raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
 
     if len(r) != 1000:
         raise ValueError(f'invalid scheduling string: {val}')

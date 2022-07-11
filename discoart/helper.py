@@ -7,6 +7,9 @@ from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 
+import yaml
+from yaml import Loader
+
 import regex as re
 import torch
 from open_clip import SimpleTokenizer
@@ -77,7 +80,7 @@ logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     logger.info(
-        '''
+        f'''
 Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
 You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
 '''
@@ -161,7 +164,7 @@ https://github.com/mlfoundations/open_clip#pretrained-model-interface
         if k not in enabled:
             clip_models.pop(k)
 
-    return list(clip_models.values())
+    return clip_models
 
 
 def load_all_models(
@@ -357,6 +360,12 @@ def load_all_models(
             }
         )
     elif os.path.isfile(diffusion_model):
+        logger.info(
+            '''
+        looks like you are using a custom diffusion model, 
+        to override default diffusion model config, you can specify `create(diffusion_model_config={...}, ...)` as well,
+        '''
+        )
         model_config.update(
             {
                 'attention_resolutions': '16',
@@ -391,18 +400,9 @@ def load_all_models(
     return model_config, secondary_model
 
 
-def load_diffusion_model(model_config, diffusion_model, steps, device):
+def load_diffusion_model(model_config, diffusion_model, device):
     from guided_diffusion.script_util import (
         create_model_and_diffusion,
-    )
-
-    timestep_respacing = f'ddim{steps}'
-    diffusion_steps = (1000 // steps) * steps if steps < 1000 else steps
-    model_config.update(
-        {
-            'timestep_respacing': timestep_respacing,
-            'diffusion_steps': diffusion_steps,
-        }
     )
 
     model, diffusion = create_model_and_diffusion(**model_config)
