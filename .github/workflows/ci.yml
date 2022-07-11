@@ -100,7 +100,7 @@ jobs:
         run: |
           git config --local user.email "dev-bot@jina.ai"
           git config --local user.name "Jina Dev Bot"
-          pip install ".[devel,black]"
+          pip install black==22.3.0
           cd scripts && bash ./devbot.sh && cd -
           if [[ -z $(git status -s) ]]
           then
