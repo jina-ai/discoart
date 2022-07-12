@@ -81,7 +81,7 @@ from discoart import cheatsheet
 cheatsheet()
 ```
 
-The difference on the parameters between DiscoArt and DD5.x [is explained here](#whats-next). 
+The difference on the parameters between DiscoArt and DD5.5 [is explained here](./FEATURES.md). 
 
 
 ### Visualize results
@@ -223,17 +223,7 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --
 
 [Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).
 
-😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.4. So just unleash your creativity!
-
-There are some minor differences between DiscoArt and DD5.x:
-  - DiscoArt fixes multiple bugs e.g. weighted prompts, cut scheduling in original DD5.4, which improves the generation quality.
-  - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.4).
-  - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
-  - `clip_models` accepts a list of values from [all open-clip pretrained models and weights](https://github.com/jina-ai/discoart/blob/main/discoart/resources/docstrings.yml#L90).
-  - `cut_ic_pow` is changed to a scheduling parameter to control the power of inner cut, the syntax is the same as `cut_overview`, `cut_innercut`.
-  - `clip_models_schedules` is added to control the scheduling of clip models, the syntax is the same as `cut_overview` but as a bool list `[True]*400+[False]*600`.
-  - `use_secondary_model` supports scheduling expressions, e.g. `[True]*400+[False]*600`.
-  - `diffusion_model` and `diffusion_model_config` can be specified load custom diffusion model and override the default diffusion model.
+😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.5. So just unleash your creativity! [Read more about their differences here](./FEATURES.md)
 
 You can always do `from discoart import cheatsheet; cheatsheet()` to check all new/modified parameters.
 
