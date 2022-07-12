@@ -257,7 +257,9 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
     )
 
     model_config = model_and_diffusion_defaults()
-    if diffusion_model in models_list and models_list[diffusion_model]['config']:
+    if diffusion_model in models_list and models_list[diffusion_model].get(
+        'config', None
+    ):
         model_config.update(models_list[diffusion_model]['config'])
     else:
         logger.info(
