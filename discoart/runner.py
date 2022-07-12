@@ -290,7 +290,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         if args.perlin_init:
             init = regen_perlin(
-                args.perlin_mode, args.side_y, side_x, device, args.batch_size
+                args.perlin_mode, side_y, side_x, device, args.batch_size
             )
 
         if args.diffusion_sampling_mode == 'ddim':
