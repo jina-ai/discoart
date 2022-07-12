@@ -4,11 +4,41 @@
     - https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt
     - https://www.dropbox.com/s/9tqnqo930mpnpcn/256x256_diffusion_uncond.pt
   recommended_size: [ 512, 448 ]
+  config:
+    attention_resolutions: '32, 16, 8'
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 256
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 256
+    num_head_channels: 64
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    timestep_respacing: 250
+    use_scale_shift_norm: true
+
 512x512_diffusion_uncond_finetune_008100:
   sha: 9c111ab89e214862b76e1fa6a1b3f1d329b1a88281885943d2cdbe357ad57648
   sources:
     - https://the-eye.eu/public/AI/models/512x512_diffusion_unconditional_ImageNet/512x512_diffusion_uncond_finetune_008100.pt
     - https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt
+  config:
+    attention_resolutions: '32, 16, 8'
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 512
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 256
+    num_head_channels: 64
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    timestep_respacing: 250
+    use_scale_shift_norm: true
+
 PulpSciFiDiffusion:
   sha: b79e62613b9f50b8a3173e5f61f0320c7dbb16efad42a92ec94d014f6e17337f
   sources:
