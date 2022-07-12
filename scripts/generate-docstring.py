@@ -18,8 +18,6 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = '\'Document\''
     elif k == 'seed':
         v_type = 'int'
-    if v_type == 'str' and v is not None:
-        v = f'\'{v}\''
     elif k in ('text_prompts', 'clip_models'):
         v_type = 'List[str]'
     elif k in ('cut_ic_pow', 'cut_overview', 'cut_innercut', 'cut_icgray_p'):
@@ -36,6 +34,8 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'Dict[str, Union[str, List[str]]]'
     elif k == 'diffusion_model_config':
         v_type = 'Dict[str, Any]'
+    if isinstance(v, str):
+        v = f'\'{v}\''
     all_args.append(f'{k}: Optional[{v_type}] = {v},')
 all_args.append(') -> Optional[\'DocumentArray\']:')
 all_args.append('\n    ...')
@@ -55,7 +55,7 @@ all_args.append('"""')
 indent = '    '
 func_docstring = f'\n{indent}'.join(all_args)
 
-src_py = '../discoart/__init__.py'
+src_py = '../discoart/create.py'
 with open(src_py) as fp:
     _old = fp.read()
     _old = re.sub(

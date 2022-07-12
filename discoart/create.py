@@ -23,10 +23,10 @@ def create(
         'RN50::openai',
     ],
     clip_models_schedules: Optional[Dict[str, Union[str, List[str]]]] = None,
-    cut_ic_pow: Optional[str] = '[1]*1000',
-    cut_icgray_p: Optional[str] = '[0.2]*400+[0]*600',
-    cut_innercut: Optional[str] = '[4]*400+[12]*600',
-    cut_overview: Optional[str] = '[12]*400+[4]*600',
+    cut_ic_pow: Optional[Union[float, str]] = '[1]*1000',
+    cut_icgray_p: Optional[Union[float, str]] = '[0.2]*400+[0]*600',
+    cut_innercut: Optional[Union[float, str]] = '[4]*400+[12]*600',
+    cut_overview: Optional[Union[float, str]] = '[12]*400+[4]*600',
     cutn_batches: Optional[int] = 4,
     diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
     diffusion_model_config: Optional[Dict[str, Any]] = None,
@@ -60,6 +60,7 @@ def create(
     use_vertical_symmetry: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
+
     ...
 
 
@@ -76,7 +77,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     """
     Create Disco Diffusion artworks and return the result as a DocumentArray object.
 
-    :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-seed". To avoid your artworks be overridden by other users, please use a unique name.
+    :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-[uuid]". To avoid your artworks be overridden by other users, please use a unique name.
     :param clamp_grad: As I understand it, clamp_grad is an internal limiter that stops DD from producing extreme results.  Try your images with and without clamp_grad. If the image changes drastically with clamp_grad turned off, it probably means your clip_guidance_scale is too high and should be reduced.
     :param clamp_max: Sets the value of the clamp_grad limitation. Default is 0.05, providing for smoother, more muted coloration in images, but setting higher values (0.15-0.3) can provide interesting contrast and vibrancy.
     :param clip_denoised: Determines whether CLIP discriminates a noisy or denoised image
