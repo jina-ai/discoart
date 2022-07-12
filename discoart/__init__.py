@@ -1,4 +1,3 @@
-import copy
 import os
 import warnings
 from types import SimpleNamespace
@@ -39,21 +38,15 @@ else:
 # download and load models, this will take some time on the first load
 
 from .helper import (
-    download_diffusion_models,
+    download_model,
+    install_from_repos,
     load_diffusion_model,
     load_clip_models,
     load_secondary_model,
-    get_default_diffusion_config,
+    get_diffusion_config,
 )
 
-DEFAULT_DIFFUSION_MODEL = '512x512_diffusion_uncond_finetune_008100'
-download_diffusion_models(
-    DEFAULT_DIFFUSION_MODEL,
-    device=device,
-)
-default_model_config = get_default_diffusion_config(
-    DEFAULT_DIFFUSION_MODEL, device=device
-)
+install_from_repos()
 
 from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any, Union
 
@@ -115,7 +108,6 @@ def create(
     use_vertical_symmetry: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
-
     ...
 
 
@@ -202,33 +194,12 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     _args = SimpleNamespace(**_args)
 
-    steps = _args.steps
-
-    timestep_respacing = f'ddim{steps}'
-    diffusion_steps = (1000 // steps) * steps if steps < 1000 else steps
-    _new_config = copy.deepcopy(default_model_config)
-
-    _new_config.update(
-        {
-            'timestep_respacing': timestep_respacing,
-            'diffusion_steps': diffusion_steps,
-        }
-    )
-
-    if _args.diffusion_model_config:
-        _new_config.update(_args.diffusion_model_config)
-
-    model, diffusion = load_diffusion_model(
-        _new_config, _args.diffusion_model, device=device
-    )
+    model, diffusion = load_diffusion_model(_args, device=device)
 
     clip_models = load_clip_models(
         device, enabled=_args.clip_models, clip_models=_clip_models_cache
     )
-
-    secondary_model = None
-    if _args.use_secondary_model or any(_args.use_secondary_model):
-        secondary_model = load_secondary_model(device=device)
+    secondary_model = load_secondary_model(_args, device=device)
 
     _free()
     try:
