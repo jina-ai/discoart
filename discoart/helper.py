@@ -1,3 +1,4 @@
+import gc
 import hashlib
 import logging
 import os
@@ -5,16 +6,18 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+import warnings
 from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-from tqdm import tqdm
+
 import regex as re
 import torch
+import yaml
 from open_clip import SimpleTokenizer
 from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
-import yaml
+from tqdm import tqdm
 
 cache_dir = f'{expanduser("~")}/.cache/{__package__}'
 
@@ -24,6 +27,22 @@ from . import __resources_path__
 
 with open(f'{__resources_path__}/models.yml') as ymlfile:
     models_list = yaml.load(ymlfile, Loader=Loader)
+
+
+def get_device():
+    # check if GPU is available
+
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+        warnings.warn(
+            '''
+            !!!!CUDA is not available. DiscoArt is running on CPU. `create()` will be unbearably slow on CPU!!!!
+            Please switch to a GPU device. If you are using Google Colab, then free tier would just work.
+            '''
+        )
+    return device
 
 
 def is_jupyter() -> bool:  # pragma: no cover
@@ -86,12 +105,6 @@ def _get_logger():
 logger = _get_logger()
 
 if not os.path.exists(cache_dir):
-    logger.info(
-        f'''
-Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
-You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
-'''
-    )
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
 logger.debug(f'`.cache` dir is set to: {cache_dir}')
@@ -329,6 +342,7 @@ def load_diffusion_model(user_args, device):
     diffusion_model = user_args.diffusion_model
 
     download_model(diffusion_model)
+    install_from_repos()
 
     model_config = get_diffusion_config(user_args, device=device)
 
@@ -413,3 +427,79 @@ class PromptParser(SimpleTokenizer):
 
         logger.debug(f'prompt: {all_tokens}, weight: {weight}')
         return ' '.join(all_tokens), weight
+
+
+def free_memory():
+    gc.collect()
+    torch.cuda.empty_cache()
+
+
+def show_result_summary(_da, _name, _args):
+    from .config import print_args_table
+
+    _dp1, _fl, _ = get_ipython_funcs()
+
+    _dp1.clear_output(wait=True)
+
+    from rich.markdown import Markdown
+
+    md = Markdown(
+        f'''
+## Result preview
+
+*This preview not in HD*. To save full-size image please check out the instruction below.
+    ''',
+        code_theme='igor',
+    )
+    _dp1.display(md)
+
+    if _da and _da[0].uri:
+        _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
+
+    print_args_table(vars(_args))
+
+    persist_file = _fl(
+        f'{_name}.protobuf.lz4',
+        result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
+    )
+    config_file = _fl(
+        f'{_name}.svg',
+        result_html_prefix=f'▶ Download the config as SVG image: ',
+    )
+
+    md = Markdown(
+        f'''
+## Save the image
+
+There are two ways to save the HD image:
+
+- `da[0].display()` and then right-click "Download image";
+- or `da[0].save_uri_to_file('filename.png')` and find `filename.png` in your filesystem. On Google Colab, open the left pannel of "file structure" and you shall see it.
+
+`da[0]` represents the first image in your batch. You can save the 2nd, 3rd, etc. image by using `da[1]`, `da[2]`, etc.  
+
+## Save & load the batch        
+
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) available both local and cloud.
+
+
+You may also download the file manually and load it from local disk:
+
+```python
+da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+```
+
+You can simply pull it from any machine:
+
+```python
+# pip install docarray[common]
+from docarray import DocumentArray
+
+da = DocumentArray.pull('{_name}')
+```
+
+More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
+            ''',
+        code_theme='igor',
+    )
+    _dp1.display(config_file, persist_file, md)
