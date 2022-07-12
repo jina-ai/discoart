@@ -311,7 +311,7 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
 
 
 def load_secondary_model(user_args, device=torch.device('cuda:0')):
-    if not user_args.use_secondary_model or not any(user_args.use_secondary_model):
+    if not user_args.use_secondary_model:
         return
     download_model('secondary')
 
