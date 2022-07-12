@@ -69,6 +69,18 @@ def is_jupyter() -> bool:  # pragma: no cover
         return False  # Other type (?)
 
 
+def is_google_colab() -> bool:  # pragma: no cover
+    if 'DISCOART_DISABLE_IPYTHON' in os.environ:
+        return False
+
+    try:
+        get_ipython  # noqa: F821
+    except NameError:
+        return False
+    shell = get_ipython().__class__.__name__  # noqa: F821
+    return shell == 'Shell'
+
+
 def get_ipython_funcs():
     class NOP:
         def __call__(self, *args, **kwargs):
@@ -447,7 +459,7 @@ def show_result_summary(_da, _name, _args):
         f'''
 ## Result preview
 
-*This preview not in HD*. To save full-size image please check out the instruction below.
+This preview is **not** in HD. To save full-size image please check out the instruction below.
     ''',
         code_theme='igor',
     )
@@ -469,6 +481,8 @@ def show_result_summary(_da, _name, _args):
 
     md = Markdown(
         f'''
+
+
 ## Save the image
 
 There are two ways to save the HD image:
@@ -502,4 +516,7 @@ More usage such as plotting, post-analysis can be found in the [README](https://
             ''',
         code_theme='igor',
     )
-    _dp1.display(config_file, persist_file, md)
+    if is_google_colab():
+        _dp1.display(md)
+    else:
+        _dp1.display(config_file, persist_file, md)
