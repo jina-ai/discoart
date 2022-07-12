@@ -11,6 +11,9 @@ from . import __resources_path__
 with open(f'{__resources_path__}/default.yml') as ymlfile:
     default_args = yaml.load(ymlfile, Loader=Loader)
 
+with open(f'{__resources_path__}/cut-schedules.yml') as ymlfile:
+    cut_schedules = yaml.load(ymlfile, Loader=Loader)
+
 
 def load_config(
     user_config: Dict,
@@ -22,6 +25,9 @@ def load_config(
             raise AttributeError(f'unknown argument `{k}`, misspelled?')
 
     if user_config:
+        if 'cut_schedules_group' in user_config:
+            cfg.update(cut_schedules[user_config['cut_schedules_group']])
+
         cfg.update(**user_config)
 
     for k, v in cfg.items():

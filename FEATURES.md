@@ -10,6 +10,7 @@ DiscoArt is in sync with the update of original DD notebook implementation with 
 - Simpler interface and Pythonic API.
 
 ## Scheduling
+- `cut_schedules_group` allows one to load in multiple cut schedules at once.
 - `cut_ic_pow` is changed to a scheduling parameter to control the power of inner cut, the syntax is the same as `cut_overview`, `cut_innercut`.
 - `clip_models_schedules` is added to control the scheduling of clip models, the syntax is the same as `cut_overview` but as a bool list `[True]*400+[False]*600`.
 - `use_secondary_model` supports scheduling expressions, e.g. `[True]*400+[False]*600`.

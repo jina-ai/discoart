@@ -22,6 +22,8 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'List[str]'
     elif k in ('cut_ic_pow', 'cut_overview', 'cut_innercut', 'cut_icgray_p'):
         v_type = 'Union[float, str]'
+    elif k == 'cut_schedules_group':
+        v_type = 'str'
     elif k in ('use_secondary_model',):
         v_type = 'Union[bool, str]'
     elif k in ('batch_name',):

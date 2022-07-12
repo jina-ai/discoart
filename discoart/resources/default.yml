@@ -54,3 +54,4 @@ skip_augs: False
 
 on_misspelled_token: ignore
 diffusion_model_config:
+cut_schedules_group:
