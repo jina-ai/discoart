@@ -25,7 +25,7 @@ def load_config(
             raise AttributeError(f'unknown argument `{k}`, misspelled?')
 
     if user_config:
-        if 'cut_schedules_group' in user_config:
+        if user_config.get('cut_schedules_group', None):
             cfg.update(cut_schedules[user_config['cut_schedules_group']])
 
         cfg.update(**user_config)
