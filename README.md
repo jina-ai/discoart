@@ -222,13 +222,13 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --
 
 ## Serving
 
-Serving DiscoArt is super-easy. Simply run the following command:
+Serving DiscoArt is super easy. Simply run the following command:
 
 ```bash
 python -m discoart.serve
 ```
 
-You will see:
+You shall see:
 
 ![](.github/serving.png)
 
@@ -241,11 +241,13 @@ curl \
 -d '{"parameters": {"text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
 ```
 
-That's it. You can of course pass all parameters that accepted by `create()` function in the JSON.
+That's it. 
+
+You can of course pass all parameters that accepted by `create()` function in the JSON.
 
 ### Scaling out
 
-If you have multiple GPUs and you want to run multiple DiscoArt instances in parallel and leverage GPUs in a time-multiplexed fashion, you can copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) and modify it as follows:
+If you have multiple GPUs and you want to run multiple DiscoArt instances in parallel by leveraging GPUs in a time-multiplexed fashion, you can copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) and modify it as follows:
 
 ```yaml
 jtype: Flow
@@ -266,6 +268,8 @@ executors:
     replicas: 3  # change this if you have larger VRAM
 ```
 
+Here `replicas: 3` says spawning three DiscoArt instances, `CUDA_VISIBLE_DEVICES: RR0:3` makes sure they use the first three GPUs in a round-robin fashion.
+
 Name it as `myflow.yml` and then run `python -m discoart.serve myflow.yml` again.
 
 ### Customization
@@ -278,6 +282,13 @@ jina export kubernetes myflow.yml
 
 For more features and YAML configs, [please check out Jina](https://github.com/jina-ai/jina).
 
+
+### Hosting on Google Colab
+
+Though not recommended, it is also possible to use Google Colab to host DiscoArt server. 
+Please check out the following tutorials:
+- https://docs.jina.ai/how-to/google-colab/
+- https://clip-as-service.jina.ai/hosting/colab/
 
 ## What's next?
 
