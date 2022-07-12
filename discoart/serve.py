@@ -1,3 +1,5 @@
+import os
+import sys
 from typing import Dict
 
 from jina import Executor, requests, Flow
@@ -14,5 +16,14 @@ class DiscoArtExecutor(Executor):
 
 
 if __name__ == '__main__':
-    with Flow.load_config(os.path.join(__resources_path__, 'flow.yml')):
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '-i':
+            _input = sys.stdin.read()
+        else:
+            _input = sys.argv[1]
+    else:
+        _input = os.path.join(__resources_path__, 'flow.yml')
+
+    with Flow.load_config(_input):
         f.block()
