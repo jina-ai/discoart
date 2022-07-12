@@ -1,3 +1,4 @@
+import gc
 import hashlib
 import logging
 import os
@@ -5,17 +6,43 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+import warnings
 from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-from tqdm import tqdm
+
 import regex as re
 import torch
+import yaml
 from open_clip import SimpleTokenizer
 from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
+from tqdm import tqdm
 
 cache_dir = f'{expanduser("~")}/.cache/{__package__}'
+
+from yaml import Loader
+
+from . import __resources_path__
+
+with open(f'{__resources_path__}/models.yml') as ymlfile:
+    models_list = yaml.load(ymlfile, Loader=Loader)
+
+
+def get_device():
+    # check if GPU is available
+
+    if torch.cuda.is_available():
+        device = torch.device('cuda:0')
+    else:
+        device = torch.device('cpu')
+        warnings.warn(
+            '''
+            !!!!CUDA is not available. DiscoArt is running on CPU. `create()` will be unbearably slow on CPU!!!!
+            Please switch to a GPU device. If you are using Google Colab, then free tier would just work.
+            '''
+        )
+    return device
 
 
 def is_jupyter() -> bool:  # pragma: no cover
@@ -40,6 +67,18 @@ def is_jupyter() -> bool:  # pragma: no cover
         return False  # Terminal running IPython
     else:
         return False  # Other type (?)
+
+
+def is_google_colab() -> bool:  # pragma: no cover
+    if 'DISCOART_DISABLE_IPYTHON' in os.environ:
+        return False
+
+    try:
+        get_ipython  # noqa: F821
+    except NameError:
+        return False
+    shell = get_ipython().__class__.__name__  # noqa: F821
+    return shell == 'Shell'
 
 
 def get_ipython_funcs():
@@ -78,12 +117,6 @@ def _get_logger():
 logger = _get_logger()
 
 if not os.path.exists(cache_dir):
-    logger.info(
-        f'''
-Looks like you are running {__package__} for the first time. In the first time of usage, it will take some time to download all dependencies and models.
-You wont see this message on the second run. From the second run, `from discoart import create` will instantly return.
-'''
-    )
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
 
 logger.debug(f'`.cache` dir is set to: {cache_dir}')
@@ -113,7 +146,7 @@ def _clone_repo_install(repo_url, repo_dir, commit_hash):
     sys.path.append(repo_dir)
 
 
-def _clone_dependencies():
+def install_from_repos():
     _clone_repo_install(
         'https://github.com/kostarion/guided-diffusion',
         f'{cache_dir}/guided_diffusion',
@@ -186,102 +219,39 @@ https://github.com/mlfoundations/open_clip#pretrained-model-interface
     return clip_models
 
 
-def download_diffusion_models(
-    diffusion_model,
-    fallback=False,
-    device=torch.device('cuda:0'),
-):
-    _clone_dependencies()
-    model_256_downloaded = False
-    model_512_downloaded = False
-
-    model_256_SHA = '983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a'
-    model_512_SHA = '9c111ab89e214862b76e1fa6a1b3f1d329b1a88281885943d2cdbe357ad57648'
-
-    model_256_link = 'https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt'
-    model_512_link = 'https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt'
-
-    model_256_link_fb = (
-        'https://www.dropbox.com/s/9tqnqo930mpnpcn/256x256_diffusion_uncond.pt'
-    )
-    model_512_link_fb = 'https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt'
-
-    model_256_path = f'{cache_dir}/256x256_diffusion_uncond.pt'
-    model_512_path = f'{cache_dir}/512x512_diffusion_uncond_finetune_008100.pt'
-
-    if fallback:
-        model_256_link = model_256_link_fb
-        model_512_link = model_512_link_fb
-    # Download the diffusion model
-    if diffusion_model == '256x256_diffusion_uncond':
-        if os.path.exists(model_256_path) and check_model_SHA:
-            logger.debug('Checking 256 Diffusion File')
-            with open(model_256_path, "rb") as f:
-                bytes = f.read()
-                hash = hashlib.sha256(bytes).hexdigest()
-            if hash == model_256_SHA:
-                logger.debug('256 Model SHA matches')
-                model_256_downloaded = True
-            else:
-                logger.debug("256 Model SHA doesn't match, redownloading...")
-                _wget(model_256_link, cache_dir)
-                if os.path.exists(model_256_path):
-                    model_256_downloaded = True
-                else:
-                    logger.debug('First URL Failed using FallBack')
-                    download_diffusion_models(diffusion_model, True, device=device)
-        elif (
-            os.path.exists(model_256_path)
-            and not check_model_SHA
-            or model_256_downloaded
-        ):
-            logger.debug(
-                '256 Model already downloaded, check check_model_SHA if the file is corrupt'
-            )
-        else:
-            _wget(model_256_link, cache_dir)
-            if os.path.exists(model_256_path):
-                model_256_downloaded = True
-            else:
-                logger.debug('First URL Failed using FallBack')
-                download_diffusion_models(diffusion_model, True, device=device)
-    elif diffusion_model == '512x512_diffusion_uncond_finetune_008100':
-        if os.path.exists(model_512_path) and check_model_SHA:
-            logger.debug('Checking 512 Diffusion File')
-            with open(model_512_path, "rb") as f:
-                bytes = f.read()
-                hash = hashlib.sha256(bytes).hexdigest()
-            if hash == model_512_SHA:
-                logger.debug('512 Model SHA matches')
-                if os.path.exists(model_512_path):
-                    model_512_downloaded = True
-                else:
-                    logger.debug('First URL Failed using FallBack')
-                    download_diffusion_models(diffusion_model, True, device=device)
-            else:
-                logger.debug("512 Model SHA doesn't match, redownloading...")
-                _wget(model_512_link, cache_dir)
-                if os.path.exists(model_512_path):
-                    model_512_downloaded = True
-                else:
-                    logger.debug('First URL Failed using FallBack')
-                    download_diffusion_models(diffusion_model, True, device=device)
-        elif (
-            os.path.exists(model_512_path)
-            and not check_model_SHA
-            or model_512_downloaded
-        ):
-            logger.debug(
-                '512 Model already downloaded, check check_model_SHA if the file is corrupt'
-            )
-        else:
-            _wget(model_512_link, cache_dir)
-            model_512_downloaded = True
+def _get_sha(path):
+    with open(path, 'rb') as f:
+        return hashlib.sha256(f.read()).hexdigest()
 
 
-def get_default_diffusion_config(
-    diffusion_model, device=torch.device('cuda:0')
-) -> Dict[str, Any]:
+def download_model(model_name: str):
+    if os.path.isfile(model_name):
+        logger.debug('use customized local model')
+        return
+    if model_name not in models_list:
+        raise ValueError(
+            f'{model_name} is not supported, must be one of {models_list.keys()}'
+        )
+    model_filename = os.path.basename(models_list[model_name]['sources'][0])
+    model_local_path = os.path.join(cache_dir, model_filename)
+    if (
+        os.path.exists(model_local_path)
+        and _get_sha(model_local_path) == models_list[model_name]['sha']
+    ):
+        logger.debug(f'{model_filename} is already downloaded with correct SHA')
+    else:
+        for url in models_list[model_name]['sources']:
+            _wget(url, cache_dir)
+            if _get_sha(model_local_path) == models_list[model_name]['sha']:
+                logger.debug(f'{model_filename} is downloaded with correct SHA')
+                break
+
+
+def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, Any]:
+    diffusion_model = user_args.diffusion_model
+    steps = user_args.steps
+    diffusion_config = user_args.diffusion_model_config
+
     from guided_diffusion.script_util import (
         model_and_diffusion_defaults,
     )
@@ -326,7 +296,7 @@ def get_default_diffusion_config(
                 'use_scale_shift_norm': True,
             }
         )
-    elif os.path.isfile(diffusion_model):
+    else:
         logger.info(
             '''
         looks like you are using a custom diffusion model, 
@@ -352,61 +322,26 @@ def get_default_diffusion_config(
             }
         )
 
+    timestep_respacing = f'ddim{steps}'
+    diffusion_steps = (1000 // steps) * steps if steps < 1000 else steps
+
+    model_config.update(
+        {
+            'timestep_respacing': timestep_respacing,
+            'diffusion_steps': diffusion_steps,
+        }
+    )
+
+    if diffusion_config and isinstance(diffusion_config, dict):
+        model_config.update(diffusion_config)
+
     return model_config
 
 
-def load_secondary_model(fallback: bool = False, device=torch.device('cuda:0')):
-    logger.debug('loading secondary model...')
-
-    model_secondary_downloaded = False
-
-    model_secondary_path = f'{cache_dir}/secondary_model_imagenet_2.pth'
-
-    model_secondary_link_fb = (
-        'https://the-eye.eu/public/AI/models/v-diffusion/secondary_model_imagenet_2.pth'
-    )
-
-    model_secondary_SHA = (
-        '983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a'
-    )
-
-    model_secondary_link = (
-        'https://v-diffusion.s3.us-west-2.amazonaws.com/secondary_model_imagenet_2.pth'
-    )
-
-    if fallback:
-        model_secondary_link = model_secondary_link_fb
-
-    if os.path.exists(model_secondary_path) and check_model_SHA:
-        logger.debug('Checking Secondary Diffusion File')
-        with open(model_secondary_path, "rb") as f:
-            bytes = f.read()
-            hash = hashlib.sha256(bytes).hexdigest()
-        if hash == model_secondary_SHA:
-            logger.debug('Secondary Model SHA matches')
-        else:
-            logger.debug("Secondary Model SHA doesn't match, redownloading...")
-            _wget(model_secondary_link, cache_dir)
-            if os.path.exists(model_secondary_path):
-                model_secondary_downloaded = True
-            else:
-                logger.debug('First URL Failed using FallBack')
-                load_secondary_model(True, device=device)
-    elif (
-        os.path.exists(model_secondary_path)
-        and not check_model_SHA
-        or model_secondary_downloaded
-    ):
-        logger.debug(
-            'Secondary Model already downloaded, check check_model_SHA if the file is corrupt'
-        )
-    else:
-        _wget(model_secondary_link, cache_dir)
-        if os.path.exists(model_secondary_path):
-            model_secondary_downloaded = True
-        else:
-            logger.debug('First URL Failed using FallBack')
-            load_secondary_model(True, device=device)
+def load_secondary_model(user_args, device=torch.device('cuda:0')):
+    if not user_args.use_secondary_model:
+        return
+    download_model('secondary')
 
     from discoart.nn.sec_diff import SecondaryDiffusionImageNet2
 
@@ -418,7 +353,20 @@ def load_secondary_model(fallback: bool = False, device=torch.device('cuda:0')):
     return secondary_model
 
 
-def load_diffusion_model(model_config, diffusion_model, device):
+def load_diffusion_model(user_args, device):
+    diffusion_model = user_args.diffusion_model
+    if diffusion_model in models_list:
+        rec_size = models_list[diffusion_model].get('recommended_size', None)
+        if rec_size and user_args.width_height != rec_size:
+            logger.warning(
+                f'{diffusion_model} is recommended to have width_height {rec_size}, but you are using {user_args.width_height}. This may lead to suboptimal results.'
+            )
+
+    download_model(diffusion_model)
+    install_from_repos()
+
+    model_config = get_diffusion_config(user_args, device=device)
+
     logger.debug('loading diffusion model...')
     from guided_diffusion.script_util import (
         create_model_and_diffusion,
@@ -432,6 +380,7 @@ def load_diffusion_model(model_config, diffusion_model, device):
         _model_path = f'{cache_dir}/{diffusion_model}.pt'
     model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
+
     for name, param in model.named_parameters():
         if 'qkv' in name or 'norm' in name or 'proj' in name:
             param.requires_grad_()
@@ -500,3 +449,84 @@ class PromptParser(SimpleTokenizer):
 
         logger.debug(f'prompt: {all_tokens}, weight: {weight}')
         return ' '.join(all_tokens), weight
+
+
+def free_memory():
+    gc.collect()
+    torch.cuda.empty_cache()
+
+
+def show_result_summary(_da, _name, _args):
+    from .config import print_args_table
+
+    _dp1, _fl, _ = get_ipython_funcs()
+
+    _dp1.clear_output(wait=True)
+
+    from rich.markdown import Markdown
+
+    md = Markdown(
+        f'''
+## Result preview
+
+This preview is **not** in HD. To save full-size image please check out the instruction below.
+    ''',
+        code_theme='igor',
+    )
+    _dp1.display(md)
+
+    if _da and _da[0].uri:
+        _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
+
+    print_args_table(vars(_args))
+
+    persist_file = _fl(
+        f'{_name}.protobuf.lz4',
+        result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
+    )
+    config_file = _fl(
+        f'{_name}.svg',
+        result_html_prefix=f'▶ Download the config as SVG image: ',
+    )
+
+    md = Markdown(
+        f'''
+
+
+## Save the image
+
+There are two ways to save the HD image:
+
+- `da[0].display()` and then right-click "Download image";
+- or `da[0].save_uri_to_file('filename.png')` and find `filename.png` in your filesystem. On Google Colab, open the left pannel of "file structure" and you shall see it.
+
+`da[0]` represents the first image in your batch. You can save the 2nd, 3rd, etc. image by using `da[1]`, `da[2]`, etc.  
+
+## Save & load the batch        
+
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) available both local and cloud.
+
+
+You may also download the file manually and load it from local disk:
+
+```python
+da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+```
+
+You can simply pull it from any machine:
+
+```python
+# pip install docarray[common]
+from docarray import DocumentArray
+
+da = DocumentArray.pull('{_name}')
+```
+
+More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
+            ''',
+        code_theme='igor',
+    )
+    if is_google_colab():
+        _dp1.display(md)
+    else:
+        _dp1.display(config_file, persist_file, md)
