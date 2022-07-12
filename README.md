@@ -232,9 +232,51 @@ You will see:
 
 ![](.github/serving.png)
 
-Now you can access the server via gRPC protocol.
+Now send request to the server via curl/Javascript, e.g.
 
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \  # use private/public if your server is remote
+-H 'Content-Type: application/json' \
+-d '{"parameters": {"text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
+```
 
+That's it. You can of course pass all parameters that accepted by `create()` function in the JSON.
+
+### Scaling out
+
+If you have multiple GPUs and you want to run multiple DiscoArt instances in parallel and leverage GPUs in a time-multiplexed fashion, you can copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) and modify it as follows:
+
+```yaml
+jtype: Flow
+with:
+  protocol: http
+  monitoring: true
+  port: 51001
+  port_monitoring: 51002  # prometheus monitoring port
+  env:
+    JINA_LOG_LEVEL: debug
+    DISCOART_DISABLE_IPYTHON: 1
+    DISCOART_DISABLE_RESULT_SUMMARY: 1
+executors:
+  - name: discoart
+    uses: DiscoArtExecutor
+    env:
+      CUDA_VISIBLE_DEVICES: RR0:3  # change this if you have multiple GPU
+    replicas: 3  # change this if you have larger VRAM
+```
+
+Name it as `myflow.yml` and then run `python -m discoart.serve myflow.yml` again.
+
+### Customization
+
+You can change the port number; change protocol to gRPC/Websockets; add TLS encryption; enable/disable Prometheus monitoring; you can also export it to Kubernetes deployment bundle simply via:
+
+```bash
+jina export kubernetes myflow.yml
+```
+
+For more features and YAML configs, [please check out Jina](https://github.com/jina-ai/jina).
 
 
 ## What's next?

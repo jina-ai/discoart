@@ -12,7 +12,7 @@ class DiscoArtExecutor(Executor):
     def create_artworks(self, parameters: Dict, **kwargs):
         from .create import create
 
-        return create(**parameters, **kwargs)
+        return create(**parameters)
 
 
 if __name__ == '__main__':

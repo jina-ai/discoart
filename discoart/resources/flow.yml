@@ -1,11 +1,13 @@
 jtype: Flow
 with:
-  protocol: grpc
+  protocol: http
   monitoring: true
   port: 51001
   port_monitoring: 51002  # prometheus monitoring port
   env:
     JINA_LOG_LEVEL: debug
+    DISCOART_DISABLE_IPYTHON: 1
+    DISCOART_DISABLE_RESULT_SUMMARY: 1
 executors:
   - name: discoart
     uses: DiscoArtExecutor
