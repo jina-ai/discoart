@@ -1,12 +1,9 @@
 import os
 import warnings
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, overload, List, Optional, Dict, Any, Union
+from typing import overload, List, Optional, Dict, Any, Union
 
-# download and load models, this will take some time on the first load
-
-if TYPE_CHECKING:
-    from docarray import DocumentArray, Document
+from docarray import DocumentArray, Document
 
 _clip_models_cache = {}
 
@@ -124,15 +121,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
     # end_create_docstring
 
     from .config import load_config, save_config_svg
-    from .runner import do_run
-    from .helper import (
-        load_diffusion_model,
-        load_clip_models,
-        load_secondary_model,
-        get_device,
-        free_memory,
-        show_result_summary,
-    )
 
     if 'init_document' in kwargs:
         d = kwargs['init_document']
@@ -157,6 +145,16 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     _args = SimpleNamespace(**_args)
 
+    from .helper import (
+        load_diffusion_model,
+        load_clip_models,
+        load_secondary_model,
+        get_device,
+        free_memory,
+        show_result_summary,
+        logger,
+    )
+
     device = get_device()
     model, diffusion = load_diffusion_model(_args, device=device)
 
@@ -168,12 +166,12 @@ def create(**kwargs) -> Optional['DocumentArray']:
     free_memory()
 
     try:
+        from .runner import do_run
+
         do_run(_args, (model, diffusion, clip_models, secondary_model), device=device)
     except KeyboardInterrupt:
         pass
     except Exception as ex:
-        from .helper import logger
-
         logger.error(ex, exc_info=True)
     finally:
         _name = _args.name_docarray
@@ -182,8 +180,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
             # not even a single document was created
             free_memory()
             return
-
-        from docarray import DocumentArray
 
         _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
         result = _da
