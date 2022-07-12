@@ -40,6 +40,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -806,4 +807,23 @@
 ### 🍹 Other Improvements
 
  - [[```38b80e9d```](https://github.com/jina-ai/docarray/commit/38b80e9d7bd70d9856d04f0fd230602e72ac0574)] __-__ __version__: the next version will be 0.3.3 (*Jina Dev Bot*)
+
+<a name=release-note-0-3-4></a>
+## Release Note (`0.3.4`)
+
+> Release time: 2022-07-12 14:55:21
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```9df8c11f```](https://github.com/jina-ai/docarray/commit/9df8c11ff7c399dec9809b75cf5e0e77b3e94d0a)] __-__ add comics diffusion model (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```f4699f8c```](https://github.com/jina-ai/docarray/commit/f4699f8cfac8e269f847a8d4875c3c54b13cbb29)] __-__ __version__: the next version will be 0.3.4 (*Jina Dev Bot*)
 
