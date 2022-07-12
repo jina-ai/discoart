@@ -225,6 +225,9 @@ def _get_sha(path):
 
 
 def download_model(model_name: str):
+    if os.path.isfile(model_name):
+        logger.debug('use customized local model')
+        return
     if model_name not in models_list:
         raise ValueError(
             f'{model_name} is not supported, must be one of {models_list.keys()}'
@@ -352,6 +355,12 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 
 def load_diffusion_model(user_args, device):
     diffusion_model = user_args.diffusion_model
+    if diffusion_model in models_list:
+        rec_size = models_list[diffusion_model].get('recommended_size', None)
+        if rec_size and user_args.width_height != rec_size:
+            logger.warning(
+                f'{diffusion_model} is recommended to have width_height {rec_size}, but you are using {user_args.width_height}. This may lead to suboptimal results.'
+            )
 
     download_model(diffusion_model)
     install_from_repos()
@@ -371,6 +380,7 @@ def load_diffusion_model(user_args, device):
         _model_path = f'{cache_dir}/{diffusion_model}.pt'
     model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
+
     for name, param in model.named_parameters():
         if 'qkv' in name or 'norm' in name or 'proj' in name:
             param.requires_grad_()
