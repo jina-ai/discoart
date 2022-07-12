@@ -26,6 +26,8 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
+☁️ **As-a-service**: Just in one-line `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service (thanks to [Jina](https://github.com/jina-ai/jina) & [DocArray](https://github.com/jina-ai/docarray)), with gRPC/HTTP/websockets protocols and TLS support. Scaling and replicas is one-line. Modern cloud-native features such as Kubernetes, Prometheus and Grafana are immediately available.
+
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
 ## Install
@@ -43,7 +45,7 @@ pip install discoart
 
 <a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 
-Note, GPU is required.
+Note, GPU is required. [For serving DiscoArt, click here.](#serving)
 
 ### Create artworks
 
@@ -216,6 +218,22 @@ We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook.
 # docker build . -t jinaai/discoart  # if you want to build yourself
 docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
 ```
+
+
+## Serving
+
+Serving DiscoArt is super-easy. Simply run the following command:
+
+```bash
+python -m discoart.serve
+```
+
+You will see:
+
+![](.github/serving.png)
+
+Now you can access the server via gRPC protocol.
+
 
 
 
