@@ -25,5 +25,5 @@ if __name__ == '__main__':
     else:
         _input = os.path.join(__resources_path__, 'flow.yml')
 
-    with Flow.load_config(_input):
+    with Flow.load_config(_input) as f:
         f.block()
