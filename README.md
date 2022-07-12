@@ -26,7 +26,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
-☁️ **As-a-service**: Just in one-line `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service (thanks to [Jina](https://github.com/jina-ai/jina) & [DocArray](https://github.com/jina-ai/docarray)), with gRPC/HTTP/websockets protocols and TLS support. Scaling and replicas is one-line. Modern cloud-native features such as Kubernetes, Prometheus and Grafana are immediately available.
+☁️ [**As-a-service**](#serving): simply `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service supports gRPC/HTTP/websockets and TLS. Scaling up/down is one-line; Cloud-native features e.g. Kubernetes, Prometheus and Grafana is one-line. Unbelievable simple.
 
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
