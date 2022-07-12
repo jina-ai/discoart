@@ -293,7 +293,7 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
                 'use_scale_shift_norm': True,
             }
         )
-    elif os.path.isfile(diffusion_model):
+    else:
         logger.info(
             '''
         looks like you are using a custom diffusion model, 
