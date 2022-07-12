@@ -26,6 +26,8 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
+☁️ **As-a-service**: Just in one-line `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service (thanks to [Jina](https://github.com/jina-ai/jina) & [DocArray](https://github.com/jina-ai/docarray)), with gRPC/HTTP/websockets protocols and TLS support. Scaling and replicas is one-line. Modern cloud-native features such as Kubernetes, Prometheus and Grafana are immediately available.
+
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
 ## Install
@@ -43,7 +45,7 @@ pip install discoart
 
 <a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
 
-Note, GPU is required.
+Note, GPU is required. [For serving DiscoArt, click here.](#serving)
 
 ### Create artworks
 
@@ -217,6 +219,64 @@ We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook.
 docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
 ```
 
+
+## Serving
+
+Serving DiscoArt is super-easy. Simply run the following command:
+
+```bash
+python -m discoart.serve
+```
+
+You will see:
+
+![](.github/serving.png)
+
+Now send request to the server via curl/Javascript, e.g.
+
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \  # use private/public if your server is remote
+-H 'Content-Type: application/json' \
+-d '{"parameters": {"text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
+```
+
+That's it. You can of course pass all parameters that accepted by `create()` function in the JSON.
+
+### Scaling out
+
+If you have multiple GPUs and you want to run multiple DiscoArt instances in parallel and leverage GPUs in a time-multiplexed fashion, you can copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) and modify it as follows:
+
+```yaml
+jtype: Flow
+with:
+  protocol: http
+  monitoring: true
+  port: 51001
+  port_monitoring: 51002  # prometheus monitoring port
+  env:
+    JINA_LOG_LEVEL: debug
+    DISCOART_DISABLE_IPYTHON: 1
+    DISCOART_DISABLE_RESULT_SUMMARY: 1
+executors:
+  - name: discoart
+    uses: DiscoArtExecutor
+    env:
+      CUDA_VISIBLE_DEVICES: RR0:3  # change this if you have multiple GPU
+    replicas: 3  # change this if you have larger VRAM
+```
+
+Name it as `myflow.yml` and then run `python -m discoart.serve myflow.yml` again.
+
+### Customization
+
+You can change the port number; change protocol to gRPC/Websockets; add TLS encryption; enable/disable Prometheus monitoring; you can also export it to Kubernetes deployment bundle simply via:
+
+```bash
+jina export kubernetes myflow.yml
+```
+
+For more features and YAML configs, [please check out Jina](https://github.com/jina-ai/jina).
 
 
 ## What's next?

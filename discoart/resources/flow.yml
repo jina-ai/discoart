@@ -1,0 +1,16 @@
+jtype: Flow
+with:
+  protocol: http
+  monitoring: true
+  port: 51001
+  port_monitoring: 51002  # prometheus monitoring port
+  env:
+    JINA_LOG_LEVEL: debug
+    DISCOART_DISABLE_IPYTHON: 1
+    DISCOART_DISABLE_RESULT_SUMMARY: 1
+executors:
+  - name: discoart
+    uses: DiscoArtExecutor
+    env:
+      CUDA_VISIBLE_DEVICES: RR0:2  # change this if you have multiple GPU
+    replicas: 1  # change this if you have larger VRAM
