@@ -47,6 +47,7 @@ setup(
         'pyyaml',
         'open_clip_torch',
         'pyspellchecker',
+        'jina',
     ],
     extras_require={
         'test': [
