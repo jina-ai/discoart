@@ -277,6 +277,17 @@ def _show_result_summary(_da, _name, _args):
 
     _dp1.clear_output(wait=True)
 
+    from rich.markdown import Markdown
+
+    md = Markdown(
+        f'''
+## Result preview
+
+*This preview not in HD*. To save full-size image please check out the instruction below.
+    '''
+    )
+    _dp1.display(md)
+
     if _da and _da[0].uri:
         _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
 
@@ -291,11 +302,27 @@ def _show_result_summary(_da, _name, _args):
         result_html_prefix=f'▶ Download the config as SVG image: ',
     )
 
-    from rich.markdown import Markdown
-
     md = Markdown(
         f'''
-Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) and synced to the cloud.
+## Save the image
+
+There are two ways to save the HD image:
+
+- `da[0].display()` and then right-click "Download image";
+- or `da[0].save_uri_to_file('filename.png')` and find `filename.png` in your filesystem. On Google Colab, open the left pannel of "file structure" and you shall see it.
+
+`da[0]` represents the first image in your batch. You can save the 2nd, 3rd, etc. image by using `da[1]`, `da[2]`, etc.  
+    
+## Save & load the batch        
+
+Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) available both local and cloud.
+
+
+You may also download the file manually and load it from local disk:
+
+```python
+da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+```
 
 You can simply pull it from any machine:
 
@@ -304,12 +331,6 @@ You can simply pull it from any machine:
 from docarray import DocumentArray
 
 da = DocumentArray.pull('{_name}')
-```
-
-If for some reason the cloud storage is not available, you may also download the file manually and load it from local disk:
-
-```python
-da = DocumentArray.load_binary('{_name}.protobuf.lz4')
 ```
 
 More usage such as plotting, post-analysis can be found in the [README](https://github.com/jina-ai/discoart).
