@@ -53,4 +53,4 @@ comics:
   sha: f587fd6d2edb093701931e5083a13ab6b76b3f457b60efd1aa873d60ee3d6388
     sources:
       - https://github.com/Sxela/DiscoDiffusion-Warp/releases/download/v0.1.1/256x256_openai_comics_faces_v2.by_alex_spirin_114k.pt
-    recommended_size: [ 512, 448 ]
+  recommended_size: [ 512, 448 ]
