@@ -18,28 +18,29 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 </sup></sub>
 
 
-💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements vs. the original DD5.5. 
+💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements [vs. the original DD5.5](FEATURES.md). 
 
-👼 **Available to all**: fully optimized for Google Colab *free tier*! Perfect for those who don't own GPU by themselves.
+👼 **Available to all**: smooth install for *self-hosting*, Google Colab *free tier*, and non-GUI (IPython) environment! No brainfuck, no dependency hell, no stackoverflow. 
 
 🎨 **Focus on create not code**: one-liner `create()` with a Pythonic interface, autocompletion in IDE, and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab. Set initial state easily for more efficient parameter exploration.
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
-☁️ [**As-a-service**](#serving): simply `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service supports gRPC/HTTP/websockets and TLS. Scaling up/down is one-line; Cloud-native features e.g. Kubernetes, Prometheus and Grafana is one-line. [Unbelievable simple thanks to Jina](https://github.com/jina-ai/jina)
+☁️ [**As-a-service**](#serving): simply `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service supports gRPC/HTTP/websockets and TLS. Scaling up/down is one-line; Cloud-native features e.g. Kubernetes, Prometheus and Grafana is one-line. [Unbelievable simple thanks to Jina](https://github.com/jina-ai/jina).
 
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
 ## Install
 
+Python 3.7+ and CUDA-enabled PyTorch is required.
+
 ```bash
 pip install discoart
 ```
 
-- If you want to start a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
-- If you are not using Google Colab/Jupyter Notebook, then other dependencies might be required [as described in the Dockerfile](./Dockerfile).
+This applies to both *self-hosting*, *Google Colab* and non-GUI environments.
 
-
+**Self-hosted Jupyter**: if you want to use it in a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
 
 ## Get Started
 
