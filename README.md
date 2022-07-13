@@ -199,13 +199,16 @@ create(
 
 ### Environment variables
 
-You can set environment variables to control the behavior of DiscoArt. The environment variables must be set before importing DiscoArt:
+You can set environment variables to control the meta-behavior of DiscoArt. The environment variables must be set before importing DiscoArt, either in Bash or in Python via `os.environ`.
 
 ```bash
 DISCOART_LOG_LEVEL='DEBUG' # more verbose logs
 DISCOART_OPTOUT_CLOUD_BACKUP='1' # opt-out from cloud backup
 DISCOART_DISABLE_IPYTHON='1' # disable ipython dependency
 DISCOART_DISABLE_RESULT_SUMMARY='1' # disable result summary after the run ends
+DISCOART_DEFAULT_PARAMETERS_YAML='path/to/your-default.yml' # use a custom default parameters file
+DISCOART_CUT_SCHEDULES_YAML='path/to/your-schedules.yml' # use a custom cut schedules file
+DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models file
 ```
 
 ### Run in Docker
@@ -306,7 +309,7 @@ Please check out the following tutorials:
 
 [Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).
 
-😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.5. So just unleash your creativity! [Read more about their differences here](./FEATURES.md)
+😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.5. So just unleash your creativity! [Read more about their differences here](./FEATURES.md).
 
 You can always do `from discoart import cheatsheet; cheatsheet()` to check all new/modified parameters.
 

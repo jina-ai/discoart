@@ -25,7 +25,9 @@ from yaml import Loader
 
 from . import __resources_path__
 
-with open(f'{__resources_path__}/models.yml') as ymlfile:
+with open(
+    os.environ.get('DISCOART_MODELS_YAML', f'{__resources_path__}/models.yml')
+) as ymlfile:
     models_list = yaml.load(ymlfile, Loader=Loader)
 
 
