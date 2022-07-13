@@ -68,7 +68,8 @@ def load_config(
 
         logger.debug('you did not set `batch_name`, set it to have unique session ID')
 
-    cfg.update(**{'name_docarray': da_name})
+    if cfg.get('name_docarray', None):
+        cfg['name_docarray'] = da_name
 
     return cfg
 
