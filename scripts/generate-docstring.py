@@ -41,7 +41,7 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = f'Union[{v_type}, str]'
     elif k == 'cut_schedules_group':
         v_type = 'str'
-    elif k in ('batch_name',):
+    elif k in ('batch_name', 'name_docarray'):
         v_type = 'str'
     elif k == 'width_height':
         v_type = 'List[int]'

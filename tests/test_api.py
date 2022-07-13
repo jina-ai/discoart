@@ -22,3 +22,9 @@ def test_create(mini_config):
 
 def test_cheatsheet():
     cheatsheet()
+
+
+def test_export_svg(mini_config):
+    from discoart.config import save_config_svg
+
+    save_config_svg(mini_config)
