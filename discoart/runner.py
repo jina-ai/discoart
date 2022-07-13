@@ -4,7 +4,7 @@ import random
 import threading
 from threading import Thread
 from types import SimpleNamespace
-from typing import List
+from typing import List, Dict
 
 import lpips
 import numpy as np
@@ -21,6 +21,8 @@ from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn
 
+_MAX_DIFFUSION_STEPS = 1000
+
 
 def do_run(args, models, device) -> 'DocumentArray':
     _set_seed(args.seed)
@@ -34,7 +36,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
 
-    scheduler = _get_scheduler(args)
+    schedule_table = _get_schedule_table(args)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
@@ -61,7 +63,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         except:
             input_resolution = 224
 
-        schedules = [True] * 1000
+        schedules = [True] * _MAX_DIFFUSION_STEPS
         if args.clip_models_schedules and model_name in args.clip_models_schedules:
             schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
 
@@ -154,13 +156,14 @@ def do_run(args, models, device) -> 'DocumentArray':
     def cond_fn(x, t, y=None):
         t_int = int(t.item()) + 1  # errors on last step without +1, need to find source
 
-        num_step = 1000 - t_int
+        num_step = _MAX_DIFFUSION_STEPS - t_int
+        scheduler = _get_current_schedule(schedule_table, num_step)
 
         with torch.enable_grad():
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
-            if scheduler.use_secondary_model[num_step]:
+            if scheduler.use_secondary_model:
                 alpha = torch.tensor(
                     diffusion.sqrt_alphas_cumprod[cur_t],
                     device=device,
@@ -192,10 +195,10 @@ def do_run(args, models, device) -> 'DocumentArray':
 
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview[num_step],
-                        InnerCrop=scheduler.cut_innercut[num_step],
-                        IC_Size_Pow=scheduler.cut_ic_pow[num_step],
-                        IC_Grey_P=scheduler.cut_icgray_p[num_step],
+                        Overview=scheduler.cut_overview,
+                        InnerCrop=scheduler.cut_innercut,
+                        IC_Size_Pow=scheduler.cut_ic_pow,
+                        IC_Grey_P=scheduler.cut_icgray_p,
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
@@ -208,8 +211,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     dists = dists.view(
                         [
-                            scheduler.cut_overview[num_step]
-                            + scheduler.cut_innercut[num_step],
+                            scheduler.cut_overview + scheduler.cut_innercut,
                             n,
                             -1,
                         ]
@@ -225,7 +227,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         / scheduler.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
-            if scheduler.use_secondary_model[num_step]:
+            if scheduler.use_secondary_model:
                 range_losses = range_loss(out)
             else:
                 range_losses = range_loss(out['pred_xstart'])
@@ -420,34 +422,36 @@ def _eval_scheduling_str(val) -> List[float]:
     if isinstance(val, str):
         r = eval(val)
     elif isinstance(val, (int, float, bool)):
-        r = [val] * 1000
+        r = [val] * _MAX_DIFFUSION_STEPS
     else:
         raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
 
-    if len(r) != 1000:
+    if len(r) != _MAX_DIFFUSION_STEPS:
         raise ValueError(f'invalid scheduling string: {val}')
     return r
 
 
-def _get_scheduler(args) -> 'SimpleNamespace':
-    return SimpleNamespace(
-        **{
-            k: _eval_scheduling_str(getattr(args, k))
-            for k in (
-                'cut_overview',
-                'cut_innercut',
-                'cut_icgray_p',
-                'cut_ic_pow',
-                'use_secondary_model',
-                'cutn_batches',
-                'skip_augs',
-                'clip_guidance_scale',
-                'tv_scale',
-                'range_scale',
-                'sat_scale',
-                'init_scale',
-                'clamp_grad',
-                'clamp_max',
-            )
-        }
-    )
+def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':
+    return SimpleNamespace(**{k: schedule_table[k][t] for k in schedule_table.keys()})
+
+
+def _get_schedule_table(args) -> Dict:
+    return {
+        k: _eval_scheduling_str(getattr(args, k))
+        for k in (
+            'cut_overview',
+            'cut_innercut',
+            'cut_icgray_p',
+            'cut_ic_pow',
+            'use_secondary_model',
+            'cutn_batches',
+            'skip_augs',
+            'clip_guidance_scale',
+            'tv_scale',
+            'range_scale',
+            'sat_scale',
+            'init_scale',
+            'clamp_grad',
+            'clamp_max',
+        )
+    }
