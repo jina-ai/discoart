@@ -68,7 +68,7 @@ def load_config(
 
         logger.debug('you did not set `batch_name`, set it to have unique session ID')
 
-    if cfg.get('name_docarray', None):
+    if not cfg.get('name_docarray', None):
         cfg['name_docarray'] = da_name
 
     return cfg
@@ -97,7 +97,8 @@ def save_config_svg(
     from rich.terminal_theme import MONOKAI
 
     console = Console(record=True)
-    print_args_table(load_config(cfg), console)
+    cfg = load_config(cfg)
+    print_args_table(cfg, console)
     console.save_svg(
         output or f'{cfg["name_docarray"]}.svg',
         theme=MONOKAI,
