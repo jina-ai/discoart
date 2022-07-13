@@ -430,7 +430,7 @@ def show_result_summary(_da, _name, _args):
     imcomplete_str = ''
     if _da and len(_da) < _args.n_batches:
         imcomplete_str = f'''
-# Incomplete result
+# :warning: Incomplete result
 
 Your `n_batches={_args.n_batches}` so supposedly {_args.n_batches} images will be generated, 
 but only {len(_da)} images were finished. This may due to the following reasons:
@@ -446,7 +446,7 @@ To avoid this, you can set `n_batches` to a smaller number in `create()`, say `c
         f'''
 {imcomplete_str}
 
-# Result preview
+# :eyes: Result preview
 
 This preview is **NOT** in HD. Do **NOT** use it for your final artworks.
 
@@ -474,7 +474,7 @@ To save the full-size images, please check out the instruction in the next secti
         f'''
 
 
-# Save the image
+# :framed_picture: Save images
 
 There are two ways to save the HD images:
 
@@ -494,7 +494,7 @@ and find `filename.png` in your filesystem. On Google Colab, open the left panel
 
 `da[0]` represents the first image in your batch. You can save the 2nd, 3rd, etc. image by using `da[1]`, `da[2]`, etc.  
 
-# Save & load the batch        
+# :floppy_disk: Save & load the batch        
 
 Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) available both local and cloud.
 
