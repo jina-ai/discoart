@@ -428,12 +428,13 @@ def show_result_summary(_da, _name, _args):
     _dp1.clear_output(wait=True)
 
     imcomplete_str = ''
-    if _da and len(_da) < _args.n_batches:
+    fully_done = sum(_d.tags.get('completed', False) for _d in _da)
+    if _da and fully_done < _args.n_batches:
         imcomplete_str = f'''
-# ⚠️ Incomplete result
+# ⚠️ Incomplete result ({fully_done}/{_args.n_batches})
 
 Your `n_batches={_args.n_batches}` so supposedly {_args.n_batches} images will be generated, 
-but only {len(_da)} images were finished. This may due to the following reasons:
+but only {fully_done} images were fully completed. This may due to the following reasons:
 - You cancel the process before it finishes;
 - (On Google Colab) your GPU session is expired;
 
