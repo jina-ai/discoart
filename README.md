@@ -40,13 +40,12 @@ pip install discoart
 
 This applies to both *self-hosting*, *Google Colab* and non-GUI environments.
 
-**Self-hosted Jupyter**: if you want to use it in a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
+- **Self-hosted Jupyter**: if you want to use it in a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
+- **Using it as a service**: [`python -m discoart.serve`](#serving)
 
 ## Get Started
 
 <a href="https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb"><img src="https://img.shields.io/badge/Open-in%20Colab-brightgreen?logo=google-colab&style=flat-square" alt="Open in Google Colab"/></a>
-
-Note, GPU is required. [For serving DiscoArt, click here.](#serving)
 
 ### Create artworks
 
@@ -218,6 +217,18 @@ We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook.
 ```bash
 # docker build . -t jinaai/discoart  # if you want to build yourself
 docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+```
+
+To update Docker image to latest version:
+
+```bash
+docker pull jinaai/discoart:latest
+```
+
+[Docker images are built on every release](https://hub.docker.com/repository/docker/jinaai/discoart), so one can lock it to a specific version, say `0.5.1`:
+
+```bash
+docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart:0.5.1
 ```
 
 
