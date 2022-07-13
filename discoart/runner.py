@@ -3,6 +3,7 @@ import os
 import random
 import threading
 from threading import Thread
+from types import SimpleNamespace
 from typing import List
 
 import lpips
@@ -31,13 +32,9 @@ def do_run(args, models, device) -> 'DocumentArray':
     )
     lpips_model = lpips.LPIPS(net='vgg').to(device)
 
-    side_x = (args.width_height[0] // 64) * 64
-    side_y = (args.width_height[1] // 64) * 64
-    cut_overview = _eval_scheduling_str(args.cut_overview)
-    cut_innercut = _eval_scheduling_str(args.cut_innercut)
-    cut_icgray_p = _eval_scheduling_str(args.cut_icgray_p)
-    cut_ic_pow = _eval_scheduling_str(args.cut_ic_pow)
-    use_secondary_model = _eval_scheduling_str(args.use_secondary_model)
+    side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
+
+    scheduler = _get_scheduler(args)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
 
@@ -163,7 +160,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
-            if use_secondary_model[num_step]:
+            if scheduler.use_secondary_model[num_step]:
                 alpha = torch.tensor(
                     diffusion.sqrt_alphas_cumprod[cur_t],
                     device=device,
@@ -189,17 +186,17 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
 
             for model_stat in model_stats:
-                for _ in range(args.cutn_batches):
+                for _ in range(scheduler.cutn_batches):
                     if not model_stat['schedules'][num_step]:
                         continue
 
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
-                        Overview=cut_overview[num_step],
-                        InnerCrop=cut_innercut[num_step],
-                        IC_Size_Pow=cut_ic_pow[num_step],
-                        IC_Grey_P=cut_icgray_p[num_step],
-                        skip_augs=args.skip_augs,
+                        Overview=scheduler.cut_overview[num_step],
+                        InnerCrop=scheduler.cut_innercut[num_step],
+                        IC_Size_Pow=scheduler.cut_ic_pow[num_step],
+                        IC_Grey_P=scheduler.cut_icgray_p[num_step],
+                        skip_augs=scheduler.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     image_embeds = (
@@ -211,7 +208,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     dists = dists.view(
                         [
-                            cut_overview[num_step] + cut_innercut[num_step],
+                            scheduler.cut_overview[num_step]
+                            + scheduler.cut_innercut[num_step],
                             n,
                             -1,
                         ]
@@ -222,34 +220,34 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )  # log loss, probably shouldn't do per cutn_batch
                     x_in_grad += (
                         torch.autograd.grad(
-                            losses.sum() * args.clip_guidance_scale, x_in
+                            losses.sum() * scheduler.clip_guidance_scale, x_in
                         )[0]
-                        / args.cutn_batches
+                        / scheduler.cutn_batches
                     )
             tv_losses = tv_loss(x_in)
-            if use_secondary_model[num_step]:
+            if scheduler.use_secondary_model[num_step]:
                 range_losses = range_loss(out)
             else:
                 range_losses = range_loss(out['pred_xstart'])
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
             loss = (
-                tv_losses.sum() * args.tv_scale
-                + range_losses.sum() * args.range_scale
-                + sat_losses.sum() * args.sat_scale
+                tv_losses.sum() * scheduler.tv_scale
+                + range_losses.sum() * scheduler.range_scale
+                + sat_losses.sum() * scheduler.sat_scale
             )
-            if init is not None and args.init_scale:
+            if init is not None and scheduler.init_scale:
                 init_losses = lpips_model(x_in, init)
-                loss = loss + init_losses.sum() * args.init_scale
+                loss = loss + init_losses.sum() * scheduler.init_scale
             x_in_grad += torch.autograd.grad(loss, x_in)[0]
             if not torch.isnan(x_in_grad).any():
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
             else:
                 x_is_NaN = True
                 grad = torch.zeros_like(x)
-        if args.clamp_grad and not x_is_NaN:
+        if scheduler.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
-                grad * magnitude.clamp(max=args.clamp_max) / magnitude
+                grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
         return grad
 
@@ -429,3 +427,27 @@ def _eval_scheduling_str(val) -> List[float]:
     if len(r) != 1000:
         raise ValueError(f'invalid scheduling string: {val}')
     return r
+
+
+def _get_scheduler(args) -> 'SimpleNamespace':
+    return SimpleNamespace(
+        **{
+            k: _eval_scheduling_str(getattr(args, k))
+            for k in (
+                'cut_overview',
+                'cut_innercut',
+                'cut_icgray_p',
+                'cut_ic_pow',
+                'use_secondary_model',
+                'cutn_batches',
+                'skip_augs',
+                'clip_guidance_scale',
+                'tv_scale',
+                'range_scale',
+                'sat_scale',
+                'init_scale',
+                'clamp_grad',
+                'clamp_max',
+            )
+        }
+    )

@@ -12,10 +12,27 @@ DiscoArt is synced with the upstream update of original DD notebook. The list be
 - Simpler interface and Pythonic API.
 
 ## Scheduling
-- `cut_schedules_group` allows one to load in multiple cut schedules at once.
-- `cut_ic_pow` is changed to a scheduling parameter to control the power of inner cut, the syntax is the same as `cut_overview`, `cut_innercut`.
+
+The following variables can be either scalar variables in the type of bool, float or int; or can be scheduled via the syntax of `[val]*400+[val1]*100+[val2]*500` over 1000 steps.
+
+- `cut_overview`
+- `cut_innercut`
+- `cut_icgray_p`
+- `cut_ic_pow`
+- `use_secondary_model`
+- `cutn_batches`
+- `skip_augs`
+- `clip_guidance_scale`
+- `cutn_batches`
+- `tv_scale`
+- `range_scale`
+- `sat_scale`
+- `init_scale`
+- `clamp_grad`
+- `clamp_max`
+
+Also:
 - `clip_models_schedules` is added to control the scheduling of clip models, the syntax is the same as `cut_overview` but as a bool list `[True]*400+[False]*600`.
-- `use_secondary_model` supports scheduling expressions, e.g. `[True]*400+[False]*600`.
 
 ## Customized diffusion
 - Support default 512x512, 256x256 diffusion model as well as Pixel Art Diffusion, Watercolor Diffusion, and Pulp SciFi Diffusion models.
