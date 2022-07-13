@@ -345,6 +345,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
                     # root doc always update with the latest progress
                     d.uri = c.uri
+                    d.tags['completed'] = cur_t == -1
                     _start_persist(
                         threads,
                         da_batches,
