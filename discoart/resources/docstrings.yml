@@ -28,23 +28,37 @@ cut_ic_pow: |
 
 init_scale: |
   This controls how strongly CLIP will try to match the init_image provided.  This is balanced against the clip_guidance_scale (CGS) above.  Too much init scale, and the image won’t change much during diffusion. Too much CGS and the init image will be lost.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+
 clip_guidance_scale: |
   CGS is one of the most important parameters you will use. It tells DD how strongly you want CLIP to move toward your prompt each timestep.  Higher is generally better, but if CGS is too strong it will overshoot the goal and distort the image. So a happy medium is needed, and it takes experience to learn how to adjust CGS. 
   Note that this parameter generally scales with image dimensions. In other words, if you increase your total dimensions by 50% (e.g. a change from 512 x 512 to 512 x 768), then to maintain the same effect on the image, you’d want to increase clip_guidance_scale from 5000 to 7500. 
   Of the basic settings, clip_guidance_scale, steps and skip_steps are the most important contributors to image quality, so learn them well.
 tv_scale: |
   Total variance denoising. Optional, set to zero to turn off. Controls ‘smoothness’ of final output. If used, tv_scale will try to smooth out your final image to reduce overall noise. If your image is too ‘crunchy’, increase tv_scale. TV denoising is good at preserving edges while smoothing away noise in flat regions.  See https://en.wikipedia.org/wiki/Total_variation_denoising
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+
 range_scale: |
   Optional, set to zero to turn off.  Used for adjustment of color contrast.  Lower range_scale will increase contrast. Very low numbers create a reduced color palette, resulting in more vibrant or poster-like images. Higher range_scale will reduce contrast, for more muted images.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 sat_scale: |
   Saturation scale. Optional, set to zero to turn off.  If used, sat_scale will help mitigate oversaturation. If your image is too saturated, increase sat_scale to reduce the saturation.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+
 cutn_batches: |
   Each iteration, the AI cuts the image into smaller pieces known as cuts, and compares each cut to the prompt to decide how to guide the next diffusion step.  More cuts can generally lead to better images, since DD has more chances to fine-tune the image precision in each timestep.  
   Additional cuts are memory intensive, however, and if DD tries to evaluate too many cuts at once, it can run out of memory.  You can use cutn_batches to increase cuts per timestep without increasing memory usage. 
   At the default settings, DD is scheduled to do 16 cuts per timestep.  If cutn_batches is set to 1, there will indeed only be 16 cuts total per timestep. 
   However, if cutn_batches is increased to 4, DD will do 64 cuts total in each timestep, divided into 4 sequential batches of 16 cuts each.  Because the cuts are being evaluated only 16 at a time, DD uses the memory required for only 16 cuts, but gives you the quality benefit of 64 cuts.  The tradeoff, of course, is that this will take ~4 times as long to render each image.
   So, (scheduled cuts) x (cutn_batches) = (total cuts per timestep). Increasing cutn_batches will increase render times, however, as the work is being done sequentially.  DD’s default cut schedule is a good place to start, but the cut schedule can be adjusted in the Cutn Scheduling section, explained below.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+
 
 diffusion_model: Diffusion_model of choice.
 
@@ -69,8 +83,12 @@ eta: |
   The steps parameter has a close relationship with the eta parameter. If you set eta to 0, then you can get decent output with only 50-75 steps. Setting eta to 1.0 favors higher step counts, ideally around 250 and up. eta has a subtle, unpredictable effect on image, so you’ll need to experiment to see how this affects your projects.
 clamp_grad: |
   As I understand it, clamp_grad is an internal limiter that stops DD from producing extreme results.  Try your images with and without clamp_grad. If the image changes drastically with clamp_grad turned off, it probably means your clip_guidance_scale is too high and should be reduced.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 clamp_max: |
   Sets the value of the clamp_grad limitation. Default is 0.05, providing for smoother, more muted coloration in images, but setting higher values (0.15-0.3) can provide interesting contrast and vibrancy.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 randomize_class: |
   Controls whether the imagenet class is randomly changed each iteration
@@ -129,7 +147,11 @@ clip_models: |
 use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
 use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
 transformation_percent: Steps expressed in percentages in which the symmetry is enforced
-skip_augs: Controls whether to skip torchvision augmentations
+skip_augs: |
+  Controls whether to skip torchvision augmentations.
+  
+  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+
 
 on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
 clip_models_schedules: |

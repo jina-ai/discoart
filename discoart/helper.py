@@ -427,13 +427,30 @@ def show_result_summary(_da, _name, _args):
 
     _dp1.clear_output(wait=True)
 
+    imcomplete_str = ''
+    if _da and len(_da) < _args.n_batches:
+        imcomplete_str = f'''
+# ⚠️ Incomplete result
+
+Your `n_batches={_args.n_batches}` so supposedly {_args.n_batches} images will be generated, 
+but only {len(_da)} images were finished. This may due to the following reasons:
+- You cancel the process before it finishes;
+- (On Google Colab) your GPU session is expired;
+
+To avoid this, you can set `n_batches` to a smaller number in `create()`, say `create(n_batches=1)`.
+'''
+
     from rich.markdown import Markdown
 
     md = Markdown(
         f'''
-## Result preview
+{imcomplete_str}
 
-This preview is **not** in HD. To save full-size image please check out the instruction below.
+# 👀 Result preview
+
+This preview is **NOT** in HD. Do **NOT** use it for your final artworks.
+
+To save the full-size images, please check out the instruction in the next section.
     ''',
         code_theme='igor',
     )
@@ -457,16 +474,27 @@ This preview is **not** in HD. To save full-size image please check out the inst
         f'''
 
 
-## Save the image
+# 🖼️ Save images
 
-There are two ways to save the HD image:
+There are two ways to save the HD images:
 
-- `da[0].display()` and then right-click "Download image";
-- or `da[0].save_uri_to_file('filename.png')` and find `filename.png` in your filesystem. On Google Colab, open the left pannel of "file structure" and you shall see it.
+```python
+da[0].display()
+``` 
+
+and then right-click "Download image".
+
+Or:
+
+```
+da[0].save_uri_to_file('filename.png')
+``` 
+
+and find `filename.png` in your filesystem. On Google Colab, open the left panel of "file structure" and you shall see it.
 
 `da[0]` represents the first image in your batch. You can save the 2nd, 3rd, etc. image by using `da[1]`, `da[2]`, etc.  
 
-## Save & load the batch        
+# 💾 Save & load the batch        
 
 Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/) available both local and cloud.
 

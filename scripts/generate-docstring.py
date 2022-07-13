@@ -20,12 +20,27 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'int'
     elif k in ('text_prompts', 'clip_models'):
         v_type = 'List[str]'
-    elif k in ('cut_ic_pow', 'cut_overview', 'cut_innercut', 'cut_icgray_p'):
-        v_type = 'Union[float, str]'
+    elif k in (
+        'cut_overview',
+        'cut_innercut',
+        'cut_icgray_p',
+        'cut_ic_pow',
+        'use_secondary_model',
+        'cutn_batches',
+        'skip_augs',
+        'clip_guidance_scale',
+        'tv_scale',
+        'range_scale',
+        'sat_scale',
+        'init_scale',
+        'clamp_grad',
+        'clamp_max',
+    ):
+        if v_type == 'str':
+            v_type = 'float'
+        v_type = f'Union[{v_type}, str]'
     elif k == 'cut_schedules_group':
         v_type = 'str'
-    elif k in ('use_secondary_model',):
-        v_type = 'Union[bool, str]'
     elif k in ('batch_name',):
         v_type = 'str'
     elif k == 'width_height':
