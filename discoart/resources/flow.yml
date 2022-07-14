@@ -2,6 +2,7 @@ jtype: Flow
 with:
   protocol: http
   monitoring: true
+  cors: true
   port: 51001
   port_monitoring: 51002  # prometheus monitoring port
   env:

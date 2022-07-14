@@ -211,29 +211,6 @@ DISCOART_CUT_SCHEDULES_YAML='path/to/your-schedules.yml' # use a custom cut sche
 DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models file
 ```
 
-### Run in Docker
-
-[![Docker Image Size (tag)](https://img.shields.io/docker/image-size/jinaai/discoart/latest?logo=docker&logoColor=white&style=flat-square)](https://hub.docker.com/repository/docker/jinaai/discoart)
-
-We provide a prebuilt Docker image for running DiscoArt in the Jupyter Notebook. 
-
-```bash
-# docker build . -t jinaai/discoart  # if you want to build yourself
-docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
-```
-
-To update Docker image to latest version:
-
-```bash
-docker pull jinaai/discoart:latest
-```
-
-[Docker images are built on every release](https://hub.docker.com/repository/docker/jinaai/discoart), so one can lock it to a specific version, say `0.5.1`:
-
-```bash
-docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart:0.5.1
-```
-
 
 ## Serving
 
@@ -285,7 +262,11 @@ executors:
 
 Here `replicas: 3` says spawning three DiscoArt instances, `CUDA_VISIBLE_DEVICES: RR0:3` makes sure they use the first three GPUs in a round-robin fashion.
 
-Name it as `myflow.yml` and then run `python -m discoart.serve myflow.yml` again.
+Name it as `myflow.yml` and then run 
+
+```bash
+python -m discoart.serve myflow.yml
+```
 
 ### Customization
 
@@ -304,6 +285,46 @@ Though not recommended, it is also possible to use Google Colab to host DiscoArt
 Please check out the following tutorials:
 - https://docs.jina.ai/how-to/google-colab/
 - https://clip-as-service.jina.ai/hosting/colab/
+
+
+## Run in Docker
+
+[![Docker Image Size (tag)](https://img.shields.io/docker/image-size/jinaai/discoart/latest?logo=docker&logoColor=white&style=flat-square)](https://hub.docker.com/repository/docker/jinaai/discoart)
+
+We provide a prebuilt Docker image for running DiscoArt out of the box. To update Docker image to latest version:
+
+```bash
+docker pull jinaai/discoart:latest
+```
+
+### Use Jupyter notebook
+
+The default entrypoint is starting a Jupyter notebook
+
+```bash
+# docker build . -t jinaai/discoart  # if you want to build yourself
+docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+```
+
+Now you can visit `http://127.0.0.1:51000` to access the notebook
+
+### Use as a service
+
+```bash
+# docker build . -t jinaai/discoart  # if you want to build yourself
+docker run --entrypoint "python -m discoart.serve" -p 51001:51001 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+```
+
+Your DiscoArt server is now running at `http://127.0.0.1:51001`.
+
+### Release cycle
+
+[Docker images are built on every release](https://hub.docker.com/repository/docker/jinaai/discoart), so one can lock it to a specific version, say `0.5.1`:
+
+```bash
+docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart:0.5.1
+```
+
 
 ## What's next?
 
