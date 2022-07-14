@@ -2,6 +2,7 @@ import gc
 import os
 import random
 import threading
+from pathlib import Path
 from threading import Thread
 from types import SimpleNamespace
 from typing import List, Dict
@@ -26,7 +27,13 @@ _MAX_DIFFUSION_STEPS = 1000
 
 def do_run(args, models, device) -> 'DocumentArray':
     _set_seed(args.seed)
+    output_dir = os.path.join(
+        os.environ.get('DISCOART_OUTPUT_DIR', './'), args.name_docarray
+    )
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
     logger.info('preparing models...')
+
     model, diffusion, clip_models, secondary_model = models
     normalize = T.Normalize(
         mean=[0.48145466, 0.4578275, 0.40821073],
@@ -336,8 +343,9 @@ def do_run(args, models, device) -> 'DocumentArray':
                         d.chunks.append(c)
                         _dp1.clear_output(wait=True)
                         _dp1.display(image)
+                        c.save_uri_to_file(f'{output_dir}/{_nb}-step-{j}.png')
                         d.chunks.plot_image_sprites(
-                            f'{args.name_docarray}-progress-{_nb}.png',
+                            f'{output_dir}/{_nb}-progress.png',
                             skip_empty=True,
                             show_index=True,
                             keep_aspect_ratio=True,
@@ -346,6 +354,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                     # root doc always update with the latest progress
                     d.uri = c.uri
                     d.tags['completed'] = cur_t == -1
+                    if cur_t == -1:
+                        d.save_uri_to_file(f'{output_dir}/{_nb}-done.png')
                     _start_persist(
                         threads,
                         da_batches,

@@ -90,7 +90,23 @@ The difference on the parameters between DiscoArt and DD5.6 [is explained here](
 
 ### Visualize results
 
-`create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
+Final results and intermediate results are created under the current working directory, e.g.
+```text
+- ./{name-docarray}/{i}-step-{j}.png
+- ./{name-docarray}/{i}-progress.png
+- ./{name-docarray}/{i}-done.png
+```
+
+where:
+
+- `name-docarray` is the name of the run, you can specify it otherwise it is a random name.
+- `i-*` is up to the value of `n_batches`.
+- `*-done-*` is the final image on done.
+- `*-step-*` is the intermediate image at certain step.
+- `*-progress-*` is the sprite image of all intermediate results so far.
+
+
+Moreover, `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
 - All arguments passed to `create()` function, including seed, text prompts and model parameters.
 - 4 generated image and its intermediate steps' images, where `4` is determined by `n_batches` and is the default value. 
 
