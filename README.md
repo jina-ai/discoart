@@ -26,7 +26,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 🏭 **Ready for integration & production**: built on top of [DocArray](https://github.com/jina-ai/docarray) data structure, enjoy smooth integration with [Jina](https://github.com/jina-ai/jina), [CLIP-as-service](https://github.com/jina-ai/clip-as-service) and other cross-/multi-modal applications.
 
-☁️ [**As-a-service**](#serving): simply `python -m discoart.serve`, DiscoArt is now a high-performance low-latency service supports gRPC/HTTP/websockets and TLS. Scaling up/down is one-line; Cloud-native features e.g. Kubernetes, Prometheus and Grafana is one-line. [Unbelievable simple thanks to Jina](https://github.com/jina-ai/jina).
+☁️ [**As-a-service**](#serving): simply `python -m discoart serve`, DiscoArt is now a high-performance low-latency service supports gRPC/HTTP/websockets and TLS. Scaling up/down is one-line; Cloud-native features e.g. Kubernetes, Prometheus and Grafana is one-line. [Unbelievable simple thanks to Jina](https://github.com/jina-ai/jina).
 
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
@@ -41,8 +41,9 @@ pip install discoart
 This applies to both *self-hosting*, *Google Colab*, system integration, non-GUI environments.
 
 - **Self-hosted Jupyter**: to run a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
-- **Use it as a service**: [`python -m discoart.serve`](#serving) allows one to run it as gRPC/HTTP/websockets service.
-- **Use it from CLI**: [`python -m discoart create`](#cli) and `python -m discoart config` are CLI interfaces.
+- **Use it from CLI**: [`python -m discoart create`](#cli) and `python -m discoart config` are CLI commands.
+- **Use it as a service**: [`python -m discoart serve`](#serving) allows one to run it as gRPC/HTTP/websockets service.
+
 
 ## Get Started
 
@@ -212,13 +213,52 @@ DISCOART_CUT_SCHEDULES_YAML='path/to/your-schedules.yml' # use a custom cut sche
 DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models file
 ```
 
+## CLI
+
+DiscoArt provides two commands `create` and `config` that allows you to run DiscoArt from CLI.
+
+```bash
+python -m discoart create my.yml
+```
+
+which creates artworks from the YAML config file `my.yml`. You can also do:
+
+```bash
+cat config.yml | python -m discoart create
+```
+
+So how can I have my own `my.yml` and what does it look like? That's the second command:
+
+```bash
+python -m discoart config my.yml
+```
+
+which forks the [default YAML config](discoart/resources/default.yml) and export them to `my.yml`. Now you can modify it and run it with `python -m discoart create` command.
+
+If no output path is specified, then `python -m discoart config` will print the default config to stdout.
+
+To get help on a command, add `--help` at the end, e.g.:
+
+```bash
+python -m discoart create --help
+```
+
+```text
+usage: python -m discoart create [-h] [YAML_CONFIG_FILE]
+
+positional arguments:
+  YAML_CONFIG_FILE  The YAML config file to use, default is stdin.
+
+optional arguments:
+  -h, --help        show this help message and exit
+```
 
 ## Serving
 
 Serving DiscoArt is super easy. Simply run the following command:
 
 ```bash
-python -m discoart.serve
+python -m discoart serve
 ```
 
 You shall see:
@@ -266,18 +306,18 @@ Here `replicas: 3` says spawning three DiscoArt instances, `CUDA_VISIBLE_DEVICES
 Name it as `myflow.yml` and then run 
 
 ```bash
-python -m discoart.serve myflow.yml
+python -m discoart serve myflow.yml
 ```
 
 ### Customization
 
-You can change the port number; change protocol to gRPC/Websockets; add TLS encryption; enable/disable Prometheus monitoring; you can also export it to Kubernetes deployment bundle simply via:
+[Thanks to Jina](https://github.com/jina-ai/jina), there are tons of things you can customize! You can change the port number; change protocol to gRPC/Websockets; add TLS encryption; enable/disable Prometheus monitoring; you can also export it to Kubernetes deployment bundle simply via:
 
 ```bash
 jina export kubernetes myflow.yml
 ```
 
-For more features and YAML configs, [please check out Jina](https://github.com/jina-ai/jina).
+For more features and YAML configs, [please check out Jina docs](https://docs.jina.ai).
 
 
 ### Hosting on Google Colab
@@ -287,29 +327,7 @@ Please check out the following tutorials:
 - https://docs.jina.ai/how-to/google-colab/
 - https://clip-as-service.jina.ai/hosting/colab/
 
-## CLI
 
-DiscoArt provides two commands `create` and `config` that allows you to run DiscoArt from CLI.
-
-```bash
-python -m discoart create my.yml
-```
-
-which creates artworks from the YAML config file `my.yml`. You can also do:
-
-```bash
-cat config.yml | python -m discoart create
-```
-
-So how can I have my own `my.yml` and what does it look like? That's the second command:
-
-```bash
-python -m discoart config my.yml
-```
-
-which forks the [default YAML config](discoart/resources/default.yml) and export them to `my.yml`. Now you can modify it and run it with `python -m discoart create` command.
-
-If no output path is specified, then `python -m discoart config` will print the default config to stdout.
 
 
 
@@ -338,7 +356,7 @@ Now you can visit `http://127.0.0.1:51000` to access the notebook
 
 ```bash
 # docker build . -t jinaai/discoart  # if you want to build yourself
-docker run --entrypoint "python -m discoart.serve" -p 51001:51001 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+docker run --entrypoint "python -m discoart serve" -p 51001:51001 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
 ```
 
 Your DiscoArt server is now running at `http://127.0.0.1:51001`.
