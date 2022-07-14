@@ -84,3 +84,21 @@ watercolordiffusion_2:
   sources:
     - https://github.com/Sxela/DiscoDiffusion-Warp/releases/download/v0.1.1/256x256_openai_comics_faces_v2.by_alex_spirin_114k.pt
   recommended_size: [ 512, 448 ]
+portrait_generator_v001:
+  sha: b7e8c747af880d4480b6707006f1ace000b058dd0eac5bb13558ba3752d9b5b9
+  sources:
+    - https://huggingface.co/felipe3dartist/portrait_generator_v001/resolve/main/portrait_generator_v001_ema_0.9999_1MM.pt
+  recommended_size: [ 512, 448 ]
+  config:
+    attention_resolutions: '32, 16, 8'
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 512
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 128
+    num_heads: 4
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    use_scale_shift_norm: true
