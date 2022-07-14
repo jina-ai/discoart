@@ -28,15 +28,15 @@ def get_main_parser():
         'input',
         nargs='?',
         type=argparse.FileType('r'),
-        help='The YAML config file to use, default is stdin',
+        help='The YAML config file to use, default is stdin.',
         default=sys.stdin,
     )
-    sp2 = sps.add_parser('config', help='Export the default config to a file')
+    sp2 = sps.add_parser('config', help='Export the default config to a YAML file')
     sp2.add_argument(
         'output',
         nargs='?',
         type=argparse.FileType('w'),
-        help='The file path to export to, default is stdout',
+        help='The file path to export to, default is stdout.',
         default=sys.stdout,
     )
     return parser
