@@ -92,9 +92,9 @@ The difference on the parameters between DiscoArt and DD5.6 [is explained here](
 
 Final results and intermediate results are created under the current working directory, e.g.
 ```text
-- ./{name-docarray}/{i}-step-{j}.png
-- ./{name-docarray}/{i}-progress.png
-- ./{name-docarray}/{i}-done.png
+./{name-docarray}/{i}-step-{j}.png
+./{name-docarray}/{i}-progress.png
+./{name-docarray}/{i}-done.png
 ```
 
 where:
