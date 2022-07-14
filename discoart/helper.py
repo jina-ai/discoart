@@ -481,9 +481,9 @@ To save the full-size images, please check out the instruction in the next secti
 
 Final results and intermediate results are created under the current working directory, e.g.
 ```text
-- ./{_name}/[i]-step-[i].png
-- ./{_name}/[i]-progress.png
-- ./{_name}/[i]-done.png
+./{_name}/[i]-step-[i].png
+./{_name}/[i]-progress.png
+./{_name}/[i]-done.png
 ```
 
 where:
