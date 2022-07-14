@@ -40,8 +40,8 @@ def get_device():
         device = torch.device('cpu')
         warnings.warn(
             '''
-            !!!!CUDA is not available. DiscoArt is running on CPU. `create()` will be unbearably slow on CPU!!!!
-            Please switch to a GPU device. If you are using Google Colab, then free tier would just work.
+!!!!CUDA is not available. DiscoArt is running on CPU. `create()` will be unbearably slow on CPU!!!!
+Please switch to a GPU device. If you are using Google Colab, then free tier would just work.
             '''
         )
     return device
