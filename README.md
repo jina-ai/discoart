@@ -97,6 +97,8 @@ Final results and intermediate results are created under the current working dir
 ./{name-docarray}/{i}-done.png
 ```
 
+![](.github/result-persist.png)
+
 where:
 
 - `name-docarray` is the name of the run, you can specify it otherwise it is a random name.
