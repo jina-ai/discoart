@@ -18,7 +18,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 </sup></sub>
 
 
-💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements [vs. the original DD5.5](FEATURES.md). 
+💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements [vs. the original DD5.6](FEATURES.md). 
 
 👼 **Available to all**: smooth install for *self-hosting*, Google Colab *free tier*, non-GUI (IPython) environment, and CLI! No brainfuck, no dependency hell, no stackoverflow. 
 
@@ -85,7 +85,7 @@ from discoart import cheatsheet
 cheatsheet()
 ```
 
-The difference on the parameters between DiscoArt and DD5.5 [is explained here](./FEATURES.md). 
+The difference on the parameters between DiscoArt and DD5.6 [is explained here](./FEATURES.md). 
 
 
 ### Visualize results
@@ -374,7 +374,7 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --
 
 [Next is create](https://colab.research.google.com/github/jina-ai/discoart/blob/main/discoart.ipynb).
 
-😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.5. So just unleash your creativity! [Read more about their differences here](./FEATURES.md).
+😎 **If you are already a DD user**: you are ready to go! There is no extra learning, DiscoArt respects the same parameter semantics as DD5.6. So just unleash your creativity! [Read more about their differences here](./FEATURES.md).
 
 You can always do `from discoart import cheatsheet; cheatsheet()` to check all new/modified parameters.
 

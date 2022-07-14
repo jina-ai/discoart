@@ -1,12 +1,12 @@
-# DiscoArt vs. DD5.5
+# DiscoArt vs. DD5.6
 
-DiscoArt and DD5.5 follow the same algorithms, but DiscoArt has a much better  implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
+DiscoArt and DD5.6 follow the same algorithms, but DiscoArt has a much better  implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
 
-DiscoArt is synced with the upstream update of original DD notebook. The list below summarizes the major differences between DiscoArt and DD5.5:
+DiscoArt is synced with the upstream update of original DD notebook. The list below summarizes the major differences between DiscoArt and DD5.6:
 
 ## Refactor & bug fixes
 - Completely refactored the notebook implementation and aim for *best-in-class* quality. (I'm serious about this.)
-- Fixes multiple bugs e.g. weighted prompts, cut scheduling in original DD5.5, which improves the generation quality.
+- Fixes multiple bugs e.g. weighted prompts, cut scheduling in original DD5.6, which improves the generation quality.
 - No dependency of IPython when not using in notebook/colab.
 - Robust persistent storage for the generated images.
 - Simpler interface and Pythonic API.
