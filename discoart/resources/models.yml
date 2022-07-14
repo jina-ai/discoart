@@ -44,51 +44,59 @@ PulpSciFiDiffusion:
   sources:
     - https://huggingface.co/KaliYuga/PulpSciFiDiffusion/resolve/main/PulpSciFiDiffusion.pt
   recommended_size: [ 512, 448 ]
+
 pixel_art_diffusion_hard_256:
   sha: be4a9de943ec06eef32c65a1008c60ad017723a4d35dc13169c66bb322234161
   sources:
     - https://huggingface.co/KaliYuga/pixel_art_diffusion_hard_256/resolve/main/pixel_art_diffusion_hard_256.pt
   recommended_size: [ 512, 448 ]
+
 pixel_art_diffusion_soft_256:
   sha: d321590e46b679bf6def1f1914b47c89e762c76f19ab3e3392c8ca07c791039c
   sources:
     - https://huggingface.co/KaliYuga/pixel_art_diffusion_soft_256/resolve/main/pixel_art_diffusion_soft_256.pt
   recommended_size: [ 512, 448 ]
+
 pixelartdiffusion4k:
   sha: a1ba4f13f6dabb72b1064f15d8ae504d98d6192ad343572cc416deda7cccac30
   sources:
     - https://huggingface.co/KaliYuga/pixelartdiffusion4k/resolve/main/pixelartdiffusion4k.pt
   recommended_size: [ 512, 448 ]
-pixelartdiffusion_expanded:
+
+PADexpanded:
   sha: a73b40556634034bf43b5a716b531b46fb1ab890634d854f5bcbbef56838739a
   sources:
     - https://huggingface.co/KaliYuga/PADexpanded/resolve/main/PADexpanded.pt
   recommended_size: [ 512, 448 ]
+
 secondary:
   sha: 983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a
   sources:
     - https://the-eye.eu/public/AI/models/v-diffusion/secondary_model_imagenet_2.pth
     - https://ipfs.pollinations.ai/ipfs/bafybeibaawhhk7fhyhvmm7x24zwwkeuocuizbqbcg5nqx64jq42j75rdiy/secondary_model_imagenet_2.pth
+
 watercolordiffusion:
   sha: a3e6522f0c8f278f90788298d66383b11ac763dd5e0d62f8252c962c23950bd6
   sources:
     - https://huggingface.co/KaliYuga/watercolordiffusion/resolve/main/watercolordiffusion.pt
   recommended_size: [ 512, 448 ]
+
 watercolordiffusion_2:
   sha: 49c281b6092c61c49b0f1f8da93af9b94be7e0c20c71e662e2aa26fee0e4b1a9
   sources:
     - https://huggingface.co/KaliYuga/watercolordiffusion_2/resolve/main/watercolordiffusion_2.pt
   recommended_size: [ 512, 448 ]
+
 256x256_openai_comics_faces_v2.by_alex_spirin_114k:
   sha: f587fd6d2edb093701931e5083a13ab6b76b3f457b60efd1aa873d60ee3d6388
   sources:
     - https://github.com/Sxela/DiscoDiffusion-Warp/releases/download/v0.1.1/256x256_openai_comics_faces_v2.by_alex_spirin_114k.pt
   recommended_size: [ 512, 448 ]
-portrait_generator_v001:
+
+portrait_generator_v001_ema_0.9999_1MM:
   sha: b7e8c747af880d4480b6707006f1ace000b058dd0eac5bb13558ba3752d9b5b9
   sources:
     - https://huggingface.co/felipe3dartist/portrait_generator_v001/resolve/main/portrait_generator_v001_ema_0.9999_1MM.pt
-  recommended_size: [ 512, 448 ]
   config:
     attention_resolutions: '32, 16, 8'
     class_cond: false
