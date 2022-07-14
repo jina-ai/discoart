@@ -20,7 +20,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 💯 **Best-in-class**: top-notch code quality, correctness-first, minimum dependencies; including bug fixes, feature improvements [vs. the original DD5.5](FEATURES.md). 
 
-👼 **Available to all**: smooth install for *self-hosting*, Google Colab *free tier*, and non-GUI (IPython) environment! No brainfuck, no dependency hell, no stackoverflow. 
+👼 **Available to all**: smooth install for *self-hosting*, Google Colab *free tier*, non-GUI (IPython) environment, and CLI! No brainfuck, no dependency hell, no stackoverflow. 
 
 🎨 **Focus on create not code**: one-liner `create()` with a Pythonic interface, autocompletion in IDE, and powerful features. Fetch real-time results anywhere anytime, no more worry on session outrage on Google Colab. Set initial state easily for more efficient parameter exploration.
 
@@ -38,10 +38,11 @@ Python 3.7+ and CUDA-enabled PyTorch is required.
 pip install discoart
 ```
 
-This applies to both *self-hosting*, *Google Colab* and non-GUI environments.
+This applies to both *self-hosting*, *Google Colab*, system integration, non-GUI environments.
 
-- **Self-hosted Jupyter**: if you want to use it in a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
-- **Using it as a service**: [`python -m discoart.serve`](#serving)
+- **Self-hosted Jupyter**: to run a Jupyter Notebook on your own GPU machine, the easiest way is to [use our prebuilt Docker image](#run-in-docker).
+- **Use it as a service**: [`python -m discoart.serve`](#serving) allows one to run it as gRPC/HTTP/websockets service.
+- **Use it from CLI**: [`python -m discoart create`](#cli) and `python -m discoart config` are CLI interfaces.
 
 ## Get Started
 
@@ -285,6 +286,31 @@ Though not recommended, it is also possible to use Google Colab to host DiscoArt
 Please check out the following tutorials:
 - https://docs.jina.ai/how-to/google-colab/
 - https://clip-as-service.jina.ai/hosting/colab/
+
+## CLI
+
+DiscoArt provides two commands `create` and `config` that allows you to run DiscoArt from CLI.
+
+```bash
+python -m discoart create my.yml
+```
+
+which creates artworks from the YAML config file `my.yml`. You can also do:
+
+```bash
+cat config.yml | python -m discoart create
+```
+
+So how can I have my own `my.yml` and what does it look like? That's the second command:
+
+```bash
+python -m discoart config my.yml
+```
+
+which forks the [default YAML config](discoart/resources/default.yml) and export them to `my.yml`. Now you can modify it and run it with `python -m discoart create` command.
+
+If no output path is specified, then `python -m discoart config` will print the default config to stdout.
+
 
 
 ## Run in Docker
