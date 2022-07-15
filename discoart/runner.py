@@ -1,3 +1,4 @@
+import copy
 import gc
 import os
 import random
@@ -290,7 +291,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         gc.collect()
         torch.cuda.empty_cache()
 
-        d = Document(tags=vars(args))
+        d = Document(tags=copy.deepcopy(vars(args)))
         da_batches.append(d)
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
