@@ -103,7 +103,9 @@ def do_run(args, models, device) -> 'DocumentArray':
             raise ValueError(
                 f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
             )
-        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds'])
+        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
+            0
+        )
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
         model_stat['weights'] /= sum_weight
         model_stats.append(model_stat)
@@ -197,10 +199,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
 
             for model_stat in model_stats:
-                for _ in range(scheduler.cutn_batches):
-                    if not model_stat['schedules'][num_step]:
-                        continue
+                if not model_stat['schedules'][num_step]:
+                    continue
 
+                for _ in range(scheduler.cutn_batches):
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
                         Overview=scheduler.cut_overview,
@@ -211,13 +213,12 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     image_embeds = (
-                        model_stat['clip_model'].encode_image(clip_in).float()
+                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
                     dists = spherical_dist_loss(
-                        image_embeds.unsqueeze(1),
-                        model_stat['target_embeds'].unsqueeze(0),
-                    )
-                    dists = dists.view(
+                        image_embeds,
+                        model_stat['target_embeds'],
+                    ).view(
                         [
                             scheduler.cut_overview + scheduler.cut_innercut,
                             n,
@@ -225,9 +226,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         ]
                     )
                     losses = dists.mul(model_stat['weights']).sum(2).mean(0)
-                    loss_values.append(
-                        losses.sum().item()
-                    )  # log loss, probably shouldn't do per cutn_batch
+
                     x_in_grad += (
                         torch.autograd.grad(
                             losses.sum() * scheduler.clip_guidance_scale, x_in
@@ -247,7 +246,10 @@ def do_run(args, models, device) -> 'DocumentArray':
             )
             if init is not None and scheduler.init_scale:
                 init_losses = lpips_model(x_in, init)
-                loss = loss + init_losses.sum() * scheduler.init_scale
+                loss += init_losses.sum() * scheduler.init_scale
+
+            loss_values.append(loss.item())
+
             x_in_grad += torch.autograd.grad(loss, x_in)[0]
             if not torch.isnan(x_in_grad).any():
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
@@ -339,7 +341,15 @@ def do_run(args, models, device) -> 'DocumentArray':
                 if j % args.display_rate == 0 or cur_t == -1:
                     for image in sample['pred_xstart']:
                         image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                        c = Document(tags={'_status': {'cur_t': cur_t, 'step': j}})
+                        c = Document(
+                            tags={
+                                '_status': {
+                                    'cur_t': cur_t,
+                                    'step': j,
+                                    'loss': loss_values[-1],
+                                }
+                            }
+                        )
                         c.load_pil_image_to_datauri(image)
                         d.chunks.append(c)
                         _dp1.clear_output(wait=True)
@@ -358,6 +368,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         'completed': cur_t == -1,
                         'cur_t': cur_t,
                         'step': j,
+                        'loss': loss_values[-1],
                     }
                     if cur_t == -1:
                         d.save_uri_to_file(f'{output_dir}/{_nb}-done.png')
