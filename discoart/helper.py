@@ -430,7 +430,8 @@ def show_result_summary(_da, _name, _args):
     _dp1.clear_output(wait=True)
 
     imcomplete_str = ''
-    fully_done = sum(_d.tags.get('completed', False) for _d in _da)
+
+    fully_done = sum(bool(j) for j in _da[:, 'tags___status__completed'])
     if _da and fully_done < _args.n_batches:
         imcomplete_str = f'''
 # ⚠️ Incomplete result ({fully_done}/{_args.n_batches})
