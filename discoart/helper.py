@@ -93,9 +93,9 @@ def get_ipython_funcs():
     if is_jupyter():
         from IPython import display as dp1
         from IPython.display import FileLink as fl
-        from ipywidgets import Output
+        from ipywidgets import HTML
 
-        return dp1, fl, Output
+        return dp1, fl, HTML
     else:
         return NOP(), NOP(), NOP()
 

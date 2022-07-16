@@ -337,50 +337,46 @@ def do_run(args, models, device) -> 'DocumentArray':
         threads = []
         for j, sample in enumerate(samples):
             cur_t -= 1
-            with image_display:
-                if j % args.display_rate == 0 or cur_t == -1:
-                    for image in sample['pred_xstart']:
-                        image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                        c = Document(
-                            tags={
-                                '_status': {
-                                    'cur_t': cur_t,
-                                    'step': j,
-                                    'loss': loss_values[-1],
-                                }
+            if j % args.display_rate == 0 or cur_t == -1:
+                for image in sample['pred_xstart']:
+                    image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+                    c = Document(
+                        tags={
+                            '_status': {
+                                'cur_t': cur_t,
+                                'step': j,
+                                'loss': loss_values[-1],
                             }
-                        )
-                        c.load_pil_image_to_datauri(image)
-                        d.chunks.append(c)
-                        image_display.clear_output(wait=True)
-                        _dp1.display(image)
-                        c.save_uri_to_file(
-                            os.path.join(output_dir, f'{_nb}-step-{j}.png')
-                        )
-                        d.chunks.plot_image_sprites(
-                            os.path.join(output_dir, f'{_nb}-progress.png'),
-                            skip_empty=True,
-                            show_index=True,
-                            keep_aspect_ratio=True,
-                        )
-
-                    # root doc always update with the latest progress
-                    d.uri = c.uri
-                    d.tags['_status'] = {
-                        'completed': cur_t == -1,
-                        'cur_t': cur_t,
-                        'step': j,
-                        'loss': loss_values,
-                    }
-                    if cur_t == -1:
-                        d.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done.png'))
-                    _start_persist(
-                        threads,
-                        da_batches,
-                        args.name_docarray,
-                        is_busy_evs,
-                        force=cur_t == -1,
+                        }
                     )
+                    c.load_pil_image_to_datauri(image)
+                    d.chunks.append(c)
+                    image_display.value = f'<img src="{c.uri}" alt="step {j}">'
+                    c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}.png'))
+                    d.chunks.plot_image_sprites(
+                        os.path.join(output_dir, f'{_nb}-progress.png'),
+                        skip_empty=True,
+                        show_index=True,
+                        keep_aspect_ratio=True,
+                    )
+
+                # root doc always update with the latest progress
+                d.uri = c.uri
+                d.tags['_status'] = {
+                    'completed': cur_t == -1,
+                    'cur_t': cur_t,
+                    'step': j,
+                    'loss': loss_values,
+                }
+                if cur_t == -1:
+                    d.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done.png'))
+                _start_persist(
+                    threads,
+                    da_batches,
+                    args.name_docarray,
+                    is_busy_evs,
+                    force=cur_t == -1,
+                )
 
         for t in threads:
             t.join()
