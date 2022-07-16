@@ -334,13 +334,14 @@ def do_run(args, models, device) -> 'DocumentArray':
             )
 
         threads = []
-        for j, sample in track(
-            enumerate(samples),
-            total=(diffusion.num_timesteps - skip_steps),
-            description='Baking...',
-        ):
-            cur_t -= 1
-            with image_display:
+        with image_display:
+            for j, sample in track(
+                enumerate(samples),
+                total=(diffusion.num_timesteps - skip_steps),
+                description='Baking...',
+            ):
+                cur_t -= 1
+
                 if j % args.display_rate == 0 or cur_t == -1:
                     for image in sample['pred_xstart']:
                         image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
