@@ -300,7 +300,7 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 def load_diffusion_model(user_args, device):
     diffusion_model = user_args.diffusion_model
 
-    _diff_model_name = _get_model_name(models_list)
+    _diff_model_name = _get_model_name(diffusion_model)
     if _diff_model_name:
         rec_size = models_list[_diff_model_name].get('recommended_size', None)
         if rec_size and user_args.width_height != rec_size:

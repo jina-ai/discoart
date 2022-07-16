@@ -230,6 +230,7 @@ DISCOART_DEFAULT_PARAMETERS_YAML='path/to/your-default.yml' # use a custom defau
 DISCOART_CUT_SCHEDULES_YAML='path/to/your-schedules.yml' # use a custom cut schedules file
 DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models file
 DISCOART_OUTPUT_DIR='path/to/your-output-dir' # use a custom output directory for all images and results
+DISCOART_CACHE_DIR='path/to/your-cache-dir' # use a custom cache directory for models and downloads
 ```
 
 ## CLI
