@@ -372,7 +372,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         'loss': loss_values,
                     }
                     if cur_t == -1:
-                        d.save_uri_to_file(os.path.join(output_dir, '{_nb}-done.png'))
+                        d.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done.png'))
                     _start_persist(
                         threads,
                         da_batches,
