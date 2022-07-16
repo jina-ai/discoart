@@ -2,8 +2,6 @@ import gc
 import hashlib
 import logging
 import os
-import subprocess
-import sys
 import urllib.parse
 import urllib.request
 import warnings
@@ -19,7 +17,9 @@ from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
 from tqdm import tqdm
 
-cache_dir = os.path.join(expanduser('~'), '.cache', __package__)
+cache_dir = os.environ.get(
+    'DISCOART_CACHE_DIR', os.path.join(expanduser('~'), '.cache', __package__)
+)
 
 from yaml import Loader
 
@@ -124,41 +124,6 @@ if not os.path.exists(cache_dir):
 logger.debug(f'`.cache` dir is set to: {cache_dir}')
 
 check_model_SHA = False
-
-
-def _clone_repo_install(repo_url, repo_dir, commit_hash):
-    if os.path.exists(repo_dir):
-        res = subprocess.run(
-            ['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE, cwd=repo_dir
-        ).stdout.decode('utf-8')
-        logger.debug(f'commit hash: {res}')
-        if res.strip() == commit_hash:
-            logger.debug(f'{repo_dir} is already cloned and up to date')
-            sys.path.append(repo_dir)
-            return
-
-        import shutil
-
-        shutil.rmtree(repo_dir)
-
-    res = subprocess.run(
-        ['git', 'clone', '--depth', '1', repo_url, repo_dir], stdout=subprocess.PIPE
-    ).stdout.decode('utf-8')
-    logger.debug(f'cloned {repo_url} to {repo_dir}: {res}')
-    sys.path.append(repo_dir)
-
-
-def install_from_repos():
-    _clone_repo_install(
-        'https://github.com/kostarion/guided-diffusion',
-        f'{cache_dir}/guided_diffusion',
-        commit_hash='99afa5eb238f32aadaad38ae7107318ec4d987d3',
-    )
-    _clone_repo_install(
-        'https://github.com/assafshocher/ResizeRight',
-        f'{cache_dir}/resize_right',
-        commit_hash='510d4d5b67dccf4efdee9f311ed42609a71f17c5',
-    )
 
 
 def _wget(url, outputdir):
@@ -344,7 +309,6 @@ def load_diffusion_model(user_args, device):
             )
 
     download_model(diffusion_model)
-    install_from_repos()
 
     model_config = get_diffusion_config(user_args, device=device)
 
