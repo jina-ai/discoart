@@ -504,3 +504,8 @@ More usage such as plotting, post-analysis can be found in the [README](https://
         _dp1.display(md)
     else:
         _dp1.display(config_file, persist_file, md)
+
+
+def list_diffusion_models():
+    for k in models_list.keys():
+        print(k)
