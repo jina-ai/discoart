@@ -352,7 +352,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         )
                         c.load_pil_image_to_datauri(image)
                         d.chunks.append(c)
-                        _dp1.clear_output(wait=True)
+                        image_display.clear_output(wait=True)
                         _dp1.display(image)
                         c.save_uri_to_file(
                             os.path.join(output_dir, f'{_nb}-step-{j}.png')
@@ -373,7 +373,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         'loss': loss_values,
                     }
                     if cur_t == -1:
-                        d.save_uri_to_file(os.path.join(output_dir, '{_nb}-done.png'))
+                        d.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done.png'))
                     _start_persist(
                         threads,
                         da_batches,
