@@ -15,7 +15,7 @@ import yaml
 from open_clip import SimpleTokenizer
 from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 cache_dir = os.environ.get(
     'DISCOART_CACHE_DIR', os.path.join(expanduser('~'), '.cache', __package__)
