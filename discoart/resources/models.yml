@@ -1,6 +1,7 @@
 256x256_diffusion_uncond:
   sha: a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/256x256_diffusion_uncond.pt
     - https://openaipublic.blob.core.windows.net/diffusion/jul-2021/256x256_diffusion_uncond.pt
     - https://www.dropbox.com/s/9tqnqo930mpnpcn/256x256_diffusion_uncond.pt
   recommended_size: [ 512, 448 ]
@@ -22,6 +23,7 @@
 512x512_diffusion_uncond_finetune_008100:
   sha: 9c111ab89e214862b76e1fa6a1b3f1d329b1a88281885943d2cdbe357ad57648
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/512x512_diffusion_uncond_finetune_008100.pt
     - https://the-eye.eu/public/AI/models/512x512_diffusion_unconditional_ImageNet/512x512_diffusion_uncond_finetune_008100.pt
     - https://huggingface.co/lowlevelware/512x512_diffusion_unconditional_ImageNet/resolve/main/512x512_diffusion_uncond_finetune_008100.pt
   config:
@@ -42,60 +44,70 @@
 PulpSciFiDiffusion:
   sha: b79e62613b9f50b8a3173e5f61f0320c7dbb16efad42a92ec94d014f6e17337f
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/PulpSciFiDiffusion.pt
     - https://huggingface.co/KaliYuga/PulpSciFiDiffusion/resolve/main/PulpSciFiDiffusion.pt
   recommended_size: [ 512, 448 ]
 
 pixel_art_diffusion_hard_256:
   sha: be4a9de943ec06eef32c65a1008c60ad017723a4d35dc13169c66bb322234161
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/pixel_art_diffusion_hard_256.pt
     - https://huggingface.co/KaliYuga/pixel_art_diffusion_hard_256/resolve/main/pixel_art_diffusion_hard_256.pt
   recommended_size: [ 512, 448 ]
 
 pixel_art_diffusion_soft_256:
   sha: d321590e46b679bf6def1f1914b47c89e762c76f19ab3e3392c8ca07c791039c
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/pixel_art_diffusion_soft_256.pt
     - https://huggingface.co/KaliYuga/pixel_art_diffusion_soft_256/resolve/main/pixel_art_diffusion_soft_256.pt
   recommended_size: [ 512, 448 ]
 
 pixelartdiffusion4k:
   sha: a1ba4f13f6dabb72b1064f15d8ae504d98d6192ad343572cc416deda7cccac30
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/pixelartdiffusion4k.pt
     - https://huggingface.co/KaliYuga/pixelartdiffusion4k/resolve/main/pixelartdiffusion4k.pt
   recommended_size: [ 512, 448 ]
 
 PADexpanded:
   sha: a73b40556634034bf43b5a716b531b46fb1ab890634d854f5bcbbef56838739a
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/PADexpanded.pt
     - https://huggingface.co/KaliYuga/PADexpanded/resolve/main/PADexpanded.pt
   recommended_size: [ 512, 448 ]
 
 secondary:
   sha: 983e3de6f95c88c81b2ca7ebb2c217933be1973b1ff058776b970f901584613a
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/secondary_model_imagenet_2.pth
     - https://the-eye.eu/public/AI/models/v-diffusion/secondary_model_imagenet_2.pth
     - https://ipfs.pollinations.ai/ipfs/bafybeibaawhhk7fhyhvmm7x24zwwkeuocuizbqbcg5nqx64jq42j75rdiy/secondary_model_imagenet_2.pth
 
 watercolordiffusion:
   sha: a3e6522f0c8f278f90788298d66383b11ac763dd5e0d62f8252c962c23950bd6
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/watercolordiffusion.pt
     - https://huggingface.co/KaliYuga/watercolordiffusion/resolve/main/watercolordiffusion.pt
   recommended_size: [ 512, 448 ]
 
 watercolordiffusion_2:
   sha: 49c281b6092c61c49b0f1f8da93af9b94be7e0c20c71e662e2aa26fee0e4b1a9
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/watercolordiffusion_2.pt
     - https://huggingface.co/KaliYuga/watercolordiffusion_2/resolve/main/watercolordiffusion_2.pt
   recommended_size: [ 512, 448 ]
 
 256x256_openai_comics_faces_v2.by_alex_spirin_114k:
   sha: f587fd6d2edb093701931e5083a13ab6b76b3f457b60efd1aa873d60ee3d6388
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/256x256_openai_comics_faces_v2.by_alex_spirin_114k.pt
     - https://github.com/Sxela/DiscoDiffusion-Warp/releases/download/v0.1.1/256x256_openai_comics_faces_v2.by_alex_spirin_114k.pt
   recommended_size: [ 512, 448 ]
 
 portrait_generator_v001_ema_0.9999_1MM:
   sha: b7e8c747af880d4480b6707006f1ace000b058dd0eac5bb13558ba3752d9b5b9
   sources:
+    - https://clip-as-service.s3.us-east-2.amazonaws.com/discoart/portrait_generator_v001_ema_0.9999_1MM.pt
     - https://huggingface.co/felipe3dartist/portrait_generator_v001/resolve/main/portrait_generator_v001_ema_0.9999_1MM.pt
   config:
     attention_resolutions: '32, 16, 8'

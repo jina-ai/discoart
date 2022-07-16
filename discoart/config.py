@@ -11,14 +11,16 @@ from . import __resources_path__
 
 with open(
     os.environ.get(
-        'DISCOART_DEFAULT_PARAMETERS_YAML', f'{__resources_path__}/default.yml'
+        'DISCOART_DEFAULT_PARAMETERS_YAML',
+        os.path.join(__resources_path__, 'default.yml'),
     )
 ) as ymlfile:
     default_args = yaml.load(ymlfile, Loader=Loader)
 
 with open(
     os.environ.get(
-        'DISCOART_CUT_SCHEDULES_YAML', f'{__resources_path__}/cut-schedules.yml'
+        'DISCOART_CUT_SCHEDULES_YAML',
+        os.path.join(__resources_path__, 'cut-schedules.yml'),
     )
 ) as ymlfile:
     cut_schedules = yaml.load(ymlfile, Loader=Loader)
@@ -153,7 +155,7 @@ def cheatsheet():
 
     console = Console()
 
-    with open(f'{__resources_path__}/docstrings.yml') as ymlfile:
+    with open(os.path.join(__resources_path__, 'docstrings.yml')) as ymlfile:
         docs = yaml.load(ymlfile, Loader=Loader)
 
     param_tab = Table(

@@ -268,7 +268,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     else:
         sample_fn = diffusion.plms_sample_loop_progressive
 
-    logger.info('creating artwork...')
+    logger.info('creating artworks...')
 
     image_display = _output_fn()
     is_busy_evs = [threading.Event(), threading.Event()]
@@ -354,9 +354,11 @@ def do_run(args, models, device) -> 'DocumentArray':
                         d.chunks.append(c)
                         _dp1.clear_output(wait=True)
                         _dp1.display(image)
-                        c.save_uri_to_file(f'{output_dir}/{_nb}-step-{j}.png')
+                        c.save_uri_to_file(
+                            os.path.join(output_dir, f'{_nb}-step-{j}.png')
+                        )
                         d.chunks.plot_image_sprites(
-                            f'{output_dir}/{_nb}-progress.png',
+                            os.path.join(output_dir, f'{_nb}-progress.png'),
                             skip_empty=True,
                             show_index=True,
                             keep_aspect_ratio=True,
@@ -368,10 +370,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                         'completed': cur_t == -1,
                         'cur_t': cur_t,
                         'step': j,
-                        'loss': loss_values[-1],
+                        'loss': loss_values,
                     }
                     if cur_t == -1:
-                        d.save_uri_to_file(f'{output_dir}/{_nb}-done.png')
+                        d.save_uri_to_file(os.path.join(output_dir, '{_nb}-done.png'))
                     _start_persist(
                         threads,
                         da_batches,

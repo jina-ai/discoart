@@ -19,7 +19,7 @@ from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
 from tqdm import tqdm
 
-cache_dir = f'{expanduser("~")}/.cache/{__package__}'
+cache_dir = os.path.join(expanduser('~'), '.cache', __package__)
 
 from yaml import Loader
 
@@ -226,14 +226,24 @@ def _get_sha(path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+def _get_model_name(name: str) -> str:
+    for k in models_list.keys():
+        if k.startswith(name):
+            return k
+
+
 def download_model(model_name: str):
     if os.path.isfile(model_name):
         logger.debug('use customized local model')
         return
-    if model_name not in models_list:
+
+    model_name = _get_model_name(model_name)
+
+    if not model_name:
         raise ValueError(
             f'{model_name} is not supported, must be one of {models_list.keys()}'
         )
+
     model_filename = os.path.basename(models_list[model_name]['sources'][0])
     model_local_path = os.path.join(cache_dir, model_filename)
     if (
@@ -259,10 +269,10 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
     )
 
     model_config = model_and_diffusion_defaults()
-    if diffusion_model in models_list and models_list[diffusion_model].get(
-        'config', None
-    ):
-        model_config.update(models_list[diffusion_model]['config'])
+
+    _diff_model_name = _get_model_name(diffusion_model)
+    if _diff_model_name and models_list[_diff_model_name].get('config', None):
+        model_config.update(models_list[_diff_model_name]['config'])
     else:
         logger.info(
             '''
@@ -313,7 +323,10 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 
     secondary_model = SecondaryDiffusionImageNet2()
     secondary_model.load_state_dict(
-        torch.load(f'{cache_dir}/secondary_model_imagenet_2.pth', map_location='cpu')
+        torch.load(
+            os.path.join(cache_dir, 'secondary_model_imagenet_2.pth'),
+            map_location='cpu',
+        )
     )
     secondary_model.eval().requires_grad_(False).to(device)
     return secondary_model
@@ -321,8 +334,10 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 
 def load_diffusion_model(user_args, device):
     diffusion_model = user_args.diffusion_model
-    if diffusion_model in models_list:
-        rec_size = models_list[diffusion_model].get('recommended_size', None)
+
+    _diff_model_name = _get_model_name(models_list)
+    if _diff_model_name:
+        rec_size = models_list[_diff_model_name].get('recommended_size', None)
         if rec_size and user_args.width_height != rec_size:
             logger.warning(
                 f'{diffusion_model} is recommended to have width_height {rec_size}, but you are using {user_args.width_height}. This may lead to suboptimal results.'
@@ -342,8 +357,9 @@ def load_diffusion_model(user_args, device):
     if os.path.isfile(diffusion_model):
         logger.debug(f'loading customized diffusion model from {diffusion_model}')
         _model_path = diffusion_model
-    else:
-        _model_path = f'{cache_dir}/{diffusion_model}.pt'
+    elif _diff_model_name:
+        model_filename = os.path.basename(models_list[_diff_model_name]['sources'][0])
+        _model_path = os.path.join(cache_dir, model_filename)
     model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
 
@@ -362,7 +378,7 @@ class PromptParser(SimpleTokenizer):
         self.spell = SpellChecker()
         from . import __resources_path__
 
-        with open(f'{__resources_path__}/vocab.txt') as fp:
+        with open(os.path.join(__resources_path__, 'vocab.txt')) as fp:
             self.spell.word_frequency.load_words(
                 line.strip() for line in fp if len(line.strip()) > 1
             )
