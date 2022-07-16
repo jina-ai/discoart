@@ -15,6 +15,7 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
+from rich.progress import track
 
 from .config import print_args_table
 from .helper import logger, PromptParser, get_ipython_funcs
@@ -310,7 +311,6 @@ def do_run(args, models, device) -> 'DocumentArray':
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
@@ -327,7 +327,6 @@ def do_run(args, models, device) -> 'DocumentArray':
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
@@ -335,7 +334,11 @@ def do_run(args, models, device) -> 'DocumentArray':
             )
 
         threads = []
-        for j, sample in enumerate(samples):
+        for j, sample in track(
+            enumerate(samples),
+            total=(diffusion.num_timesteps - skip_steps),
+            description='Baking...',
+        ):
             cur_t -= 1
             with image_display:
                 if j % args.display_rate == 0 or cur_t == -1:
