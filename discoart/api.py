@@ -25,7 +25,8 @@ def serve(args):
 def config(args):
     with open(
         os.environ.get(
-            'DISCOART_DEFAULT_PARAMETERS_YAML', f'{__resources_path__}/default.yml'
+            'DISCOART_DEFAULT_PARAMETERS_YAML',
+            os.path.join(__resources_path__, 'default.yml'),
         )
     ) as fp:
         args.output.write(fp.read())

@@ -48,6 +48,8 @@ setup(
         'open_clip_torch',
         'pyspellchecker',
         'jina',
+        'guided-diffusion-sdk',
+        'resize-right-sdk',
     ],
     extras_require={
         'test': [

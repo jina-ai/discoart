@@ -38,7 +38,16 @@ Also:
 - Support default 512x512, 256x256 diffusion model as well as Pixel Art Diffusion, Watercolor Diffusion, and Pulp SciFi Diffusion models.
 - `diffusion_model` and `diffusion_model_config` can be specified load custom diffusion model and override the default diffusion model.
 
+To list all supporteed diffusion models, 
+
+```python
+from discoart.helper import list_diffusion_models
+
+list_diffusion_models()
+```
+
 ## Feature changes
 - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.4).
 - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
 - `clip_models` accepts a list of values from [all open-clip pretrained models and weights](https://github.com/jina-ai/discoart/blob/main/discoart/resources/docstrings.yml#L90).
+

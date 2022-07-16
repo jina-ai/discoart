@@ -2,8 +2,6 @@ import gc
 import hashlib
 import logging
 import os
-import subprocess
-import sys
 import urllib.parse
 import urllib.request
 import warnings
@@ -19,7 +17,9 @@ from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
 from tqdm import tqdm
 
-cache_dir = f'{expanduser("~")}/.cache/{__package__}'
+cache_dir = os.environ.get(
+    'DISCOART_CACHE_DIR', os.path.join(expanduser('~'), '.cache', __package__)
+)
 
 from yaml import Loader
 
@@ -126,41 +126,6 @@ logger.debug(f'`.cache` dir is set to: {cache_dir}')
 check_model_SHA = False
 
 
-def _clone_repo_install(repo_url, repo_dir, commit_hash):
-    if os.path.exists(repo_dir):
-        res = subprocess.run(
-            ['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE, cwd=repo_dir
-        ).stdout.decode('utf-8')
-        logger.debug(f'commit hash: {res}')
-        if res.strip() == commit_hash:
-            logger.debug(f'{repo_dir} is already cloned and up to date')
-            sys.path.append(repo_dir)
-            return
-
-        import shutil
-
-        shutil.rmtree(repo_dir)
-
-    res = subprocess.run(
-        ['git', 'clone', '--depth', '1', repo_url, repo_dir], stdout=subprocess.PIPE
-    ).stdout.decode('utf-8')
-    logger.debug(f'cloned {repo_url} to {repo_dir}: {res}')
-    sys.path.append(repo_dir)
-
-
-def install_from_repos():
-    _clone_repo_install(
-        'https://github.com/kostarion/guided-diffusion',
-        f'{cache_dir}/guided_diffusion',
-        commit_hash='99afa5eb238f32aadaad38ae7107318ec4d987d3',
-    )
-    _clone_repo_install(
-        'https://github.com/assafshocher/ResizeRight',
-        f'{cache_dir}/resize_right',
-        commit_hash='510d4d5b67dccf4efdee9f311ed42609a71f17c5',
-    )
-
-
 def _wget(url, outputdir):
     logger.debug(f'downloading from {url}...')
     try:
@@ -226,14 +191,24 @@ def _get_sha(path):
         return hashlib.sha256(f.read()).hexdigest()
 
 
+def _get_model_name(name: str) -> str:
+    for k in models_list.keys():
+        if k.startswith(name):
+            return k
+
+
 def download_model(model_name: str):
     if os.path.isfile(model_name):
         logger.debug('use customized local model')
         return
-    if model_name not in models_list:
+
+    model_name = _get_model_name(model_name)
+
+    if not model_name:
         raise ValueError(
             f'{model_name} is not supported, must be one of {models_list.keys()}'
         )
+
     model_filename = os.path.basename(models_list[model_name]['sources'][0])
     model_local_path = os.path.join(cache_dir, model_filename)
     if (
@@ -259,10 +234,10 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
     )
 
     model_config = model_and_diffusion_defaults()
-    if diffusion_model in models_list and models_list[diffusion_model].get(
-        'config', None
-    ):
-        model_config.update(models_list[diffusion_model]['config'])
+
+    _diff_model_name = _get_model_name(diffusion_model)
+    if _diff_model_name and models_list[_diff_model_name].get('config', None):
+        model_config.update(models_list[_diff_model_name]['config'])
     else:
         logger.info(
             '''
@@ -313,7 +288,10 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 
     secondary_model = SecondaryDiffusionImageNet2()
     secondary_model.load_state_dict(
-        torch.load(f'{cache_dir}/secondary_model_imagenet_2.pth', map_location='cpu')
+        torch.load(
+            os.path.join(cache_dir, 'secondary_model_imagenet_2.pth'),
+            map_location='cpu',
+        )
     )
     secondary_model.eval().requires_grad_(False).to(device)
     return secondary_model
@@ -321,15 +299,16 @@ def load_secondary_model(user_args, device=torch.device('cuda:0')):
 
 def load_diffusion_model(user_args, device):
     diffusion_model = user_args.diffusion_model
-    if diffusion_model in models_list:
-        rec_size = models_list[diffusion_model].get('recommended_size', None)
+
+    _diff_model_name = _get_model_name(diffusion_model)
+    if _diff_model_name:
+        rec_size = models_list[_diff_model_name].get('recommended_size', None)
         if rec_size and user_args.width_height != rec_size:
             logger.warning(
                 f'{diffusion_model} is recommended to have width_height {rec_size}, but you are using {user_args.width_height}. This may lead to suboptimal results.'
             )
 
     download_model(diffusion_model)
-    install_from_repos()
 
     model_config = get_diffusion_config(user_args, device=device)
 
@@ -342,8 +321,9 @@ def load_diffusion_model(user_args, device):
     if os.path.isfile(diffusion_model):
         logger.debug(f'loading customized diffusion model from {diffusion_model}')
         _model_path = diffusion_model
-    else:
-        _model_path = f'{cache_dir}/{diffusion_model}.pt'
+    elif _diff_model_name:
+        model_filename = os.path.basename(models_list[_diff_model_name]['sources'][0])
+        _model_path = os.path.join(cache_dir, model_filename)
     model.load_state_dict(torch.load(_model_path, map_location='cpu'))
     model.requires_grad_(False).eval().to(device)
 
@@ -362,7 +342,7 @@ class PromptParser(SimpleTokenizer):
         self.spell = SpellChecker()
         from . import __resources_path__
 
-        with open(f'{__resources_path__}/vocab.txt') as fp:
+        with open(os.path.join(__resources_path__, 'vocab.txt')) as fp:
             self.spell.word_frequency.load_words(
                 line.strip() for line in fp if len(line.strip()) > 1
             )
@@ -524,3 +504,8 @@ More usage such as plotting, post-analysis can be found in the [README](https://
         _dp1.display(md)
     else:
         _dp1.display(config_file, persist_file, md)
+
+
+def list_diffusion_models():
+    for k in models_list.keys():
+        print(k)
