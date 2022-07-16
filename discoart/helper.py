@@ -15,7 +15,7 @@ import yaml
 from open_clip import SimpleTokenizer
 from open_clip.tokenizer import whitespace_clean, basic_clean
 from spellchecker import SpellChecker
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 cache_dir = os.environ.get(
     'DISCOART_CACHE_DIR', os.path.join(expanduser('~'), '.cache', __package__)
@@ -424,9 +424,11 @@ but only {fully_done} images were fully completed. This may due to the following
 To avoid this, you can set `n_batches` to a smaller number in `create()`, say `create(n_batches=1)`.
 '''
 
+    print_args_table(vars(_args))
+
     from rich.markdown import Markdown
 
-    md = Markdown(
+    md1 = Markdown(
         f'''
 {imcomplete_str}
 
@@ -438,12 +440,10 @@ To save the full-size images, please check out the instruction in the next secti
     ''',
         code_theme='igor',
     )
-    _dp1.display(md)
+    _dp1.display(md1)
 
     if _da and _da[0].uri:
         _da.plot_image_sprites(skip_empty=True, show_index=True, keep_aspect_ratio=True)
-
-    print_args_table(vars(_args))
 
     persist_file = _fl(
         f'{_name}.protobuf.lz4',
