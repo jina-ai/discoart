@@ -310,10 +310,10 @@ Let's create `mydisco-123` by sending the following request to `/create` endpoin
 curl \
 -X POST http://0.0.0.0:51001/post \
 -H 'Content-Type: application/json' \
--d '{"execEndpoint":"/result", "parameters": {"name_docarray": "mydisco-123", "text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
+-d '{"execEndpoint":"/create", "parameters": {"name_docarray": "mydisco-123", "text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
 ```
 
-Now that the above request is processing on the server, you can periodically check the progress of the artwork by sending the following request to `/result` endpoint:
+Now that the above request is being processed on the server, you can periodically check `mydisco-123` progress by sending the following request to `/result` endpoint:
 
 ```bash
 curl \
@@ -322,7 +322,7 @@ curl \
 -d '{"execEndpoint":"/result", "parameters": {"name_docarray": "mydisco-123"}}'
 ```
 
-A JSON will be returned with up-to-date progress. [The JSON Schema of Document/DocumentArray is described here.](https://docarray.jina.ai/fundamentals/fastapi-support/#json-schema)
+A JSON will be returned with up-to-date progress, with image as DataURI, loss, steps etc. [The JSON Schema of Document/DocumentArray is described here.](https://docarray.jina.ai/fundamentals/fastapi-support/#json-schema)
 
 Note, `/result` won't be blocked by `/create` thanks to the smart routing of Jina Gateway. To learn/play more about those endpoints, you can check ReDoc or the Swagger UI embedded in the server.
 
