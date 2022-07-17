@@ -159,6 +159,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             x = x.detach().requires_grad_()
             n = x.shape[0]
             if secondary_model:
+                print('hello')
                 alpha = torch.tensor(
                     diffusion.sqrt_alphas_cumprod[cur_t],
                     device=device,
@@ -175,6 +176,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
             else:
+                print('bye')
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
                 out = diffusion.p_mean_variance(
                     model, x, my_t, clip_denoised=False, model_kwargs={'y': y}
@@ -229,8 +231,10 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
             tv_losses = tv_loss(x_in)
             if secondary_model:
+                print('secondary_model')
                 range_losses = range_loss(out)
             else:
+                print('NO secondary_model')
                 range_losses = range_loss(out['pred_xstart'])
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
             loss = (
