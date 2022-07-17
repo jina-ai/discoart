@@ -9,4 +9,5 @@ if __name__ == '__main__':
 
     from . import api
 
-    getattr(api, args.cli.replace('-', '_'))(args)
+    if args.cli:
+        getattr(api, args.cli.replace('-', '_'))(args)

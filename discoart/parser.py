@@ -20,7 +20,7 @@ def get_main_parser():
         version=__version__,
         help='Show DiscoArt version',
     )
-    sps = parser.add_subparsers(dest='cli')
+    sps = parser.add_subparsers(dest='cli', required=True)
     sp1 = sps.add_parser('create', help='Create artworks from a YAML config file')
     sp1.add_argument(
         'input',
