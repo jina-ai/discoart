@@ -58,6 +58,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1187,4 +1188,19 @@
 ### 🍹 Other Improvements
 
  - [[```f2557a9d```](https://github.com/jina-ai/discoart/commit/f2557a9d7c090ab3a97e815fab665443341cd27a)] __-__ __version__: the next version will be 0.6.10 (*Jina Dev Bot*)
+
+<a name=release-note-0-6-11></a>
+## Release Note (`0.6.11`)
+
+> Release time: 2022-07-17 17:04:27
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Jina Dev Bot,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```af937125```](https://github.com/jina-ai/discoart/commit/af9371253dc6e7f2f452e8f4cb604cca0285d749)] __-__ __version__: the next version will be 0.6.11 (*Jina Dev Bot*)
 
