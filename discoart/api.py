@@ -9,14 +9,8 @@ from . import __resources_path__
 
 
 def serve(args):
-    from jina import Executor, requests, Flow
-
-    class DiscoArtExecutor(Executor):
-        @requests
-        def create_artworks(self, parameters: Dict, **kwargs):
-            from .create import create
-
-            return create(**parameters)
+    from jina import Flow
+    from .executors import DiscoArtExecutor, ResultPoller
 
     with Flow.load_config(args.input) as f:
         f.block()
