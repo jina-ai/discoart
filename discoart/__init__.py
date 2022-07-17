@@ -2,7 +2,7 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-__version__ = '0.6.8'
+__version__ = '0.6.9'
 
 __all__ = ['create', 'cheatsheet']
 
