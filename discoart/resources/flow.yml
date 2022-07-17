@@ -15,3 +15,5 @@ executors:
     env:
       CUDA_VISIBLE_DEVICES: RR0:2  # change this if you have multiple GPU
     replicas: 1  # change this if you have larger VRAM
+  - name: poller
+    uses: ResultPoller

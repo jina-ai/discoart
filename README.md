@@ -289,14 +289,43 @@ Now send request to the server via curl/Javascript, e.g.
 
 ```bash
 curl \
--X POST http://0.0.0.0:51001/post \  # use private/public if your server is remote
+-X POST http://0.0.0.0:51001/post \
 -H 'Content-Type: application/json' \
--d '{"parameters": {"text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
+-d '{"execEndpoint":"/create", "parameters": {"text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
 ```
 
 That's it. 
 
 You can of course pass all parameters that accepted by `create()` function in the JSON.
+
+### Polling intermediate results
+
+We already know that `create` function is slow even on GPU it could take 10 minutes to finish an artwork. This means the after sending the above request, the client will have to wait 10 minutes for the response. There is nothing wrong with this behavior given that everything runs synchronously. However, in practice, client may expect a progress or intermediate results in the middle instead of waiting for the end.
+
+`/result` endpoint is designed for this purpose. It will return the intermediate results as soon as they are available. All you need is to specify `name_docarray` in the request parameters as you specified in `/create` endpoint. Here is an example:
+
+Let's create `mydisco-123` by sending the following request to `/create` endpoint:
+
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"execEndpoint":"/result", "parameters": {"name_docarray": "mydisco-123", "text_prompts": ["A beautiful painting of a singular lighthouse", "yellow color scheme"]}}'
+```
+
+Now that the above request is processing on the server, you can periodically check the progress of the artwork by sending the following request to `/result` endpoint:
+
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"execEndpoint":"/result", "parameters": {"name_docarray": "mydisco-123"}}'
+```
+
+A JSON will be returned with up-to-date progress. [The JSON Schema of Document/DocumentArray is described here.](https://docarray.jina.ai/fundamentals/fastapi-support/#json-schema)
+
+Note, `/result` won't be blocked by `/create` thanks to the smart routing of Jina Gateway. To learn/play more about those endpoints, you can check ReDoc or the Swagger UI embedded in the server.
+
 
 ### Scaling out
 
@@ -319,6 +348,8 @@ executors:
     env:
       CUDA_VISIBLE_DEVICES: RR0:3  # change this if you have multiple GPU
     replicas: 3  # change this if you have larger VRAM
+  - name: poller
+    uses: ResultPoller
 ```
 
 Here `replicas: 3` says spawning three DiscoArt instances, `CUDA_VISIBLE_DEVICES: RR0:3` makes sure they use the first three GPUs in a round-robin fashion.
@@ -339,6 +370,48 @@ jina export kubernetes myflow.yml
 
 For more features and YAML configs, [please check out Jina docs](https://docs.jina.ai).
 
+
+### Use gRPC gateway
+
+To switch from HTTP to gRPC gateway is simple:
+
+```yaml
+jtype: Flow
+with:
+  protocol: grpc
+...
+```
+
+and then restart the server.
+
+There are multiple advantages of using gRPC gateway:
+- Much faster and smaller network overhead.
+- Feature-rich, like compression, status monitoring, etc.
+
+In general, if you are using the DiscoArt server behind a BFF (backend for frontend), or your DiscoArt server does **not** directly serve HTTP traffic from end-users, then you should use gRPC protocol.
+
+To communicate with a gRPC DiscoArt server, one can use a Jina Client:
+
+```python
+# !pip install jina
+from jina import Client
+
+c = Client(host='grpc://0.0.0.0:51001')
+
+da = c.post(
+    '/create',
+    parameter={
+        'name_docarray': 'mydisco-123',
+        'text_prompts': [
+            'A beautiful painting of a singular lighthouse',
+            'yellow color scheme',
+        ],
+    },
+)
+
+# check intermediate results
+da = c.post('/result', parameter={'name_docarray': 'mydisco-123'})
+```
 
 ### Hosting on Google Colab
 
