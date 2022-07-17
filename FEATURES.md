@@ -46,6 +46,11 @@ from discoart.helper import list_diffusion_models
 list_diffusion_models()
 ```
 
+Latest diffusion models are automatically synced to local when they become available, there is no need to update the codebase.
+
+![](.github/auto-sync-diffusion.png)
+
+
 ## Feature changes
 - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.4).
 - Due to no video support, `text_prompts` in DiscoArt accepts a string or a list of strings, not a dictionary; i.e. no frame index `0:` or `100:`.
