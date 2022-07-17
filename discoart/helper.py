@@ -8,7 +8,7 @@ import warnings
 from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-
+from urllib.request import Request, urlopen
 import regex as re
 import torch
 import yaml
@@ -25,10 +25,78 @@ from yaml import Loader
 
 from . import __resources_path__
 
-with open(
-    os.environ.get('DISCOART_MODELS_YAML', f'{__resources_path__}/models.yml')
-) as ymlfile:
-    models_list = yaml.load(ymlfile, Loader=Loader)
+
+def _get_logger():
+    logger = logging.getLogger(__package__)
+    _log_level = os.environ.get('DISCOART_LOG_LEVEL', 'INFO')
+    logger.setLevel(_log_level)
+    ch = logging.StreamHandler()
+    ch.setLevel(_log_level)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    ch.setFormatter(formatter)
+    logger.handlers.clear()
+    logger.addHandler(ch)
+    logger.propagate = False
+    return logger
+
+
+logger = _get_logger()
+
+
+def get_model_list():
+    with open(
+        os.environ.get('DISCOART_MODELS_YAML', f'{__resources_path__}/models.yml')
+    ) as ymlfile:
+        models_list = yaml.load(ymlfile, Loader=Loader)
+        remote_model_list = None
+
+        if not 'DISCOART_DISABLE_REMOTE_MODELS' in os.environ:
+            try:
+                req = Request(
+                    f'https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml',
+                    headers={'User-Agent': 'Mozilla/5.0'},
+                )
+                with urlopen(
+                    req, timeout=2
+                ) as resp:  # 'with' is important to close the resource after use
+                    remote_model_list = yaml.load(resp, Loader=Loader)
+            except Exception as ex:
+                logger.error(f'can not fetch the latest `model_list` from remote, {ex}')
+
+        if remote_model_list and remote_model_list != models_list:
+            logger.warning('remote model list is different from the local model list')
+            from rich.table import Table
+            from rich import box, print
+
+            param_str = Table(
+                box=box.ROUNDED,
+                highlight=True,
+                title_justify='center',
+            )
+            param_str.add_column('Diffusion Model', justify='right')
+            param_str.add_column('Remote', justify='left')
+            param_str.add_column('Local', justify='left')
+            param_str.add_column('Synced', justify='left')
+            all_models = sorted(
+                set(list(remote_model_list.keys()) + list(models_list.keys()))
+            )
+            for k in all_models:
+                param_str.add_row(
+                    k,
+                    str(k in remote_model_list),
+                    str(k in models_list),
+                    str(remote_model_list.get(k) == models_list.get(k)),
+                )
+
+            print(param_str)
+            models_list = remote_model_list
+
+    return models_list
+
+
+model_list = get_model_list()
 
 
 def get_device():
@@ -99,24 +167,6 @@ def get_ipython_funcs():
     else:
         return NOP(), NOP(), NOP()
 
-
-def _get_logger():
-    logger = logging.getLogger(__package__)
-    _log_level = os.environ.get('DISCOART_LOG_LEVEL', 'INFO')
-    logger.setLevel(_log_level)
-    ch = logging.StreamHandler()
-    ch.setLevel(_log_level)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    ch.setFormatter(formatter)
-    logger.handlers.clear()
-    logger.addHandler(ch)
-    logger.propagate = False
-    return logger
-
-
-logger = _get_logger()
 
 if not os.path.exists(cache_dir):
     Path(cache_dir).mkdir(parents=True, exist_ok=True)
