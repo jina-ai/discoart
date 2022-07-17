@@ -405,6 +405,8 @@ def load_diffusion_model(model_config, diffusion_model, device):
         create_model_and_diffusion,
     )
 
+    print(model_config)
+    exit()
     model, diffusion = create_model_and_diffusion(**model_config)
     if os.path.isfile(diffusion_model):
         logger.debug(f'loading customized diffusion model from {diffusion_model}')
