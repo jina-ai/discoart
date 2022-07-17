@@ -388,6 +388,8 @@ There are multiple advantages of using gRPC gateway:
 - Much faster and smaller network overhead.
 - Feature-rich, like compression, status monitoring, etc.
 
+In general, if you are using the DiscoArt server behind a BFF (backend for frontend), or your DiscoArt server does **not** directly serve HTTP traffic from end-users, then you should use gRPC protocol.
+
 To communicate with a gRPC DiscoArt server, one can use a Jina Client:
 
 ```python
