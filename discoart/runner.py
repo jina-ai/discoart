@@ -164,16 +164,12 @@ def do_run(args, models, device) -> 'DocumentArray':
     cur_t = None
 
     def cond_fn(x, t, y=None):
-        t_int = int(t.item()) + 1  # errors on last step without +1, need to find source
-
-        num_step = _MAX_DIFFUSION_STEPS - t_int
-        scheduler = _get_current_schedule(schedule_table, num_step)
 
         with torch.enable_grad():
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
-            if scheduler.use_secondary_model:
+            if False:
                 alpha = torch.tensor(
                     diffusion.sqrt_alphas_cumprod[cur_t],
                     device=device,
@@ -199,10 +195,18 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
 
             for model_stat in model_stats:
-                if not model_stat['schedules'][num_step]:
-                    continue
 
-                for _ in range(scheduler.cutn_batches):
+                for _ in range(9):
+                    t_int = (
+                        int(t.item()) + 1
+                    )  # errors on last step without +1, need to find source
+
+                    num_step = _MAX_DIFFUSION_STEPS - t_int
+                    scheduler = _get_current_schedule(schedule_table, num_step)
+
+                    if not model_stat['schedules'][num_step]:
+                        continue
+
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
                         Overview=scheduler.cut_overview,
