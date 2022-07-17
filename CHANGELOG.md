@@ -56,6 +56,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1140,4 +1141,30 @@
 ### 🍹 Other Improvements
 
  - [[```48b98370```](https://github.com/jina-ai/discoart/commit/48b98370575295c20eb4278c82c9c33047a78a3f)] __-__ __version__: the next version will be 0.6.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-6-9></a>
+## Release Note (`0.6.9`)
+
+> Release time: 2022-07-17 15:57:00
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```5747d2be```](https://github.com/jina-ai/discoart/commit/5747d2be39e49cc84455d0f9e86efffcfd2b5106)] __-__ add FeiArt_Handpainted_CG_Diffusion (*Han Xiao*)
+
+### 🐞 Bug fixes
+
+ - [[```bb841dea```](https://github.com/jina-ai/discoart/commit/bb841dea2aaa2579f6831c25a887405939d06701)] __-__ argparse empty cli (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```193d21f4```](https://github.com/jina-ai/discoart/commit/193d21f42c85ab21b28070bd80e36026c7ac3fc0)] __-__ fix readme (*Han Xiao*)
+ - [[```4b38c286```](https://github.com/jina-ai/discoart/commit/4b38c28666ddb807c83b06259e1d5d484efc8025)] __-__ fix readme serving (*Han Xiao*)
+ - [[```14f3799b```](https://github.com/jina-ai/discoart/commit/14f3799b46daed45cccf71d7d177be4b7aa01918)] __-__ fix typo (*Han Xiao*)
+ - [[```b611409b```](https://github.com/jina-ai/discoart/commit/b611409bccbfcd365683b14cd9f36ebfed8580e8)] __-__ __version__: the next version will be 0.6.9 (*Jina Dev Bot*)
 
