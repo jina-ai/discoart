@@ -122,3 +122,22 @@ portrait_generator_v001_ema_0.9999_1MM:
     resblock_updown: true
     rescale_timesteps: true
     use_scale_shift_norm: true
+
+FeiArt_Handpainted_CG_Diffusion:
+  sha: 85f95f0618f288476ffcec9f48160542ba626f655b3df963543388dcd059f86a
+  sources:
+    - https://huggingface.co/Feiart/FeiArt-Handpainted-CG-Diffusion/resolve/main/FeiArt-Handpainted-CG-Diffusion.pt
+  config:
+    attention_resolutions: 32,16,8
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 512
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 256
+    num_head_channels: 64
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    timestep_respacing: ddim100
+    use_scale_shift_norm: true
