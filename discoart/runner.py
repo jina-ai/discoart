@@ -103,9 +103,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             raise ValueError(
                 f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
             )
-        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
-            0
-        )
+        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds'])
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
         model_stat['weights'] /= sum_weight
         model_stats.append(model_stat)
@@ -213,11 +211,11 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     image_embeds = (
-                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                        model_stat['clip_model'].encode_image(clip_in).float()
                     )
                     dists = spherical_dist_loss(
-                        image_embeds,
-                        model_stat['target_embeds'],
+                        image_embeds.unsqueeze(1),
+                        model_stat['target_embeds'].unsqueeze(0),
                     ).view(
                         [
                             scheduler.cut_overview + scheduler.cut_innercut,
