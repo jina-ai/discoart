@@ -449,7 +449,7 @@ Now you can visit `http://127.0.0.1:51000` to access the notebook
 
 ```bash
 # docker build . -t jinaai/discoart  # if you want to build yourself
-docker run --entrypoint "python -m discoart serve" -p 51001:51001 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+docker run --entrypoint "python" -p 51001:51001 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart -m discoart serve
 ```
 
 Your DiscoArt server is now running at `http://127.0.0.1:51001`.
