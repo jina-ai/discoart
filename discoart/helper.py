@@ -96,7 +96,7 @@ def get_model_list():
     return models_list
 
 
-model_list = get_model_list()
+models_list = get_model_list()
 
 
 def get_device():
