@@ -165,7 +165,9 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     def cond_fn(x, t, y=None):
         print(f'x {x}/{type(x)}; t {t}/{type(t)} y {y}/{type(y)}')
-        t_int = int(t.item()) + 1  # errors on last step without +1, need to find source
+        t_int = (
+            int(t[0].item()) + 1
+        )  # errors on last step without +1, need to find source
 
         num_step = _MAX_DIFFUSION_STEPS - t_int
         scheduler = _get_current_schedule(schedule_table, num_step)
