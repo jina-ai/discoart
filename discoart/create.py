@@ -80,6 +80,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     Create Disco Diffusion artworks and return the result as a DocumentArray object.
 
     :param batch_name: The name of the batch, the batch id will be named as "discoart-[batch_name]-[uuid]". To avoid your artworks be overridden by other users, please use a unique name.
+    :param batch_size: [DiscoArt] The number of samples generated at each steps. Say `batch_size=3`, then you can generate three images in one run. Not only this is faster than three runs, but it leverages loss function better and potentially yields higher quality images.One can of course also do `n_batches=3` and `batch_size=1` to generate three images in one run. But using `batch_size=3` is marginally faster and yield higher quality images.
     :param clamp_grad: As I understand it, clamp_grad is an internal limiter that stops DD from producing extreme results.  Try your images with and without clamp_grad. If the image changes drastically with clamp_grad turned off, it probably means your clip_guidance_scale is too high and should be reduced.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
     :param clamp_max: Sets the value of the clamp_grad limitation. Default is 0.05, providing for smoother, more muted coloration in images, but setting higher values (0.15-0.3) can provide interesting contrast and vibrancy.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
     :param clip_denoised: Determines whether CLIP discriminates a noisy or denoised image
