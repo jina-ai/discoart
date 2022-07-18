@@ -1,6 +1,6 @@
 # DiscoArt vs. DD5.6
 
-DiscoArt and DD5.6 follow the same algorithms, but DiscoArt has a much better  implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
+DiscoArt and DD5.6 follow the same algorithms, but DiscoArt has a much better implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
 
 DiscoArt is synced with the upstream update of original DD notebook. The list below summarizes the major differences between DiscoArt and DD5.6:
 
