@@ -340,7 +340,6 @@ def do_run(args, models, device) -> 'DocumentArray':
         for j, sample in enumerate(samples):
             cur_t -= 1
             if j % args.display_rate == 0 or cur_t == -1:
-                print(sample['sample'].shape, sample['pred_xstart'].shape)
                 for k, image in enumerate(sample['pred_xstart']):
                     image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                     c = Document(
