@@ -216,6 +216,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
+                    print(clip_in.shape)
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
