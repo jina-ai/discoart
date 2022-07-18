@@ -341,7 +341,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             cur_t -= 1
             if j % args.display_rate == 0 or cur_t == -1:
                 print(sample['sample'].shape, sample['pred_xstart'].shape)
-                for image in sample['pred_xstart']:
+                for k, image in enumerate(sample['pred_xstart']):
                     image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                     c = Document(
                         tags={
@@ -349,19 +349,24 @@ def do_run(args, models, device) -> 'DocumentArray':
                                 'cur_t': cur_t,
                                 'step': j,
                                 'loss': loss_values[-1],
+                                'minibatch_idx': k,
                             }
                         }
                     )
                     c.load_pil_image_to_datauri(image)
                     d.chunks.append(c)
-                    image_display.value = f'<img src="{c.uri}" alt="step {j}">'
-                    c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}.png'))
-                    d.chunks.plot_image_sprites(
-                        os.path.join(output_dir, f'{_nb}-progress.png'),
-                        skip_empty=True,
-                        show_index=True,
-                        keep_aspect_ratio=True,
+                    c.save_uri_to_file(
+                        os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
                     )
+                    if k == 0:
+                        image_display.value = f'<img src="{c.uri}" alt="step {j}">'
+                        # only print the first image of the minibatch in progress
+                        d.chunks.plot_image_sprites(
+                            os.path.join(output_dir, f'{_nb}-progress.png'),
+                            skip_empty=True,
+                            show_index=True,
+                            keep_aspect_ratio=True,
+                        )
 
                 # root doc always update with the latest progress
                 d.uri = c.uri
