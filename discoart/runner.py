@@ -215,16 +215,17 @@ def do_run(args, models, device) -> 'DocumentArray':
                         IC_Grey_P=scheduler.cut_icgray_p,
                         skip_augs=scheduler.skip_augs,
                     )
+                    print(x_in.shape)
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
-                    print(clip_in.shape)
+                    print(clip_in.shape)  # 16, 3, 224, 224
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
-                    )
+                    )  # 16, 1, 512
                     print(image_embeds.shape, model_stat['target_embeds'].shape)
                     dists = spherical_dist_loss(
                         image_embeds,
-                        model_stat['target_embeds'],
-                    )
+                        model_stat['target_embeds'],  # 1, 2, 512
+                    )  # 16, 2
                     print(dists.shape)
                     dists = dists.view(
                         [
