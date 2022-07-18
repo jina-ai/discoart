@@ -219,6 +219,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
+                    print(image_embeds.shape, model_stat['target_embeds'].shape)
                     dists = spherical_dist_loss(
                         image_embeds,
                         model_stat['target_embeds'],
