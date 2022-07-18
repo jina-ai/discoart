@@ -30,6 +30,15 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 
 
 ## [Gallery with prompts](https://twitter.com/hxiao/status/1542967938369687552?s=20&t=DO27EKNMADzv4WjHLQiPFA) 
+
+Do you see the `discoart-id` in each tweet? To get the config & prompts, simply:
+
+```python
+from docarray import DocumentArray
+
+da = DocumentArray.pull('discoart-id')
+```
+
 ## Install
 
 Python 3.7+ and CUDA-enabled PyTorch is required.
