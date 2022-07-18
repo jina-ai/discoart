@@ -215,7 +215,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         IC_Grey_P=scheduler.cut_icgray_p,
                         skip_augs=scheduler.skip_augs,
                     )
-                    print(x_in.shape)
+                    print(x_in.shape)  # [4, 3, 768, 1280]
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     print(clip_in.shape)  # 16, 3, 224, 224
                     image_embeds = (
