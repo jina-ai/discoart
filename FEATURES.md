@@ -11,6 +11,24 @@ DiscoArt is synced with the upstream update of original DD notebook. The list be
 - Robust persistent storage for the generated images.
 - Simpler interface and Pythonic API.
 
+## Spellchecking
+
+Typos in the prompts can lead to suboptimal image generation; and they are often hard to recognize. In DiscoArt, you will see a warning message when you have a typo as follows:
+
+![](.github/spell-check.png)
+
+Artist names and common modifiers (e.g. `dof`, `artstation`) are added into whitelist to avoid the false alarm.
+
+You can change `on_misspelled_token` parameter to enforce auto-correction as well.
+
+## IDE support
+
+When writing DiscoArt applications in PyCharm/VSCode/Jupyter/Google Colab, you will get <kbd>tab</kbd> complete and parameter hinting out of the box.
+
+![](.github/type-hint.png)
+
+![](.github/type-hint-colab.png)
+
 ## Scheduling
 
 The following variables can be either scalar variables in the type of bool, float or int; or can be scheduled via the syntax of `[val]*400+[val1]*100+[val2]*500` over 1000 steps.
@@ -35,20 +53,21 @@ Also:
 - `clip_models_schedules` is added to control the scheduling of clip models, the syntax is the same as `cut_overview` but as a bool list `[True]*400+[False]*600`.
 
 ## Customized diffusion
+
+Latest diffusion models are automatically synced to local when they become available, there is no need to update the codebase.
+
+![](.github/auto-sync-diffusion.png)
+
 - Support default 512x512, 256x256 diffusion model as well as Pixel Art Diffusion, Watercolor Diffusion, and Pulp SciFi Diffusion models.
 - `diffusion_model` and `diffusion_model_config` can be specified load custom diffusion model and override the default diffusion model.
 
-To list all supporteed diffusion models, 
+To list all supported diffusion models, 
 
 ```python
 from discoart.helper import list_diffusion_models
 
 list_diffusion_models()
 ```
-
-Latest diffusion models are automatically synced to local when they become available, there is no need to update the codebase.
-
-![](.github/auto-sync-diffusion.png)
 
 
 ## Feature changes
