@@ -164,7 +164,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     cur_t = None
 
     def cond_fn(x, t, y=None):
-        print(f'x {x}/{type(x)}; t {t}/{type(t)} y {y}/{type(y)}')
+        print(f'x {x}/{x.shape}; t {t}/{type(t)} y {y}/{type(y)}')
 
         t_int = (
             int(t[0].item()) + 1
