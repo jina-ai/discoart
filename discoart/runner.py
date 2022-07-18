@@ -223,7 +223,9 @@ def do_run(args, models, device) -> 'DocumentArray':
                     dists = spherical_dist_loss(
                         image_embeds,
                         model_stat['target_embeds'],
-                    ).view(
+                    )
+                    print(dists.shape)
+                    dists = dists.view(
                         [
                             scheduler.cut_overview + scheduler.cut_innercut,
                             n,
