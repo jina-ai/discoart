@@ -118,7 +118,7 @@ class MakeCutoutsDango(nn.Module):
         sideY, sideX = input.shape[2:4]
         max_size = min(sideX, sideY)
         min_size = min(sideX, sideY, self.cut_size)
-        output_shape = [1, 3, self.cut_size, self.cut_size]
+        output_shape = [input.shape[0], 3, self.cut_size, self.cut_size]
         pad_input = F.pad(
             input,
             (
@@ -162,8 +162,7 @@ class MakeCutoutsDango(nn.Module):
 
         cutouts = torch.cat(cutouts)
         if not self.skip_augs:
-            for i in range(cutouts.shape[0]):
-                cutouts[i] = self.augs(cutouts[i])
+            cutouts = self.augs(cutouts)
         return cutouts
 
 
