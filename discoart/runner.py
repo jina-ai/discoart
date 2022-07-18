@@ -361,13 +361,23 @@ def do_run(args, models, device) -> 'DocumentArray':
                         }
                     )
                     c.load_pil_image_to_datauri(image)
-                    d.chunks.append(c)
-                    c.save_uri_to_file(
-                        os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
-                    )
+
+                    if cur_t == -1:
+                        c.save_uri_to_file(
+                            os.path.join(output_dir, f'{_nb}-done-{k}.png')
+                        )
+                    else:
+                        c.save_uri_to_file(
+                            os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
+                        )
+
                     _display_html.append(
                         f'<img src="{c.uri}" alt="step {j} minibatch {k}">'
                     )
+
+                    d.chunks.append(c)
+                    # root doc always update with the latest progress
+                    d.uri = c.uri
 
                 image_display.value = '<br>\n'.join(_display_html)
                 # only print the first image of the minibatch in progress
@@ -378,16 +388,13 @@ def do_run(args, models, device) -> 'DocumentArray':
                     keep_aspect_ratio=True,
                 )
 
-                # root doc always update with the latest progress
-                d.uri = c.uri
                 d.tags['_status'] = {
                     'completed': cur_t == -1,
                     'cur_t': cur_t,
                     'step': j,
                     'loss': loss_values,
                 }
-                if cur_t == -1:
-                    d.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done.png'))
+
                 _start_persist(
                     threads,
                     da_batches,

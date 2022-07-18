@@ -4,6 +4,25 @@ DiscoArt and DD5.6 follow the same algorithms, but DiscoArt has a much better im
 
 DiscoArt is synced with the upstream update of original DD notebook. The list below summarizes the major differences between DiscoArt and DD5.6:
 
+## K-shot sampling in one run 
+
+Here is a question: to generate 3 images with the same prompts & settings, would you rather do `n_batches=3` and `batch_size=1`, or `n_batches=1` and `batch_size=3`?
+
+This is a trick question because in original DD5.6 one can not do `batch_size > 1`, it is not supported.
+
+In DiscoArt, you can simply do:
+
+```python
+from discoart import create
+
+create(batch_size=3)
+```
+
+Which means you can generate three images in one run. Not only this is faster than three runs, but it leverages loss function better and potentially yields higher quality images. 
+
+![](batch_size.png)
+
+
 ## Refactor & bug fixes
 - Completely refactored the notebook implementation and aim for *best-in-class* quality. (I'm serious about this.)
 - Fixes multiple bugs e.g. weighted prompts, cut scheduling in original DD5.6, which improves the generation quality.
