@@ -340,7 +340,10 @@ def do_run(args, models, device) -> 'DocumentArray':
         for j, sample in enumerate(samples):
             cur_t -= 1
             if j % args.display_rate == 0 or cur_t == -1:
-                for k, image in enumerate(sample['pred_xstart']):
+
+                _display_html = []
+
+                for k, image in enumerate(sample['pred_xstart']):  # batch_size
                     image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                     c = Document(
                         tags={
@@ -357,15 +360,18 @@ def do_run(args, models, device) -> 'DocumentArray':
                     c.save_uri_to_file(
                         os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
                     )
-                    if k == 0:
-                        image_display.value = f'<img src="{c.uri}" alt="step {j}">'
-                        # only print the first image of the minibatch in progress
-                        d.chunks.plot_image_sprites(
-                            os.path.join(output_dir, f'{_nb}-progress.png'),
-                            skip_empty=True,
-                            show_index=True,
-                            keep_aspect_ratio=True,
-                        )
+                    _display_html.append(
+                        f'<img src="{c.uri}" alt="step {j} minibatch {k}">'
+                    )
+
+                image_display.value = '<br>\n'.join(_display_html)
+                # only print the first image of the minibatch in progress
+                d.chunks.plot_image_sprites(
+                    os.path.join(output_dir, f'{_nb}-progress.png'),
+                    skip_empty=True,
+                    show_index=True,
+                    keep_aspect_ratio=True,
+                )
 
                 # root doc always update with the latest progress
                 d.uri = c.uri
