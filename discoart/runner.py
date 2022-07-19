@@ -206,7 +206,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 print('my_t', my_t, my_t.shape)
                 print('x', x, x.shape)
-                print('out', out, out.shape)
+                print('out', out['pred_xstart'], out['pred_xstart'].shape)
                 print('fac', fac)
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
