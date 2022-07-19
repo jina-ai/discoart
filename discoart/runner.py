@@ -214,22 +214,22 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            with torch.inference_mode():
-                losses = []
-                for model_stat in model_stats:
-                    if not model_stat['schedules'][num_step]:
-                        continue
+            for model_stat in model_stats:
+                if not model_stat['schedules'][num_step]:
+                    continue
 
-                    for _ in range(scheduler.cutn_batches):
-                        cuts = MakeCutoutsDango(
-                            model_stat['input_resolution'],
-                            Overview=scheduler.cut_overview,
-                            InnerCrop=scheduler.cut_innercut,
-                            IC_Size_Pow=scheduler.cut_ic_pow,
-                            IC_Grey_P=scheduler.cut_icgray_p,
-                            skip_augs=scheduler.skip_augs,
-                        )
-                        clip_in = normalize(cuts(x_in.add(1).div(2)))
+                for _ in range(scheduler.cutn_batches):
+                    cuts = MakeCutoutsDango(
+                        model_stat['input_resolution'],
+                        Overview=scheduler.cut_overview,
+                        InnerCrop=scheduler.cut_innercut,
+                        IC_Size_Pow=scheduler.cut_ic_pow,
+                        IC_Grey_P=scheduler.cut_icgray_p,
+                        skip_augs=scheduler.skip_augs,
+                    )
+                    clip_in = normalize(cuts(x_in.add(1).div(2)))
+
+                    with torch.inference_mode():
                         if args.clip_sequential_evaluate:
                             print('hello')
                             image_embeds = []
@@ -250,34 +250,26 @@ def do_run(args, models, device) -> 'DocumentArray':
                                 .unsqueeze(1)
                             )
 
-                        dists = spherical_dist_loss(
-                            image_embeds,
-                            model_stat['target_embeds'],  # 1, 2, 512
-                        ).requires_grad_()
+                    dists = spherical_dist_loss(
+                        image_embeds,
+                        model_stat['target_embeds'],  # 1, 2, 512
+                    )
 
-                        dists = dists.view(
-                            [
-                                scheduler.cut_overview + scheduler.cut_innercut,
-                                n,
-                                -1,
-                            ]
-                        )
-                        loss = (
-                            dists.mul(model_stat['weights'])
-                            .sum(2)
-                            .mean(0)
-                            .sum()
-                            .requires_grad_()
-                        )
-                        losses.append(loss)
-                        print(losses)
+                    dists = dists.view(
+                        [
+                            scheduler.cut_overview + scheduler.cut_innercut,
+                            n,
+                            -1,
+                        ]
+                    )
+                    losses = dists.mul(model_stat['weights']).sum(2).mean(0)
 
-            for loss in losses:
-                x_in_grad += (
-                    torch.autograd.grad(loss * scheduler.clip_guidance_scale, x_in)[0]
-                    / scheduler.cutn_batches
-                )
-
+                    x_in_grad += (
+                        torch.autograd.grad(
+                            losses.sum() * scheduler.clip_guidance_scale, x_in
+                        )[0]
+                        / scheduler.cutn_batches
+                    )
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
                 range_losses = range_loss(out)
