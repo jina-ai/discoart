@@ -17,7 +17,7 @@ import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 
 from .config import print_args_table
-from .helper import logger, PromptParser, get_ipython_funcs
+from .helper import logger, PromptParser, get_ipython_funcs, free_memory
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
@@ -219,6 +219,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
+                    print(clip_in.shape)
 
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
@@ -301,8 +302,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )
-        gc.collect()
-        torch.cuda.empty_cache()
+        free_memory()
 
         d = Document(tags=copy.deepcopy(vars(args)))
         da_batches.append(d)
