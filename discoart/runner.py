@@ -224,7 +224,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         image_embeds = torch.cat(
                             [
                                 model_stat['clip_model'].encode_image(
-                                    _clip_in.unsqueeze(0)
+                                    _clip_in.unsqueeze(0).cpu()
                                 )
                                 for _clip_in in clip_in
                             ]
