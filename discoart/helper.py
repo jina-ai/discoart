@@ -45,7 +45,7 @@ def _get_logger():
 logger = _get_logger()
 
 
-def get_model_list():
+def get_model_list(force_print: bool = False):
     with open(
         os.environ.get('DISCOART_MODELS_YAML', f'{__resources_path__}/models.yml')
     ) as ymlfile:
@@ -65,8 +65,12 @@ def get_model_list():
             except Exception as ex:
                 logger.error(f'can not fetch the latest `model_list` from remote, {ex}')
 
-        if remote_model_list and remote_model_list != models_list:
-            logger.warning('remote model list is different from the local model list')
+        if (remote_model_list and remote_model_list != models_list) or force_print:
+            if not force_print:
+                logger.warning(
+                    'remote model list is different from the local model list'
+                )
+
             from rich.table import Table
             from rich import box, print
 
@@ -567,5 +571,4 @@ More usage such as plotting, post-analysis can be found in the [README](https://
 
 
 def list_diffusion_models():
-    for k in models_list.keys():
-        print(k)
+    get_model_list(force_print=True)

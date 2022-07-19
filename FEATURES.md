@@ -73,7 +73,7 @@ The following variables can be either scalar variables in the type of bool, floa
 Also:
 - `clip_models_schedules` is added to control the scheduling of clip models, the syntax is the same as `cut_overview` but as a bool list `[True]*400+[False]*600`.
 
-## Customized diffusion
+## Custom diffusion models
 
 Latest diffusion models are automatically synced to local when they become available, there is no need to update the codebase.
 
@@ -82,6 +82,24 @@ Latest diffusion models are automatically synced to local when they become avail
 - Support default 512x512, 256x256 diffusion model as well as Pixel Art Diffusion, Watercolor Diffusion, and Pulp SciFi Diffusion models.
 - `diffusion_model` and `diffusion_model_config` can be specified load custom diffusion model and override the default diffusion model.
 
+To use a listed diffusion model, you can do:
+
+```python
+from discoart import create
+
+create(diffusion_model='portrait_generator', ...)
+```
+
+Note that you don't have to write the full name of the diffusion model, e.g. any prefix is enough.
+
+To load a custom diffusion model from a local `.pt` file, you can do:
+
+```python
+from discoart import create
+
+create(diffusion_model='/path/to/diffusion-model.pt', diffusion_model_config={...}, ...)
+```
+
 To list all supported diffusion models, 
 
 ```python
@@ -89,6 +107,8 @@ from discoart.helper import list_diffusion_models
 
 list_diffusion_models()
 ```
+
+You can also specify the environment variable `DISCOART_MODELS_YAML` to build your list of diffusion models.
 
 
 ## Feature changes
