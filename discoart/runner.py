@@ -215,22 +215,21 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            time.sleep(10)
+            for _ in range(scheduler.cutn_batches):
+                cuts = MakeCutoutsDango(
+                    model_stat['input_resolution'],
+                    Overview=scheduler.cut_overview,
+                    InnerCrop=scheduler.cut_innercut,
+                    IC_Size_Pow=scheduler.cut_ic_pow,
+                    IC_Grey_P=scheduler.cut_icgray_p,
+                    skip_augs=scheduler.skip_augs,
+                )
 
-            for model_stat in model_stats:
-                free_memory()
-                if not model_stat['schedules'][num_step]:
-                    continue
+                for model_stat in model_stats:
 
-                for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
+                    if not model_stat['schedules'][num_step]:
+                        continue
+
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
                     if args.clip_sequential_evaluate:
