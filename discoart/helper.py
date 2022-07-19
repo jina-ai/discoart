@@ -212,11 +212,15 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
             if '::' in k:
                 # use open_clip loader
                 k1, k2 = k.split('::')
-                clip_models[k] = open_clip.create_model_and_transforms(
-                    k1,
-                    pretrained=k2,
-                    device=device,
-                )[0]
+                clip_models[k] = (
+                    open_clip.create_model_and_transforms(
+                        k1,
+                        pretrained=k2,
+                        device=device,
+                    )[0]
+                    .eval()
+                    .requires_grad_(False)
+                )
             else:
                 raise ValueError(
                     f'''

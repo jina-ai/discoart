@@ -229,26 +229,19 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    with torch.inference_mode():
-                        if args.clip_sequential_evaluate:
-                            print('hello')
-                            image_embeds = []
-                            m = model_stat['clip_model']
-                            for _clip_in in clip_in:
-                                print(_clip_in.shape)
-                                print(_clip_in.device)
-                                result = m.encode_image(_clip_in.unsqueeze(0))
-                                print(result.shape)
-                                image_embeds.append(result)
-
-                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
-                            print(image_embeds.shape)
-                        else:
-                            image_embeds = (
-                                model_stat['clip_model']
-                                .encode_image(clip_in)
-                                .unsqueeze(1)
+                    if args.clip_sequential_evaluate:
+                        image_embeds = []
+                        for _clip_in in clip_in:
+                            result = model_stat['clip_model'].encode_image(
+                                _clip_in.unsqueeze(0)
                             )
+                            image_embeds.append(result)
+
+                        image_embeds = torch.cat(image_embeds).unsqueeze(1)
+                    else:
+                        image_embeds = (
+                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                        )
 
                     dists = spherical_dist_loss(
                         image_embeds,
