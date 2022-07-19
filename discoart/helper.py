@@ -9,11 +9,11 @@ from os.path import expanduser
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from urllib.request import Request, urlopen
+
 import regex as re
 import torch
 import yaml
-from open_clip import SimpleTokenizer
-from open_clip.tokenizer import whitespace_clean, basic_clean
+from clip.simple_tokenizer import SimpleTokenizer, whitespace_clean, basic_clean
 from spellchecker import SpellChecker
 from tqdm.auto import tqdm
 
@@ -204,29 +204,39 @@ def _wget(url, outputdir):
 
 def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
     logger.debug('loading clip models...')
-    import open_clip
 
     # load enabled models
     for k in enabled:
         if k not in clip_models:
-            if '::' in k:
+            if '::' in k and k.split('::')[-1] != 'openai':
                 # use open_clip loader
                 k1, k2 = k.split('::')
-                clip_models[k] = (
-                    open_clip.create_model_and_transforms(k1, pretrained=k2)[0]
-                    .eval()
-                    .requires_grad_(False)
-                    .to(device)
-                )
+                logger.debug(f'use open_clip to load {k1}')
+                import open_clip
+
+                m = open_clip.create_model_and_transforms(
+                    k1,
+                    pretrained=k2,
+                    device=device,
+                )[0]
             else:
-                raise ValueError(
-                    f'''
-Since v0.1, DiscoArt depends on `open-clip` which supports more CLIP variants and pretrained weights. 
-The new names is now a string in the format of `<model_name>::<pretrained_weights_name>`, e.g. 
-`ViT-B-32::openai` or `ViT-B-32::laion2b_e16`. The full list of supported models and weights can be found here:
-https://github.com/mlfoundations/open_clip#pretrained-model-interface
-'''
+                k1 = k
+                if '::' in k:
+                    k1, _ = k.split('::')
+
+                k1 = (
+                    k1.replace('B-32', 'B/32')
+                    .replace('B-16', 'B/16')
+                    .replace('L-14', 'L/14')
+                    .replace('-336', '@336px')
                 )
+
+                logger.debug(f'use openai clip to load {k1}')
+
+                import clip
+
+                m = clip.load(k1, device=device, jit=False)[0]
+            clip_models[k] = m.eval().requires_grad_(False)
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):

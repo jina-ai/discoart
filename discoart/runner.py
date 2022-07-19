@@ -1,5 +1,4 @@
 import copy
-import gc
 import os
 import random
 import threading
@@ -10,14 +9,14 @@ from typing import List, Dict
 
 import lpips
 import numpy as np
-import open_clip as clip
+import clip
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 
 from .config import print_args_table
-from .helper import logger, PromptParser, get_ipython_funcs
+from .helper import logger, PromptParser, get_ipython_funcs, free_memory
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
@@ -67,12 +66,15 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
         try:
-            input_resolution = clip_model.visual.image_size
+            try:
+                input_resolution = clip_model.visual.input_resolution
+            except:
+                input_resolution = clip_model.visual.image_size
             logger.debug(f'input_resolution of {model_name}: {input_resolution}')
         except:
             input_resolution = 224
             logger.debug(
-                f'fail to set input_resolution for {model_name}, fall back to {input_resolution}'
+                f'fail to find input_resolution for {model_name}, fall back to {input_resolution}'
             )
 
         schedules = [True] * _MAX_DIFFUSION_STEPS
@@ -88,7 +90,7 @@ def do_run(args, models, device) -> 'DocumentArray':
         }
 
         for txt, weight in txt_weights:
-            txt = clip_model.encode_text(clip.tokenize(txt).to(device)).float()
+            txt = clip_model.encode_text(clip.tokenize(txt).to(device))
 
             if args.fuzzy_prompt:
                 for _ in range(25):
@@ -167,7 +169,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     cur_t = None
 
-    def cond_fn(x, t, y=None):
+    def cond_fn(x, t, **kwargs):
 
         t_int = (
             int(t[0].item()) + 1
@@ -198,14 +200,13 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                out = diffusion.p_mean_variance(
-                    model, x, my_t, clip_denoised=False, model_kwargs={'y': y}
-                )
+                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
             for model_stat in model_stats:
+
                 if not model_stat['schedules'][num_step]:
                     continue
 
@@ -220,9 +221,35 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    image_embeds = (
-                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
-                    )
+                    try:
+                        if args.clip_sequential_evaluate:
+                            image_embeds = []
+                            for _clip_in in clip_in:
+                                result = model_stat['clip_model'].encode_image(
+                                    _clip_in.unsqueeze(0)
+                                )
+                                image_embeds.append(result)
+
+                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
+                        else:
+                            image_embeds = (
+                                model_stat['clip_model']
+                                .encode_image(clip_in)
+                                .unsqueeze(1)
+                            )
+                    except RuntimeError as ex:
+                        if 'CUDA out of memory' in str(ex):
+                            logger.error(
+                                f'''
+CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
+
+Solutions:
+    - Set `create(clip_sequential_evaluate=True, ...)`.
+    - Try to reduce the number of cuts in the model. Currently you have {clip_in.shape[0]} cuts.
+    - Try to use smaller CLIP models. Currently you have {args.clip_models}.
+                            '''
+                            )
+                        raise
 
                     dists = spherical_dist_loss(
                         image_embeds,
@@ -301,8 +328,7 @@ def do_run(args, models, device) -> 'DocumentArray':
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )
-        gc.collect()
-        torch.cuda.empty_cache()
+        free_memory()
 
         d = Document(tags=copy.deepcopy(vars(args)))
         da_batches.append(d)
