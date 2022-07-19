@@ -2,6 +2,7 @@ import copy
 import os
 import random
 import threading
+import time
 from pathlib import Path
 from threading import Thread
 from types import SimpleNamespace
@@ -213,6 +214,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
+
+            time.sleep(2)
 
             for model_stat in model_stats:
                 if not model_stat['schedules'][num_step]:
