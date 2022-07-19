@@ -220,6 +220,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     if args.clip_sequential_evaluate:
+                        print('hello')
                         image_embeds = torch.cat(
                             [
                                 model_stat['clip_model'].encode_image(
