@@ -45,7 +45,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
 
-    p_side_x, p_side_y = ((args.width_height[j] * 0.8 // 64) * 64 for j in (0, 1))
+    p_side_x, p_side_y = ((args.width_height[j] * 0.7 // 64) * 64 for j in (0, 1))
     schedule_table = _get_schedule_table(args)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
