@@ -211,6 +211,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
             if '::' in k and k.split('::')[-1] != 'openai':
                 # use open_clip loader
                 k1, k2 = k.split('::')
+                logger.debug(f'use open_clip to load {k1}')
                 import open_clip
 
                 m = open_clip.create_model_and_transforms(
@@ -219,9 +220,19 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                     device=device,
                 )[0]
             else:
+                k1 = k
+                if '::' in k:
+                    k1, _ = k.split('::')
+
+                k1.replace('B-32', 'B/32').replace('B-16', 'B/16').replace(
+                    'L-14', 'L/14'
+                ).replace('-336', '@336px')
+
+                logger.debug(f'use openai clip to load {k1}')
+
                 import clip
 
-                m = clip.load(k, device=device, jit=False)[0]
+                m = clip.load(k1, device=device, jit=False)[0]
             clip_models[k] = m.eval().requires_grad_(False)
 
     # disable not enabled models to save memory
