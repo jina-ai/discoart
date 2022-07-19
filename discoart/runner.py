@@ -107,8 +107,8 @@ def do_run(args, models, device) -> 'DocumentArray':
             raise ValueError(
                 f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
             )
-        model_stat['target_embeds'] = (
-            torch.cat(model_stat['target_embeds']).unsqueeze(0).cpu()
+        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
+            0
         )
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
         model_stat['weights'] /= sum_weight
@@ -222,18 +222,11 @@ def do_run(args, models, device) -> 'DocumentArray':
                     if args.clip_sequential_evaluate:
                         print('hello')
                         image_embeds = []
-                        clip_in_cpu = clip_in.cpu()
-                        del clip_in
-
-                        free_memory()
                         m = model_stat['clip_model']
-                        for _clip_in in clip_in_cpu:
+                        for _clip_in in clip_in:
                             print(_clip_in.shape)
                             print(_clip_in.device)
-                            free_memory()
-                            result = m.encode_image(
-                                _clip_in.unsqueeze(0).to(device)
-                            ).cpu()
+                            result = m.encode_image(_clip_in.unsqueeze(0))
                             print(result.shape)
                             image_embeds.append(result)
 

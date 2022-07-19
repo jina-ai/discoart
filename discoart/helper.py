@@ -450,7 +450,6 @@ class PromptParser(SimpleTokenizer):
 def free_memory():
     gc.collect()
     torch.cuda.empty_cache()
-    torch.cuda.synchronize()
 
 
 def show_result_summary(_da, _name, _args):
