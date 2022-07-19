@@ -9,7 +9,7 @@ from typing import List, Dict
 
 import lpips
 import numpy as np
-import open_clip as clip
+import clip
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF

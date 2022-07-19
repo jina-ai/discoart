@@ -50,6 +50,7 @@ setup(
         'jina',
         'guided-diffusion-sdk',
         'resize-right-sdk',
+        'openai-clip',
     ],
     extras_require={
         'test': [
