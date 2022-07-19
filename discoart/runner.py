@@ -230,19 +230,33 @@ def do_run(args, models, device) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    if args.clip_sequential_evaluate:
-                        image_embeds = []
-                        for _clip_in in clip_in:
-                            result = model_stat['clip_model'].encode_image(
-                                _clip_in.unsqueeze(0)
-                            )
-                            image_embeds.append(result)
+                    try:
+                        if args.clip_sequential_evaluate:
+                            image_embeds = []
+                            for _clip_in in clip_in:
+                                result = model_stat['clip_model'].encode_image(
+                                    _clip_in.unsqueeze(0)
+                                )
+                                image_embeds.append(result)
 
-                        image_embeds = torch.cat(image_embeds).unsqueeze(1)
-                    else:
-                        image_embeds = (
-                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
-                        )
+                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
+                        else:
+                            image_embeds = (
+                                model_stat['clip_model']
+                                .encode_image(clip_in)
+                                .unsqueeze(1)
+                            )
+                    except RuntimeError as ex:
+                        if 'RuntimeError: CUDA out of memory' in str(ex):
+                            logger.error(
+                                f'''
+CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
+
+Solutions:
+    1. Try to reduce the number of cuts in the model.
+    2. Try to use smaller CLIP models
+                            '''
+                            )
 
                     dists = spherical_dist_loss(
                         image_embeds,
