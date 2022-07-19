@@ -253,7 +253,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
 
 Solutions:
-    - Set `clip_sequential_evaluate` to `True`.
+    - Set `create(clip_sequential_evaluate=True, ...)`.
     - Try to reduce the number of cuts in the model. Currently you have {clip_in.shape[0]} cuts.
     - Try to use smaller CLIP models. Currently you have {args.clip_models}.
                             '''
