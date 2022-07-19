@@ -253,7 +253,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         dists = spherical_dist_loss(
                             image_embeds,
                             model_stat['target_embeds'],  # 1, 2, 512
-                        )
+                        ).requires_grad_()
 
                         dists = dists.view(
                             [
