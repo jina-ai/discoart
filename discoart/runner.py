@@ -247,7 +247,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                                 .unsqueeze(1)
                             )
                     except RuntimeError as ex:
-                        if 'RuntimeError: CUDA out of memory' in str(ex):
+                        if 'CUDA out of memory' in str(ex):
                             logger.error(
                                 f'''
 CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
@@ -257,6 +257,7 @@ Solutions:
     2. Try to use smaller CLIP models
                             '''
                             )
+                        raise
 
                     dists = spherical_dist_loss(
                         image_embeds,
