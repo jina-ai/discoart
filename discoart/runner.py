@@ -2,7 +2,6 @@ import copy
 import os
 import random
 import threading
-import time
 from pathlib import Path
 from threading import Thread
 from types import SimpleNamespace
@@ -215,21 +214,20 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            for _ in range(scheduler.cutn_batches):
-                cuts = MakeCutoutsDango(
-                    336,
-                    Overview=scheduler.cut_overview,
-                    InnerCrop=scheduler.cut_innercut,
-                    IC_Size_Pow=scheduler.cut_ic_pow,
-                    IC_Grey_P=scheduler.cut_icgray_p,
-                    skip_augs=scheduler.skip_augs,
-                )
+            for model_stat in model_stats:
 
-                for model_stat in model_stats:
+                if not model_stat['schedules'][num_step]:
+                    continue
 
-                    if not model_stat['schedules'][num_step]:
-                        continue
-
+                for _ in range(scheduler.cutn_batches):
+                    cuts = MakeCutoutsDango(
+                        model_stat['input_resolution'],
+                        Overview=scheduler.cut_overview,
+                        InnerCrop=scheduler.cut_innercut,
+                        IC_Size_Pow=scheduler.cut_ic_pow,
+                        IC_Grey_P=scheduler.cut_icgray_p,
+                        skip_augs=scheduler.skip_augs,
+                    )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
                     if args.clip_sequential_evaluate:
