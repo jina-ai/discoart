@@ -18,7 +18,7 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 </sup></sub>
 
 
-💯 **Best-in-class**: industry-level engineering, top-notch code quality, lean dependencies; including bug fixes, feature improvements [vs. the original DD5.6](FEATURES.md). 
+💯 **Best-in-class**: industry-level engineering, top-notch code quality, lean dependencies, small RAM/VRAM footprint; important bug fixes, feature improvements [vs. the original DD5.6](FEATURES.md). 
 
 👼 **Available to all**: smooth install for *self-hosting*, Google Colab *free tier*, non-GUI (IPython) environment, and CLI! No brainfuck, no dependency hell, no stackoverflow. 
 
