@@ -224,15 +224,14 @@ def do_run(args, models, device) -> 'DocumentArray':
                         image_embeds = []
                         clip_in = clip_in.cpu()
                         free_memory()
+                        m = model_stat['clip_model']
                         for _clip_in in clip_in:
                             print(_clip_in.shape)
                             print(_clip_in.device)
                             free_memory()
-                            result = (
-                                model_stat['clip_model']
-                                .encode_image(_clip_in.unsqueeze(0).to(device))
-                                .cpu()
-                            )
+                            result = m.encode_image(
+                                _clip_in.unsqueeze(0).to(device)
+                            ).cpu()
                             print(result.shape)
                             image_embeds.append(result)
 
