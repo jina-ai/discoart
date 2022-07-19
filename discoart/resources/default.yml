@@ -56,3 +56,4 @@ on_misspelled_token: ignore
 diffusion_model_config:
 cut_schedules_group:
 name_docarray:
+clip_sequential_evaluate: False

@@ -219,13 +219,22 @@ def do_run(args, models, device) -> 'DocumentArray':
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
-                    print(clip_in[0].shape)
-
-                    image_embeds = (
-                        model_stat['clip_model']
-                        .encode_image(clip_in[0].unsqueeze(0))
-                        .unsqueeze(1)
-                    )
+                    if args.clip_sequential_evaluate:
+                        image_embeds = torch.cat(
+                            [
+                                model_stat['clip_model'].encode_image(
+                                    _clip_in.unsqueeze(0)
+                                )
+                                for _clip_in in clip_in
+                            ]
+                        )
+                        print(image_embeds.shape)
+                    else:
+                        image_embeds = (
+                            model_stat['clip_model']
+                            .encode_image(clip_in.unsqueeze(0))
+                            .unsqueeze(1)
+                        )
 
                     dists = spherical_dist_loss(
                         image_embeds,
