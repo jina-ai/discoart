@@ -62,68 +62,56 @@ def do_run(args, models, device) -> 'DocumentArray':
     pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
-    with torch.autocast(device_type=device.type):
-        with torch.no_grad():
+    for model_name, clip_model in clip_models.items():
 
-            for model_name, clip_model in clip_models.items():
+        # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
+        try:
+            input_resolution = clip_model.visual.image_size
+            logger.debug(f'input_resolution of {model_name}: {input_resolution}')
+        except:
+            input_resolution = 224
+            logger.debug(
+                f'fail to set input_resolution for {model_name}, fall back to {input_resolution}'
+            )
 
-                # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
-                try:
-                    input_resolution = clip_model.visual.image_size
-                    logger.debug(
-                        f'input_resolution of {model_name}: {input_resolution}'
+        schedules = [True] * _MAX_DIFFUSION_STEPS
+        if args.clip_models_schedules and model_name in args.clip_models_schedules:
+            schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
+
+        model_stat = {
+            'clip_model': clip_model,
+            'target_embeds': [],
+            'weights': [],
+            'schedules': schedules,
+            'input_resolution': input_resolution,
+        }
+
+        for txt, weight in txt_weights:
+            txt = clip_model.encode_text(clip.tokenize(txt).to(device))
+
+            if args.fuzzy_prompt:
+                for _ in range(25):
+                    model_stat['target_embeds'].append(
+                        (txt + torch.randn(txt.shape).cuda() * args.rand_mag).clamp(
+                            0, 1
+                        )
                     )
-                except:
-                    input_resolution = 224
-                    logger.debug(
-                        f'fail to set input_resolution for {model_name}, fall back to {input_resolution}'
-                    )
+                    model_stat['weights'].append(weight)
+            else:
+                model_stat['target_embeds'].append(txt)
+                model_stat['weights'].append(weight)
 
-                schedules = [True] * _MAX_DIFFUSION_STEPS
-                if (
-                    args.clip_models_schedules
-                    and model_name in args.clip_models_schedules
-                ):
-                    schedules = _eval_scheduling_str(
-                        args.clip_models_schedules[model_name]
-                    )
-
-                model_stat = {
-                    'clip_model': clip_model,
-                    'target_embeds': [],
-                    'weights': [],
-                    'schedules': schedules,
-                    'input_resolution': input_resolution,
-                }
-
-                for txt, weight in txt_weights:
-                    txt = clip_model.encode_text(clip.tokenize(txt).to(device))
-
-                    if args.fuzzy_prompt:
-                        for _ in range(25):
-                            model_stat['target_embeds'].append(
-                                (
-                                    txt + torch.randn(txt.shape).cuda() * args.rand_mag
-                                ).clamp(0, 1)
-                            )
-                            model_stat['weights'].append(weight)
-                    else:
-                        model_stat['target_embeds'].append(txt)
-                        model_stat['weights'].append(weight)
-
-                sum_weight = abs(sum(model_stat['weights']))
-                if sum_weight < 1e-3:
-                    raise ValueError(
-                        f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
-                    )
-                model_stat['target_embeds'] = torch.cat(
-                    model_stat['target_embeds']
-                ).unsqueeze(0)
-                model_stat['weights'] = torch.tensor(
-                    model_stat['weights'], device=device
-                )
-                model_stat['weights'] /= sum_weight
-                model_stats.append(model_stat)
+        sum_weight = abs(sum(model_stat['weights']))
+        if sum_weight < 1e-3:
+            raise ValueError(
+                f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
+            )
+        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
+            0
+        )
+        model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
+        model_stat['weights'] /= sum_weight
+        model_stats.append(model_stat)
 
     init = None
     if args.init_image:
