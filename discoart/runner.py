@@ -217,7 +217,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
             for _ in range(scheduler.cutn_batches):
                 cuts = MakeCutoutsDango(
-                    model_stat['input_resolution'],
+                    336,
                     Overview=scheduler.cut_overview,
                     InnerCrop=scheduler.cut_innercut,
                     IC_Size_Pow=scheduler.cut_ic_pow,
