@@ -221,14 +221,17 @@ def do_run(args, models, device) -> 'DocumentArray':
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
                     if args.clip_sequential_evaluate:
                         print('hello')
-                        image_embeds = torch.cat(
-                            [
+                        image_embeds = []
+                        for _clip_in in clip_in:
+                            print(_clip_in.shape)
+                            print(_clip_in.device)
+                            image_embeds.append(
                                 model_stat['clip_model']
                                 .encode_image(_clip_in.unsqueeze(0).to(device))
                                 .cpu()
-                                for _clip_in in clip_in
-                            ]
-                        )
+                            )
+
+                        image_embeds = torch.cat(image_embeds)
                         print(image_embeds.shape)
                     else:
                         image_embeds = (
