@@ -167,7 +167,7 @@ def do_run(args, models, device) -> 'DocumentArray':
 
     cur_t = None
 
-    def cond_fn(x, t, y=None):
+    def cond_fn(x, t, **kwargs):
 
         t_int = (
             int(t[0].item()) + 1
@@ -198,9 +198,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                out = diffusion.p_mean_variance(
-                    model, x, my_t, clip_denoised=False, model_kwargs={'y': y}
-                )
+                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)

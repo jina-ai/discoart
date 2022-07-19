@@ -213,10 +213,14 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                 # use open_clip loader
                 k1, k2 = k.split('::')
                 clip_models[k] = (
-                    open_clip.create_model_and_transforms(k1, pretrained=k2)[0]
+                    open_clip.create_model_and_transforms(
+                        k1,
+                        pretrained=k2,
+                        device=device,
+                        precision='fp16' if device.type != 'cpu' else 'fp32',
+                    )[0]
                     .eval()
                     .requires_grad_(False)
-                    .to(device)
                 )
             else:
                 raise ValueError(
