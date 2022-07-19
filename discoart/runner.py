@@ -45,6 +45,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
 
+    p_side_x, p_side_y = ((args.width_height[j] * 0.8 // 64) * 64 for j in (0, 1))
     schedule_table = _get_schedule_table(args)
 
     from .nn.perlin_noises import create_perlin_noise, regen_perlin
@@ -202,7 +203,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                scaled_x = resize(x, 0.8)
+                scaled_x = resize(x, out_shape=(p_side_y, p_side_x))
                 print(scaled_x.shape)
                 out = diffusion.p_mean_variance(
                     model, scaled_x, my_t, clip_denoised=False
