@@ -202,7 +202,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                scaled_x = resize(x, 1)
+                scaled_x = resize(x, 0.8)
                 print(scaled_x.shape)
                 out = diffusion.p_mean_variance(
                     model, scaled_x, my_t, clip_denoised=False
