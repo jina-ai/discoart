@@ -230,7 +230,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                             free_memory()
                             result = (
                                 model_stat['clip_model']
-                                .encode_image(_clip_in.unsqueeze(0))
+                                .encode_image(_clip_in.unsqueeze(0).to(device))
                                 .cpu()
                             )
                             print(result.shape)
