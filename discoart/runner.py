@@ -445,6 +445,7 @@ Solutions:
         _dp1.clear_output(wait=True)
 
         if stop_event.is_set():
+            logger.debug('stop_event is set, skipping the while `n_batches`')
             stop_event.clear()
             break
 

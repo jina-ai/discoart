@@ -2,7 +2,11 @@ import multiprocessing
 import os
 import warnings
 from types import SimpleNamespace
-from typing import overload, List, Optional, Dict, Any, Union
+from typing import overload, List, Optional, Dict, Any, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import threading
+    import asyncio
 
 from docarray import DocumentArray, Document
 
@@ -51,10 +55,14 @@ def create(
     sat_scale: Optional[Union[int, str]] = 0,
     seed: Optional[int] = None,
     skip_augs: Optional[Union[bool, str]] = False,
-    skip_event: Optional[multiprocessing.Event] = None,
+    skip_event: Optional[
+        Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
+    ] = None,
     skip_steps: Optional[int] = 0,
     steps: Optional[int] = 250,
-    stop_event: Optional[multiprocessing.Event] = None,
+    stop_event: Optional[
+        Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
+    ] = None,
     text_prompts: Optional[List[str]] = [
         'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
         'yellow color scheme',
