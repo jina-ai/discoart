@@ -51,10 +51,10 @@ def create(
     sat_scale: Optional[Union[int, str]] = 0,
     seed: Optional[int] = None,
     skip_augs: Optional[Union[bool, str]] = False,
-    skip_event: Optional[NoneType] = None,
+    skip_event: Optional[multiprocessing.Event] = None,
     skip_steps: Optional[int] = 0,
     steps: Optional[int] = 250,
-    stop_event: Optional[NoneType] = None,
+    stop_event: Optional[multiprocessing.Event] = None,
     text_prompts: Optional[List[str]] = [
         'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
         'yellow color scheme',
