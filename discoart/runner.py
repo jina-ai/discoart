@@ -262,7 +262,13 @@ def do_run(args, models, device) -> 'DocumentArray':
                                 -1,
                             ]
                         )
-                        loss = dists.mul(model_stat['weights']).sum(2).mean(0).sum()
+                        loss = (
+                            dists.mul(model_stat['weights'])
+                            .sum(2)
+                            .mean(0)
+                            .sum()
+                            .requires_grad_()
+                        )
                         losses.append(loss)
                         print(losses)
 
