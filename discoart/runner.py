@@ -226,11 +226,13 @@ def do_run(args, models, device) -> 'DocumentArray':
                             print(_clip_in.shape)
                             print(_clip_in.device)
                             free_memory()
-                            image_embeds.append(
+                            result = (
                                 model_stat['clip_model']
                                 .encode_image(_clip_in.unsqueeze(0))
                                 .cpu()
                             )
+                            print(result.shape)
+                            image_embeds.append(result)
 
                         image_embeds = torch.cat(image_embeds)
                         print(image_embeds.shape)
