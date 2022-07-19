@@ -222,15 +222,16 @@ def do_run(args, models, device) -> 'DocumentArray':
                     if args.clip_sequential_evaluate:
                         print('hello')
                         image_embeds = []
-                        for _clip_in in clip_in:
+                        while clip_in:
+                            _clip_in = clip_in.pop(0)
                             print(_clip_in.shape)
                             print(_clip_in.device)
-                            free_memory()
                             result = (
                                 model_stat['clip_model']
                                 .encode_image(_clip_in.unsqueeze(0))
                                 .cpu()
                             )
+                            free_memory()
                             print(result.shape)
                             image_embeds.append(result)
 
