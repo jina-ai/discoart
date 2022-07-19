@@ -107,8 +107,8 @@ def do_run(args, models, device) -> 'DocumentArray':
             raise ValueError(
                 f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
             )
-        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
-            0
+        model_stat['target_embeds'] = (
+            torch.cat(model_stat['target_embeds']).unsqueeze(0).cpu()
         )
         model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
         model_stat['weights'] /= sum_weight
