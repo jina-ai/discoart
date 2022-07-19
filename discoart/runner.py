@@ -63,7 +63,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
     with torch.autocast(device_type=device.type):
-        with torch.inference_mode():
+        with torch.no_grad():
 
             for model_name, clip_model in clip_models.items():
 
