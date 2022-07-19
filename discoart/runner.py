@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import Thread
 from types import SimpleNamespace
 from typing import List, Dict
-
+from resize_right import resize
 import clip
 import lpips
 import numpy as np
@@ -202,7 +202,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
+                scaled_x = resize(x, 0.5)
+                out = resize(
+                    diffusion.p_mean_variance(
+                        model, scaled_x, my_t, clip_denoised=False
+                    ),
+                    out_shape=x.shape,
+                )
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 print('my_t', my_t, my_t.shape)
                 print('x', x, x.shape)
