@@ -224,6 +224,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                         image_embeds = []
                         clip_in_cpu = clip_in.cpu()
                         del clip_in
+
                         free_memory()
                         m = model_stat['clip_model']
                         for _clip_in in clip_in_cpu:
