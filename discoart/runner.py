@@ -208,14 +208,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 out = diffusion.p_mean_variance(
                     model, scaled_x, my_t, clip_denoised=False
                 )
-                out['pred_xstart'] = resize(out['pred_xstart'], out_shape=x.shape)
 
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                # print('my_t', my_t, my_t.shape)
-                # print('x', x, x.shape)
-                # print('out', out['pred_xstart'], out['pred_xstart'].shape)
-                # print('fac', fac)
-                x_in = out['pred_xstart'] * fac + x * (1 - fac)
+                x_in = resize(
+                    out['pred_xstart'] * fac + scaled_x * (1 - fac), out_shape=x.shape
+                )
                 x_in_grad = torch.zeros_like(x_in)
 
             for model_stat in model_stats:
