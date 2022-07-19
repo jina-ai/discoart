@@ -237,7 +237,7 @@ def do_run(args, models, device) -> 'DocumentArray':
                             print(result.shape)
                             image_embeds.append(result)
 
-                        image_embeds = torch.cat(image_embeds)
+                        image_embeds = torch.cat(image_embeds).unsqueeze(1)
                         print(image_embeds.shape)
                     else:
                         image_embeds = (
