@@ -66,12 +66,15 @@ def do_run(args, models, device) -> 'DocumentArray':
 
         # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
         try:
-            input_resolution = clip_model.visual.image_size
+            try:
+                input_resolution = clip_model.visual.input_resolution
+            except:
+                input_resolution = clip_model.visual.image_size
             logger.debug(f'input_resolution of {model_name}: {input_resolution}')
         except:
             input_resolution = 224
             logger.debug(
-                f'fail to set input_resolution for {model_name}, fall back to {input_resolution}'
+                f'fail to find input_resolution for {model_name}, fall back to {input_resolution}'
             )
 
         schedules = [True] * _MAX_DIFFUSION_STEPS
