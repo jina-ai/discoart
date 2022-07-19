@@ -215,7 +215,8 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            time.sleep(2)
+            free_memory()
+            time.sleep(10)
 
             for model_stat in model_stats:
                 if not model_stat['schedules'][num_step]:
