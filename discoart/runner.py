@@ -1,5 +1,4 @@
 import copy
-import gc
 import os
 import random
 import threading
@@ -64,7 +63,7 @@ def do_run(args, models, device) -> 'DocumentArray':
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
     with torch.autocast(device_type=device.type):
-        with torch.no_grad():
+        with torch.inference_mode():
 
             for model_name, clip_model in clip_models.items():
 
@@ -215,58 +214,64 @@ def do_run(args, models, device) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            for model_stat in model_stats:
-                if not model_stat['schedules'][num_step]:
-                    continue
+            with torch.inference_mode():
+                losses = []
+                for model_stat in model_stats:
+                    if not model_stat['schedules'][num_step]:
+                        continue
 
-                for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
-                    clip_in = normalize(cuts(x_in.add(1).div(2)))
-                    if args.clip_sequential_evaluate:
-                        print('hello')
-                        image_embeds = []
-                        m = model_stat['clip_model']
-                        for _clip_in in clip_in:
-                            print(_clip_in.shape)
-                            print(_clip_in.device)
-                            result = m.encode_image(_clip_in.unsqueeze(0))
-                            print(result.shape)
-                            image_embeds.append(result)
+                    for _ in range(scheduler.cutn_batches):
+                        cuts = MakeCutoutsDango(
+                            model_stat['input_resolution'],
+                            Overview=scheduler.cut_overview,
+                            InnerCrop=scheduler.cut_innercut,
+                            IC_Size_Pow=scheduler.cut_ic_pow,
+                            IC_Grey_P=scheduler.cut_icgray_p,
+                            skip_augs=scheduler.skip_augs,
+                        )
+                        clip_in = normalize(cuts(x_in.add(1).div(2)))
+                        if args.clip_sequential_evaluate:
+                            print('hello')
+                            image_embeds = []
+                            m = model_stat['clip_model']
+                            for _clip_in in clip_in:
+                                print(_clip_in.shape)
+                                print(_clip_in.device)
+                                result = m.encode_image(_clip_in.unsqueeze(0))
+                                print(result.shape)
+                                image_embeds.append(result)
 
-                        image_embeds = torch.cat(image_embeds).unsqueeze(1)
-                        print(image_embeds.shape)
-                    else:
-                        image_embeds = (
-                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
+                            print(image_embeds.shape)
+                        else:
+                            image_embeds = (
+                                model_stat['clip_model']
+                                .encode_image(clip_in)
+                                .unsqueeze(1)
+                            )
+
+                        dists = spherical_dist_loss(
+                            image_embeds,
+                            model_stat['target_embeds'],  # 1, 2, 512
                         )
 
-                    dists = spherical_dist_loss(
-                        image_embeds,
-                        model_stat['target_embeds'],  # 1, 2, 512
-                    )
+                        dists = dists.view(
+                            [
+                                scheduler.cut_overview + scheduler.cut_innercut,
+                                n,
+                                -1,
+                            ]
+                        )
+                        loss = dists.mul(model_stat['weights']).sum(2).mean(0).sum()
+                        losses.append(loss)
+                        print(losses)
 
-                    dists = dists.view(
-                        [
-                            scheduler.cut_overview + scheduler.cut_innercut,
-                            n,
-                            -1,
-                        ]
-                    )
-                    losses = dists.mul(model_stat['weights']).sum(2).mean(0)
+            for loss in losses:
+                x_in_grad += (
+                    torch.autograd.grad(loss * scheduler.clip_guidance_scale, x_in)[0]
+                    / scheduler.cutn_batches
+                )
 
-                    x_in_grad += (
-                        torch.autograd.grad(
-                            losses.sum() * scheduler.clip_guidance_scale, x_in
-                        )[0]
-                        / scheduler.cutn_batches
-                    )
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
                 range_losses = range_loss(out)
