@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import warnings
 from types import SimpleNamespace
@@ -128,6 +129,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
     """
     # end_create_docstring
 
+    skip_event = kwargs.pop('skip_event', multiprocessing.Event())
+    stop_event = kwargs.pop('stop_event', multiprocessing.Event())
+
     from .config import load_config, save_config_svg
 
     if 'init_document' in kwargs:
@@ -176,7 +180,12 @@ def create(**kwargs) -> Optional['DocumentArray']:
     try:
         from .runner import do_run
 
-        do_run(_args, (model, diffusion, clip_models, secondary_model), device=device)
+        do_run(
+            _args,
+            (model, diffusion, clip_models, secondary_model),
+            device=device,
+            events=(skip_event, stop_event),
+        )
     except KeyboardInterrupt:
         pass
     except Exception as ex:

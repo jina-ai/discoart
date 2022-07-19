@@ -7,9 +7,9 @@ from threading import Thread
 from types import SimpleNamespace
 from typing import List, Dict
 
+import clip
 import lpips
 import numpy as np
-import clip
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
@@ -25,7 +25,9 @@ from .nn.transform import symmetry_transformation_fn
 _MAX_DIFFUSION_STEPS = 1000
 
 
-def do_run(args, models, device) -> 'DocumentArray':
+def do_run(args, models, device, events) -> 'DocumentArray':
+    skip_event, stop_event = events
+
     _set_seed(args.seed)
     output_dir = os.path.join(
         os.environ.get('DISCOART_OUTPUT_DIR', './'), args.name_docarray
@@ -373,6 +375,11 @@ Solutions:
 
         threads = []
         for j, sample in enumerate(samples):
+            if skip_event.is_set() or stop_event.is_set():
+                logger.debug('skip_event/stop_event is set, skipping this run')
+                skip_event.clear()
+                break
+
             cur_t -= 1
             if j % args.display_rate == 0 or cur_t == -1:
 
@@ -436,6 +443,10 @@ Solutions:
         for t in threads:
             t.join()
         _dp1.clear_output(wait=True)
+
+        if stop_event.is_set():
+            stop_event.clear()
+            break
 
     logger.info(f'done! {args.name_docarray}')
 
