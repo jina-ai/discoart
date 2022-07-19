@@ -1,7 +1,12 @@
+import multiprocessing
 import os
 import warnings
 from types import SimpleNamespace
-from typing import overload, List, Optional, Dict, Any, Union
+from typing import overload, List, Optional, Dict, Any, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import threading
+    import asyncio
 
 from docarray import DocumentArray, Document
 
@@ -50,8 +55,14 @@ def create(
     sat_scale: Optional[Union[int, str]] = 0,
     seed: Optional[int] = None,
     skip_augs: Optional[Union[bool, str]] = False,
+    skip_event: Optional[
+        Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
+    ] = None,
     skip_steps: Optional[int] = 0,
     steps: Optional[int] = 250,
+    stop_event: Optional[
+        Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
+    ] = None,
     text_prompts: Optional[List[str]] = [
         'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
         'yellow color scheme',
@@ -88,7 +99,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param clip_guidance_scale: CGS is one of the most important parameters you will use. It tells DD how strongly you want CLIP to move toward your prompt each timestep.  Higher is generally better, but if CGS is too strong it will overshoot the goal and distort the image. So a happy medium is needed, and it takes experience to learn how to adjust CGS. Note that this parameter generally scales with image dimensions. In other words, if you increase your total dimensions by 50% (e.g. a change from 512 x 512 to 512 x 768), then to maintain the same effect on the image, you’d want to increase clip_guidance_scale from 5000 to 7500. Of the basic settings, clip_guidance_scale, steps and skip_steps are the most important contributors to image quality, so learn them well.
     :param clip_models: [DiscoArt] CLIP Model selectors provided by open-clip package. These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  You can mix in multiple models as well for different results. However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface RN50::openai RN50::yfcc15m RN50::cc12m RN50-quickgelu::openai RN50-quickgelu::yfcc15m RN50-quickgelu::cc12m RN101::openai RN101::yfcc15m RN101-quickgelu::openai RN101-quickgelu::yfcc15m RN50x4::openai RN50x16::openai RN50x64::openai ViT-B-32::openai ViT-B-32::laion2b_e16 ViT-B-32::laion400m_e31 ViT-B-32::laion400m_e32 ViT-B-32-quickgelu::openai ViT-B-32-quickgelu::laion400m_e31 ViT-B-32-quickgelu::laion400m_e32 ViT-B-16::openai ViT-B-16::laion400m_e31 ViT-B-16::laion400m_e32 ViT-B-16-plus-240::laion400m_e31 ViT-B-16-plus-240::laion400m_e32 ViT-L-14::openai ViT-L-14-336::openai
     :param clip_models_schedules: [DiscoArt] A dictionary of string to boolean list that represents on/off of CLIP models at each step. CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
-    :param clip_sequential_evaluate: Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
+    :param clip_sequential_evaluate: [DiscoArt] Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
     :param cut_ic_pow: This sets the size of the border used for inner cuts.  High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.[DiscoArt] This can be a list of floats that represents the value at different steps, the syntax follows the same as `cut_overview`.
     :param cut_icgray_p: This sets the size of the border used for inner cuts. High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
     :param cut_innercut: The schedule of inner cuts, which are smaller cropped images from the interior of the image, helpful in tuning fine details. The size of the inner cuts can be adjusted using the `cut_ic_pow` parameter.
@@ -115,8 +126,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param sat_scale: Saturation scale. Optional, set to zero to turn off.  If used, sat_scale will help mitigate oversaturation. If your image is too saturated, increase sat_scale to reduce the saturation.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
     :param seed: Deep in the diffusion code, there is a random number ‘seed’ which is used as the basis for determining the initial state of the diffusion.  By default, this is random, but you can also specify your own seed.  This is useful if you like a particular result and would like to run more iterations that will be similar. After each run, the actual seed value used will be reported in the parameters report, and can be reused if desired by entering seed # here.  If a specific numerical seed is used repeatedly, the resulting images will be quite similar but not identical.
     :param skip_augs: Controls whether to skip torchvision augmentations.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+    :param skip_event: A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
     :param skip_steps: Consider the chart shown here.  Noise scheduling (denoise strength) starts very high and progressively gets lower and lower as diffusion steps progress. The noise levels in the first few steps are very high, so images change dramatically in early steps.As DD moves along the curve, noise levels (and thus the amount an image changes per step) declines, and image coherence from one step to the next increases.The first few steps of denoising are often so dramatic that some steps (maybe 10-15% of total) can be skipped without affecting the final image. You can experiment with this as a way to cut render times.If you skip too many steps, however, the remaining noise may not be high enough to generate new content, and thus may not have ‘time left’ to finish an image satisfactorily.Also, depending on your other settings, you may need to skip steps to prevent CLIP from overshooting your goal, resulting in ‘blown out’ colors (hyper saturated, solid white, or solid black regions) or otherwise poor image quality.  Consider that the denoising process is at its strongest in the early steps, so skipping steps can sometimes mitigate other problems.Lastly, if using an init_image, you will need to skip ~50% of the diffusion steps to retain the shapes in the original init image. However, if you’re using an init_image, you can also adjust skip_steps up or down for creative reasons.  With low skip_steps you can get a result "inspired by" the init_image which will retain the colors and rough layout and shapes but look quite different. With high skip_steps you can preserve most of the init_image contents and just do fine tuning of the texture.
     :param steps: When creating an image, the denoising curve is subdivided into steps for processing. Each step (or iteration) involves the AI looking at subsets of the image called ‘cuts’ and calculating the ‘direction’ the image should be guided to be more like the prompt. Then it adjusts the image with the help of the diffusion denoiser, and moves to the next step.Increasing steps will provide more opportunities for the AI to adjust the image, and each adjustment will be smaller, and thus will yield a more precise, detailed image.  Increasing steps comes at the expense of longer render times.  Also, while increasing steps should generally increase image quality, there is a diminishing return on additional steps beyond 250 - 500 steps.  However, some intricate images can take 1000, 2000, or more steps.  It is really up to the user.  Just know that the render time is directly related to the number of steps, and many other parameters have a major impact on image quality, without costing additional time.
+    :param stop_event: A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
     :param text_prompts: Phrase, sentence, or string of words and phrases describing what the image should look like.  The words will be analyzed by the AI and will guide the diffusion process toward the image(s) you describe. These can include commas and weights to adjust the relative importance of each element.  E.g. "A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation."Notice that this prompt loosely follows a structure: [subject], [prepositional details], [setting], [meta modifiers and artist]; this is a good starting point for your experiments. Developing text prompts takes practice and experience, and is not the subject of this guide.  If you are a beginner to writing text prompts, a good place to start is on a simple AI art app like Night Cafe, starry ai or WOMBO prior to using DD, to get a feel for how text gets translated into images by GAN tools.  These other apps use different technologies, but many of the same principles apply.
     :param transformation_percent: Steps expressed in percentages in which the symmetry is enforced
     :param tv_scale: Total variance denoising. Optional, set to zero to turn off. Controls ‘smoothness’ of final output. If used, tv_scale will try to smooth out your final image to reduce overall noise. If your image is too ‘crunchy’, increase tv_scale. TV denoising is good at preserving edges while smoothing away noise in flat regions.  See https://en.wikipedia.org/wiki/Total_variation_denoising[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
@@ -127,6 +140,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :return: a DocumentArray object that has `n_batches` Documents
     """
     # end_create_docstring
+
+    skip_event = kwargs.pop('skip_event', multiprocessing.Event())
+    stop_event = kwargs.pop('stop_event', multiprocessing.Event())
 
     from .config import load_config, save_config_svg
 
@@ -176,7 +192,12 @@ def create(**kwargs) -> Optional['DocumentArray']:
     try:
         from .runner import do_run
 
-        do_run(_args, (model, diffusion, clip_models, secondary_model), device=device)
+        do_run(
+            _args,
+            (model, diffusion, clip_models, secondary_model),
+            device=device,
+            events=(skip_event, stop_event),
+        )
     except KeyboardInterrupt:
         pass
     except Exception as ex:

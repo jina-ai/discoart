@@ -43,6 +43,10 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'str'
     elif k in ('batch_name', 'name_docarray'):
         v_type = 'str'
+    elif k in ('skip_event', 'stop_event'):
+        v_type = (
+            'Union[\'multiprocessing.Event\', \'asyncio.Event\', \'threading.Event\']'
+        )
     elif k == 'width_height':
         v_type = 'List[int]'
     elif k == 'transformation_percent':

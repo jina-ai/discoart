@@ -336,6 +336,25 @@ A JSON will be returned with up-to-date progress, with image as DataURI, loss, s
 
 Note, `/result` won't be blocked by `/create` thanks to the smart routing of Jina Gateway. To learn/play more about those endpoints, you can check ReDoc or the Swagger UI embedded in the server.
 
+### Skip & Cancel
+
+Send to `/skip`, to skip the current run and move to the next run as defined in `n_batches`:
+
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"execEndpoint":"/skip"}'
+```
+
+Send to `/stop`, to stop the current run cancel all runs `n_batches`:
+
+```bash
+curl \
+-X POST http://0.0.0.0:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"execEndpoint":"/stop"}'
+```
 
 ### Scaling out
 

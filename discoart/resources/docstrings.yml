@@ -183,4 +183,10 @@ name_docarray: |
   When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
 
 clip_sequential_evaluate: |
-  Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
+  [DiscoArt] Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
+
+skip_event: |
+  A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
+
+stop_event: |
+  A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
