@@ -402,7 +402,8 @@ Solutions:
                         da_batches,
                         args.name_docarray,
                         is_busy_evs,
-                        force=cur_t == -1,
+                        is_sampling_done,
+                        is_completed=cur_t == -1,
                     )
                 )
 
@@ -477,11 +478,13 @@ def _plot_sample(
     is_sampling_done.set()
 
 
-def _persist_thread(da_batches, name_docarray, is_busy_evs, force):
+def _persist_thread(
+    da_batches, name_docarray, is_busy_evs, is_sampling_done, is_completed
+):
     for fn, idle_ev in zip((_silent_save, _silent_push), is_busy_evs):
         t = Thread(
             target=fn,
-            args=(da_batches, name_docarray, idle_ev, force),
+            args=(da_batches, name_docarray, idle_ev, is_sampling_done, is_completed),
         )
         t.start()
         yield t
