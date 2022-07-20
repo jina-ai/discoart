@@ -311,6 +311,7 @@ Solutions:
     logger.info('creating artworks...')
 
     image_display = _output_fn()
+    is_sampling_done = threading.Event()
     is_busy_evs = [threading.Event(), threading.Event()]
 
     da_batches = DocumentArray()
@@ -385,7 +386,15 @@ Solutions:
 
                 threads.append(
                     _plot_thread(
-                        sample, _nb, cur_t, d, image_display, j, loss_values, output_dir
+                        sample,
+                        _nb,
+                        cur_t,
+                        d,
+                        image_display,
+                        j,
+                        loss_values,
+                        output_dir,
+                        is_sampling_done,
                     )
                 )
                 threads.extend(
@@ -420,7 +429,10 @@ def _plot_thread(*args):
     return t
 
 
-def _plot_sample(sample, _nb, cur_t, d, image_display, j, loss_values, output_dir):
+def _plot_sample(
+    sample, _nb, cur_t, d, image_display, j, loss_values, output_dir, is_sampling_done
+):
+    is_sampling_done.clear()
     _display_html = []
 
     for k, image in enumerate(sample['pred_xstart']):  # batch_size
@@ -462,6 +474,7 @@ def _plot_sample(sample, _nb, cur_t, d, image_display, j, loss_values, output_di
         'step': j,
         'loss': loss_values,
     }
+    is_sampling_done.set()
 
 
 def _persist_thread(da_batches, name_docarray, is_busy_evs, force):
@@ -486,11 +499,13 @@ def _silent_save(
     da_batches: DocumentArray,
     name: str,
     is_busy_event: threading.Event,
+    is_sampling_done: threading.Event,
     force: bool = False,
 ) -> None:
     if is_busy_event.is_set() and not force:
         logger.debug(f'another save is running, skipping')
         return
+    is_sampling_done.wait()
     is_busy_event.set()
     try:
         da_batches.save_binary(f'{name}.protobuf.lz4')
@@ -504,6 +519,7 @@ def _silent_push(
     da_batches: DocumentArray,
     name: str,
     is_busy_event: threading.Event,
+    is_sampling_done: threading.Event,
     force: bool = False,
 ) -> None:
     if 'DISCOART_OPTOUT_CLOUD_BACKUP' in os.environ:
@@ -511,7 +527,9 @@ def _silent_push(
     if is_busy_event.is_set() and not force:
         logger.debug(f'another cloud backup is running, skipping')
         return
+    is_sampling_done.wait()
     is_busy_event.set()
+
     try:
         da_batches.push(name)
         logger.debug(f'cloud backup to {name}')
