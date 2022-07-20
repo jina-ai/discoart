@@ -225,7 +225,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
 
                     for clip_in in clip_in_all:
-                        print(clip_in.shape)
+                        clip_in = clip_in.detach().requires_grad_()
                         image_embeds = (
                             model_stat['clip_model']
                             .encode_image(clip_in.unsqueeze(0))
