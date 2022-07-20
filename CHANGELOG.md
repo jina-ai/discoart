@@ -64,6 +64,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1310,4 +1311,24 @@
 
  - [[```0de9ea18```](https://github.com/jina-ai/discoart/commit/0de9ea1817e0aa53a5ce0f33153708c66188572c)] __-__ Fix encoding PromptParser (#54) (*Hugo-Dz*)
  - [[```22df51bd```](https://github.com/jina-ai/discoart/commit/22df51bddc4036f349e023f57544800b07e5bf44)] __-__ __version__: the next version will be 0.7.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-7-3></a>
+## Release Note (`0.7.3`)
+
+> Release time: 2022-07-20 20:58:29
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```6f51b537```](https://github.com/jina-ai/discoart/commit/6f51b5378bb4950f370959371772fdf2ecb9afaf)] __-__ thread order sampling before persist (#58) (*Han Xiao*)
+ - [[```2d2ee7b6```](https://github.com/jina-ai/discoart/commit/2d2ee7b6c0478894541507042f68ed2ef925d282)] __-__ event handling (#56) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```f4ec959b```](https://github.com/jina-ai/discoart/commit/f4ec959b8ef7fe71777966fa6af735c25ba53c00)] __-__ __version__: the next version will be 0.7.3 (*Jina Dev Bot*)
 
