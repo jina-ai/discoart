@@ -383,61 +383,18 @@ Solutions:
             cur_t -= 1
             if j % args.display_rate == 0 or cur_t == -1:
 
-                _display_html = []
-
-                for k, image in enumerate(sample['pred_xstart']):  # batch_size
-                    image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-                    c = Document(
-                        tags={
-                            '_status': {
-                                'cur_t': cur_t,
-                                'step': j,
-                                'loss': loss_values[-1],
-                                'minibatch_idx': k,
-                            }
-                        }
+                threads.append(
+                    _plot_thread(
+                        sample, _nb, cur_t, d, image_display, j, loss_values, output_dir
                     )
-                    c.load_pil_image_to_datauri(image)
-
-                    if cur_t == -1:
-                        c.save_uri_to_file(
-                            os.path.join(output_dir, f'{_nb}-done-{k}.png')
-                        )
-                    else:
-                        c.save_uri_to_file(
-                            os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
-                        )
-
-                    _display_html.append(
-                        f'<img src="{c.uri}" alt="step {j} minibatch {k}">'
-                    )
-
-                    d.chunks.append(c)
-                    # root doc always update with the latest progress
-                    d.uri = c.uri
-
-                image_display.value = '<br>\n'.join(_display_html)
-                # only print the first image of the minibatch in progress
-                d.chunks.plot_image_sprites(
-                    os.path.join(output_dir, f'{_nb}-progress.png'),
-                    skip_empty=True,
-                    show_index=True,
-                    keep_aspect_ratio=True,
                 )
-
-                d.tags['_status'] = {
-                    'completed': cur_t == -1,
-                    'cur_t': cur_t,
-                    'step': j,
-                    'loss': loss_values,
-                }
-
-                _start_persist(
-                    threads,
-                    da_batches,
-                    args.name_docarray,
-                    is_busy_evs,
-                    force=cur_t == -1,
+                threads.extend(
+                    _persist_thread(
+                        da_batches,
+                        args.name_docarray,
+                        is_busy_evs,
+                        force=cur_t == -1,
+                    )
                 )
 
         for t in threads:
@@ -454,14 +411,67 @@ Solutions:
     return da_batches
 
 
-def _start_persist(threads, da_batches, name_docarray, is_busy_evs, force):
+def _plot_thread(*args):
+    t = Thread(
+        target=_plot_sample,
+        args=(*args,),
+    )
+    t.start()
+    return t
+
+
+def _plot_sample(sample, _nb, cur_t, d, image_display, j, loss_values, output_dir):
+    _display_html = []
+
+    for k, image in enumerate(sample['pred_xstart']):  # batch_size
+        image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+        c = Document(
+            tags={
+                '_status': {
+                    'cur_t': cur_t,
+                    'step': j,
+                    'loss': loss_values[-1],
+                    'minibatch_idx': k,
+                }
+            }
+        )
+        c.load_pil_image_to_datauri(image)
+
+        if cur_t == -1:
+            c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
+        else:
+            c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png'))
+
+        _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
+
+        d.chunks.append(c)
+        # root doc always update with the latest progress
+        d.uri = c.uri
+
+    image_display.value = '<br>\n'.join(_display_html)
+    # only print the first image of the minibatch in progress
+    d.chunks.plot_image_sprites(
+        os.path.join(output_dir, f'{_nb}-progress.png'),
+        skip_empty=True,
+        show_index=True,
+        keep_aspect_ratio=True,
+    )
+    d.tags['_status'] = {
+        'completed': cur_t == -1,
+        'cur_t': cur_t,
+        'step': j,
+        'loss': loss_values,
+    }
+
+
+def _persist_thread(da_batches, name_docarray, is_busy_evs, force):
     for fn, idle_ev in zip((_silent_save, _silent_push), is_busy_evs):
         t = Thread(
             target=fn,
             args=(da_batches, name_docarray, idle_ev, force),
         )
-        threads.append(t)
         t.start()
+        yield t
 
 
 def _set_seed(seed: int) -> None:
