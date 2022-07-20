@@ -224,10 +224,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
 
-                    for clip_in in torch.split(
-                        clip_in_all,
-                        math.ceil(clip_in_all.shape[0] / args.clip_minibatch_size),
-                    ):
+                    for clip_in in clip_in_all:
+                        print(clip_in.shape)
                         image_embeds = (
                             model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                         )
@@ -239,7 +237,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                         dists = dists.view(
                             [
-                                clip_in.shape[0],
+                                1,
                                 n,
                                 -1,
                             ]
