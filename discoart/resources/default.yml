@@ -56,6 +56,6 @@ on_misspelled_token: ignore
 diffusion_model_config:
 cut_schedules_group:
 name_docarray:
-clip_sequential_evaluate: False
+clip_minibatch_size: 4
 skip_event:
 stop_event:

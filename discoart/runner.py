@@ -1,4 +1,5 @@
 import copy
+import math
 import os
 import random
 import threading
@@ -221,58 +222,38 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         IC_Grey_P=scheduler.cut_icgray_p,
                         skip_augs=scheduler.skip_augs,
                     )
-                    clip_in = normalize(cuts(x_in.add(1).div(2)))
+                    clip_in_all = normalize(cuts(x_in.add(1).div(2)))
 
-                    try:
-                        if args.clip_sequential_evaluate:
-                            image_embeds = []
-                            for _clip_in in clip_in:
-                                result = model_stat['clip_model'].encode_image(
-                                    _clip_in.unsqueeze(0)
-                                )
-                                image_embeds.append(result)
+                    for clip_in in torch.split(
+                        clip_in_all,
+                        math.ceil(clip_in_all.shape[0] / args.clip_minibatch_size),
+                    ):
+                        image_embeds = (
+                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                        )
 
-                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
-                        else:
-                            image_embeds = (
-                                model_stat['clip_model']
-                                .encode_image(clip_in)
-                                .unsqueeze(1)
-                            )
-                    except RuntimeError as ex:
-                        if 'CUDA out of memory' in str(ex):
-                            logger.error(
-                                f'''
-CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
+                        dists = spherical_dist_loss(
+                            image_embeds,
+                            model_stat['target_embeds'],  # 1, 2, 512
+                        )
 
-Solutions:
-    - Set `create(clip_sequential_evaluate=True, ...)`.
-    - Try to reduce the number of cuts in the model. Currently you have {clip_in.shape[0]} cuts.
-    - Try to use smaller CLIP models. Currently you have {args.clip_models}.
-                            '''
-                            )
-                        raise
+                        dists = dists.view(
+                            [
+                                scheduler.cut_overview + scheduler.cut_innercut,
+                                n,
+                                -1,
+                            ]
+                        )
 
-                    dists = spherical_dist_loss(
-                        image_embeds,
-                        model_stat['target_embeds'],  # 1, 2, 512
-                    )
+                        losses = dists.mul(model_stat['weights']).sum(2).mean(0)
 
-                    dists = dists.view(
-                        [
-                            scheduler.cut_overview + scheduler.cut_innercut,
-                            n,
-                            -1,
-                        ]
-                    )
-                    losses = dists.mul(model_stat['weights']).sum(2).mean(0)
+                        x_in_grad += (
+                            torch.autograd.grad(
+                                losses.sum() * scheduler.clip_guidance_scale, x_in
+                            )[0]
+                            / scheduler.cutn_batches
+                        )
 
-                    x_in_grad += (
-                        torch.autograd.grad(
-                            losses.sum() * scheduler.clip_guidance_scale, x_in
-                        )[0]
-                        / scheduler.cutn_batches
-                    )
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
                 range_losses = range_loss(out)

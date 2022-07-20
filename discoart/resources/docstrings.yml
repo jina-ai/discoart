@@ -158,7 +158,8 @@ skip_augs: |
   [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 
-on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
+on_misspelled_token: | 
+  [DiscoArt] Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
 clip_models_schedules: |
   [DiscoArt] A dictionary of string to boolean list that represents on/off of CLIP models at each step. CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
 
@@ -182,11 +183,13 @@ cut_schedules_group: |
 name_docarray: |
   When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
 
-clip_sequential_evaluate: |
-  [DiscoArt] Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
+clip_minibatch_size: |
+  [DiscoArt] Evaluate image cuts using CLIP in small minibatches, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`. 
+  For example, `clip_minibatch_size=1` forces all CLIPs to evaluate every cut one by one. This solves most OOM issue. The only downside of small minibatch_size is 
+  being marginally slower than large minibatch_size. There is no influence on the quality of the generated images, as minibatch_size does not change the loss function. 
 
 skip_event: |
-  A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
+  [DiscoArt] A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
 
 stop_event: |
-  A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
+  [DiscoArt] A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
