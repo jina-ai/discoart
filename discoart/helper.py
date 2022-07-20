@@ -232,8 +232,8 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                     .replace('L-14-336::', 'L/14@336px::')
                 )
 
-                if '::' in k:
-                    k1, _ = k.split('::')
+                if '::' in k1:
+                    k1 = k1.split('::')[0]
 
                 logger.debug(f'use openai clip to load {k1}')
 
