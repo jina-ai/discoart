@@ -224,16 +224,16 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                     device=device,
                 )[0]
             else:
-                k1 = k
-                if '::' in k:
-                    k1, _ = k.split('::')
 
                 k1 = (
-                    k1.replace('B-32', 'B/32')
-                    .replace('B-16', 'B/16')
-                    .replace('L-14', 'L/14')
-                    .replace('-336', '@336px')
+                    k.replace('B-32::', 'B/32::')
+                    .replace('B-16::', 'B/16::')
+                    .replace('L-14::', 'L/14::')
+                    .replace('L-14-336::', 'L/14@336px::')
                 )
+
+                if '::' in k1:
+                    k1 = k1.split('::')[0]
 
                 logger.debug(f'use openai clip to load {k1}')
 
@@ -406,7 +406,9 @@ class PromptParser(SimpleTokenizer):
         self.spell = SpellChecker()
         from . import __resources_path__
 
-        with open(os.path.join(__resources_path__, 'vocab.txt'), encoding='utf-8') as fp:
+        with open(
+            os.path.join(__resources_path__, 'vocab.txt'), encoding='utf-8'
+        ) as fp:
             self.spell.word_frequency.load_words(
                 line.strip() for line in fp if len(line.strip()) > 1
             )
