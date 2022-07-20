@@ -476,6 +476,7 @@ def _plot_sample(
         'loss': loss_values,
     }
     is_sampling_done.set()
+    logger.debug('sample and plot is done')
 
 
 def _persist_thread(
