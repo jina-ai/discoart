@@ -223,7 +223,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
+
                     all_loss = 0
+
                     for clip_in in clip_in_all:
                         image_embeds = (
                             model_stat['clip_model']
