@@ -406,7 +406,7 @@ class PromptParser(SimpleTokenizer):
         self.spell = SpellChecker()
         from . import __resources_path__
 
-        with open(os.path.join(__resources_path__, 'vocab.txt')) as fp:
+        with open(os.path.join(__resources_path__, 'vocab.txt'), encoding='utf-8') as fp:
             self.spell.word_frequency.load_words(
                 line.strip() for line in fp if len(line.strip()) > 1
             )
