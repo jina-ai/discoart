@@ -141,8 +141,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
     """
     # end_create_docstring
 
-    skip_event = kwargs.pop('skip_event', multiprocessing.Event())
-    stop_event = kwargs.pop('stop_event', multiprocessing.Event())
+    me = multiprocessing.Event()
+    events = ((kwargs.pop(v, me) or me) for v in ('skip_event', 'stop_event'))
 
     from .config import load_config, save_config_svg
 
@@ -196,7 +196,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
             _args,
             (model, diffusion, clip_models, secondary_model),
             device=device,
-            events=(skip_event, stop_event),
+            events=events,
         )
     except KeyboardInterrupt:
         pass
