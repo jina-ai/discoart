@@ -223,8 +223,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         skip_augs=scheduler.skip_augs,
                     )
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
-                    print(clip_in_all.shape)
-                    print(scheduler.cut_overview + scheduler.cut_innercut)
 
                     for clip_in in torch.split(
                         clip_in_all,
@@ -241,7 +239,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                         dists = dists.view(
                             [
-                                scheduler.cut_overview + scheduler.cut_innercut,
+                                clip_in.shape[0],
                                 n,
                                 -1,
                             ]
