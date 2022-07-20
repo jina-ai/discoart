@@ -208,6 +208,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
+            all_loss = 0
+
             for model_stat in model_stats:
 
                 if not model_stat['schedules'][num_step]:
@@ -224,7 +226,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
 
-                    all_loss = 0
                     for clip_in in clip_in_all:
                         image_embeds = (
                             model_stat['clip_model']
@@ -249,14 +250,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                             dists.mul(model_stat['weights']).sum(2).mean(0).sum()
                         )
 
-                    x_in_grad += (
-                        torch.autograd.grad(
-                            all_loss * scheduler.clip_guidance_scale,
-                            x_in,
-                            retain_graph=True,
-                        )[0]
-                        / scheduler.cutn_batches
-                    )
+            x_in_grad += (
+                torch.autograd.grad(
+                    all_loss * scheduler.clip_guidance_scale,
+                    x_in,
+                    retain_graph=True,
+                )[0]
+                / scheduler.cutn_batches
+            )
 
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
