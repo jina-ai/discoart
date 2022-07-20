@@ -224,7 +224,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in_all = normalize(cuts(x_in.add(1).div(2)))
 
-                    all_loss = 0
+                    all_loss = []
                     for clip_in in clip_in_all:
                         image_embeds = (
                             model_stat['clip_model']
@@ -246,11 +246,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         )
 
                         losses = dists.mul(model_stat['weights']).sum(2).mean(0).sum()
-                        all_loss += losses
+                        all_loss.append(losses)
 
                     x_in_grad += (
                         torch.autograd.grad(
-                            losses.sum() * scheduler.clip_guidance_scale,
+                            sum(all_loss) * scheduler.clip_guidance_scale,
                             x_in,
                             retain_graph=True,
                         )[0]
