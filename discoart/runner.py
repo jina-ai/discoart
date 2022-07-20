@@ -208,13 +208,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
 
-            all_loss = 0
-
             for model_stat in model_stats:
 
                 if not model_stat['schedules'][num_step]:
                     continue
 
+                all_loss = 0
                 for _ in range(scheduler.cutn_batches):
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
@@ -250,14 +249,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                             dists.mul(model_stat['weights']).sum(2).mean(0).sum()
                         )
 
-            x_in_grad += (
-                torch.autograd.grad(
-                    all_loss * scheduler.clip_guidance_scale,
-                    x_in,
-                    retain_graph=True,
-                )[0]
-                / scheduler.cutn_batches
-            )
+                x_in_grad += (
+                    torch.autograd.grad(
+                        all_loss * scheduler.clip_guidance_scale,
+                        x_in,
+                        retain_graph=True,
+                    )[0]
+                    / scheduler.cutn_batches
+                )
 
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
@@ -379,7 +378,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         da_batches,
                         args.name_docarray,
                         is_busy_evs,
-                        force=cur_t == -1,
+                        is_completed=cur_t == -1,
                     )
                 )
 
@@ -450,11 +449,11 @@ def _plot_sample(sample, _nb, cur_t, d, image_display, j, loss_values, output_di
     }
 
 
-def _persist_thread(da_batches, name_docarray, is_busy_evs, force):
+def _persist_thread(da_batches, name_docarray, is_busy_evs, is_completed):
     for fn, idle_ev in zip((_silent_save, _silent_push), is_busy_evs):
         t = Thread(
             target=fn,
-            args=(da_batches, name_docarray, idle_ev, force),
+            args=(da_batches, name_docarray, idle_ev, is_completed),
         )
         t.start()
         yield t
