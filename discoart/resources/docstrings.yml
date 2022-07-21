@@ -106,7 +106,7 @@ cut_innercut: The schedule of inner cuts, which are smaller cropped images from 
 cut_icgray_p: This sets the size of the border used for inner cuts. High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
 
 display_rate: |
-  [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is in real-time. 
+  [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. 
   There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
   Setting this will override the `save_rate` parameter.
 save_rate: |
