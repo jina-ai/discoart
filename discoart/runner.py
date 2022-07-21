@@ -359,21 +359,24 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 break
 
             cur_t -= 1
-            if j % args.display_rate == 0 or cur_t == -1:
 
-                threads.append(
-                    _plot_thread(
-                        sample,
-                        _nb,
-                        cur_t,
-                        d,
-                        image_display,
-                        j,
-                        loss_values,
-                        output_dir,
-                        is_sampling_done,
-                    )
+            is_save_step = j % args.display_rate == 0 or cur_t == -1
+            threads.append(
+                _plot_thread(
+                    sample,
+                    _nb,
+                    cur_t,
+                    d,
+                    image_display,
+                    j,
+                    loss_values,
+                    output_dir,
+                    is_sampling_done,
+                    is_save_step,
                 )
+            )
+
+            if is_save_step:
                 threads.extend(
                     _persist_thread(
                         da_batches,
@@ -408,50 +411,65 @@ def _plot_thread(*args):
 
 
 def _plot_sample(
-    sample, _nb, cur_t, d, image_display, j, loss_values, output_dir, is_sampling_done
+    sample,
+    _nb,
+    cur_t,
+    d,
+    image_display,
+    j,
+    loss_values,
+    output_dir,
+    is_sampling_done,
+    is_save_step,
 ):
     is_sampling_done.clear()
     _display_html = []
 
     for k, image in enumerate(sample['pred_xstart']):  # batch_size
         image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
-        c = Document(
-            tags={
-                '_status': {
-                    'cur_t': cur_t,
-                    'step': j,
-                    'loss': loss_values[-1],
-                    'minibatch_idx': k,
-                }
-            }
-        )
-        c.load_pil_image_to_datauri(image)
 
-        if cur_t == -1:
-            c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
+        if is_save_step:
+            c = Document(
+                tags={
+                    '_status': {
+                        'cur_t': cur_t,
+                        'step': j,
+                        'loss': loss_values[-1],
+                        'minibatch_idx': k,
+                    }
+                }
+            )
+            c.load_pil_image_to_datauri(image)
+
+            if cur_t == -1:
+                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
+            else:
+                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png'))
+
+            d.chunks.append(c)
+            # root doc always update with the latest progress
+            d.uri = c.uri
         else:
-            c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png'))
+            c = Document().load_pil_image_to_datauri(image)
 
         _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
-        d.chunks.append(c)
-        # root doc always update with the latest progress
-        d.uri = c.uri
-
     image_display.value = '<br>\n'.join(_display_html)
-    # only print the first image of the minibatch in progress
-    d.chunks.plot_image_sprites(
-        os.path.join(output_dir, f'{_nb}-progress.png'),
-        skip_empty=True,
-        show_index=True,
-        keep_aspect_ratio=True,
-    )
-    d.tags['_status'] = {
-        'completed': cur_t == -1,
-        'cur_t': cur_t,
-        'step': j,
-        'loss': loss_values,
-    }
+
+    if is_save_step:
+        # only print the first image of the minibatch in progress
+        d.chunks.plot_image_sprites(
+            os.path.join(output_dir, f'{_nb}-progress.png'),
+            skip_empty=True,
+            show_index=True,
+            keep_aspect_ratio=True,
+        )
+        d.tags['_status'] = {
+            'completed': cur_t == -1,
+            'cur_t': cur_t,
+            'step': j,
+            'loss': loss_values,
+        }
     is_sampling_done.set()
     logger.debug('sample and plot is done')
 
