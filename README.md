@@ -358,7 +358,7 @@ curl \
 
 ### Unblocking `/create` request
 
-Thanks to Jina 3.7 update, it is possible to have an unblocked `/create` endpoint. That is, the client request to `/create` will be **immediately** returned, without waiting for the results to be finished. You now have to fully rely on `/result` to poll the result. 
+It is possible to have an unblocked `/create` endpoint: the client request to `/create` will be **immediately** returned, without waiting for the results to be finished. You now have to fully rely on `/result` to poll the result. 
 
 To enable this feature: 
 
