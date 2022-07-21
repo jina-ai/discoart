@@ -47,7 +47,7 @@ setup(
         'pyyaml',
         'open_clip_torch',
         'pyspellchecker',
-        'jina',
+        'jina>=3.7.0',
         'guided-diffusion-sdk',
         'resize-right-sdk',
         'openai-clip',

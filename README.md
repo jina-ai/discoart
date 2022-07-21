@@ -356,6 +356,21 @@ curl \
 -d '{"execEndpoint":"/stop"}'
 ```
 
+### Unblocking `/create` request
+
+Thanks to Jina 3.7 update, it is possible to have an unblocked `/create` endpoint. That is, the client request to `/create` will be **immediately** returned, without waiting for the results to be finished. You now have to fully rely on `/result` to poll the result. 
+
+To enable this feature: 
+
+1. Copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) to `myflow.yml`;
+2. Change `floating: false` to `floating: true` under `discoart` executor section;
+3. Run the following command:
+    ```bash
+    python -m discoart serve myflow.yml
+    ```
+
+Beware that the request velocity is now under **your control**. That is, if the client sends 10 `/create` requests in a second, then the server will start 10 `create()` in parallel! This can easily lead to OOM. Hence, the suggestion is only enabling this feature if you are sure that the client is not sending too many requests, e.g. you control the client request rate; or you are using DiscoArt behind a BFF (backend for frontend).
+
 ### Scaling out
 
 If you have multiple GPUs and you want to run multiple DiscoArt instances in parallel by leveraging GPUs in a time-multiplexed fashion, you can copy-paste the [default `flow.yml` file](./discoart/resources/flow.yml) and modify it as follows:
