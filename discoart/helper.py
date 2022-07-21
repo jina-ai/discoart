@@ -221,7 +221,6 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                 m = open_clip.create_model_and_transforms(
                     k1,
                     pretrained=k2,
-                    device=device,
                 )[0]
             else:
 
