@@ -167,8 +167,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
     else:
         _args = load_config(user_config=kwargs)
 
-    save_config_svg(_args)
-
     _args = SimpleNamespace(**_args)
 
     from .helper import (
