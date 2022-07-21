@@ -423,8 +423,8 @@ def _plot_sample(
     is_sampling_done,
     is_save_step,
 ):
-    is_sampling_done.clear()
     with threading.Lock():
+        is_sampling_done.clear()
         _display_html = []
 
         for k, image in enumerate(sample['pred_xstart']):  # batch_size
@@ -475,7 +475,7 @@ def _plot_sample(
                 'loss': loss_values,
             }
         logger.debug('sample and plot is done')
-    is_sampling_done.set()
+        is_sampling_done.set()
 
 
 def _persist_thread(
