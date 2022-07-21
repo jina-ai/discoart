@@ -221,6 +221,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                 m = open_clip.create_model_and_transforms(
                     k1,
                     pretrained=k2,
+                    device=device,
                 )[0]
             else:
 
@@ -238,11 +239,11 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
 
                 import clip
 
-                m = clip.load(k1, device='cpu', jit=False)[0]
+                m = clip.load(k1, device=device, jit=False)[0]
             clip_models[k] = m.eval().requires_grad_(False)
-            m.to(device)
-            # m.visual.to(device)
-            logger.debug(f'move {k}.visual_transformer to GPU')
+            # m.to(device)
+            # # m.visual.to(device)
+            # logger.debug(f'move {k}.visual_transformer to GPU')
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):
