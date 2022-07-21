@@ -63,6 +63,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
+    text_device = torch.device('cpu') if args.text_clip_on_cpu else device
+
     for model_name, clip_model in clip_models.items():
 
         # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
@@ -91,7 +93,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         }
 
         for txt, weight in txt_weights:
-            txt = clip_model.encode_text(clip.tokenize(txt))
+            txt = clip_model.encode_text(clip.tokenize(txt).to(text_device))
 
             if args.fuzzy_prompt:
                 for _ in range(25):

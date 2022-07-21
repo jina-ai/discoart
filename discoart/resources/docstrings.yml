@@ -192,3 +192,6 @@ skip_event: |
 
 stop_event: |
   A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
+
+text_clip_on_cpu: |
+  [DiscoArt] Place text transformers of CLIP models on CPU. This saves more VRAM and will not hurt the speed at all on T4, P100, 3090; however, there are few community members report issue on V100 when it is `False`.

@@ -59,3 +59,4 @@ cut_schedules_group:
 name_docarray:
 skip_event:
 stop_event:
+text_clip_on_cpu: False

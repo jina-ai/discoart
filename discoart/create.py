@@ -185,7 +185,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
     model, diffusion = load_diffusion_model(_args, device=device)
 
     clip_models = load_clip_models(
-        device, enabled=_args.clip_models, clip_models=_clip_models_cache
+        device,
+        enabled=_args.clip_models,
+        clip_models=_clip_models_cache,
+        text_clip_on_cpu=_args.text_clip_on_cpu,
     )
     secondary_model = load_secondary_model(_args, device=device)
 
