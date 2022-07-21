@@ -421,58 +421,58 @@ def _plot_sample(
     is_sampling_done,
     is_save_step,
 ):
-    if not is_sampling_done.is_set() and not is_save_step:
-        logger.debug('sampling is not done, skipping this display')
-        return
     is_sampling_done.clear()
-    _display_html = []
+    with threading.Lock():
+        _display_html = []
 
-    for k, image in enumerate(sample['pred_xstart']):  # batch_size
-        image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+        for k, image in enumerate(sample['pred_xstart']):  # batch_size
+            image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+
+            if is_save_step:
+                c = Document(
+                    tags={
+                        '_status': {
+                            'cur_t': cur_t,
+                            'step': j,
+                            'loss': loss_values[-1],
+                            'minibatch_idx': k,
+                        }
+                    }
+                )
+                c.load_pil_image_to_datauri(image)
+
+                if cur_t == -1:
+                    c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
+                else:
+                    c.save_uri_to_file(
+                        os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
+                    )
+
+                d.chunks.append(c)
+                # root doc always update with the latest progress
+                d.uri = c.uri
+            else:
+                c = Document().load_pil_image_to_datauri(image)
+
+            _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
+
+        image_display.value = '<br>\n'.join(_display_html)
 
         if is_save_step:
-            c = Document(
-                tags={
-                    '_status': {
-                        'cur_t': cur_t,
-                        'step': j,
-                        'loss': loss_values[-1],
-                        'minibatch_idx': k,
-                    }
-                }
+            # only print the first image of the minibatch in progress
+            d.chunks.plot_image_sprites(
+                os.path.join(output_dir, f'{_nb}-progress.png'),
+                skip_empty=True,
+                show_index=True,
+                keep_aspect_ratio=True,
             )
-            c.load_pil_image_to_datauri(image)
-
-            if cur_t == -1:
-                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
-            else:
-                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png'))
-
-            d.chunks.append(c)
-            # root doc always update with the latest progress
-            d.uri = c.uri
-        else:
-            c = Document().load_pil_image_to_datauri(image)
-
-        _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
-
-    image_display.value = '<br>\n'.join(_display_html)
-
-    if is_save_step:
-        # only print the first image of the minibatch in progress
-        d.chunks.plot_image_sprites(
-            os.path.join(output_dir, f'{_nb}-progress.png'),
-            skip_empty=True,
-            show_index=True,
-            keep_aspect_ratio=True,
-        )
-        d.tags['_status'] = {
-            'completed': cur_t == -1,
-            'cur_t': cur_t,
-            'step': j,
-            'loss': loss_values,
-        }
-    logger.debug('sample and plot is done')
+            d.tags['_status'] = {
+                'completed': cur_t == -1,
+                'cur_t': cur_t,
+                'step': j,
+                'loss': loss_values,
+            }
+        logger.debug('sample and plot is done')
     is_sampling_done.set()
 
 
