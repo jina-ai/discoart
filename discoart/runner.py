@@ -461,13 +461,16 @@ def _plot_sample(
         image_display.value = '<br>\n'.join(_display_html)
 
         if is_save_step:
-            # only print the first image of the minibatch in progress
-            d.chunks.plot_image_sprites(
-                os.path.join(output_dir, f'{_nb}-progress.png'),
-                skip_empty=True,
-                show_index=True,
-                keep_aspect_ratio=True,
-            )
+            try:
+                # only print the first image of the minibatch in progress
+                d.chunks.plot_image_sprites(
+                    os.path.join(output_dir, f'{_nb}-progress.png'),
+                    skip_empty=True,
+                    show_index=True,
+                    keep_aspect_ratio=True,
+                )
+            except ValueError:
+                logger.debug('can not plot progress into sprite image')
             d.tags['_status'] = {
                 'completed': cur_t == -1,
                 'cur_t': cur_t,
