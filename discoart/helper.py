@@ -241,7 +241,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
 
                 m = clip.load(k1, device='cpu', jit=False)[0]
             clip_models[k] = m.eval().requires_grad_(False)
-            m.visual.transformer.to(device)
+            m.visual.to(device)
             logger.debug(f'move {k}.visual_transformer to GPU')
 
     # disable not enabled models to save memory
