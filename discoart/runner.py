@@ -63,6 +63,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
     txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
 
+    text_device = torch.device('cpu') if args.text_clip_on_cpu else device
+
     for model_name, clip_model in clip_models.items():
 
         # when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
@@ -91,7 +93,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         }
 
         for txt, weight in txt_weights:
-            txt = clip_model.encode_text(clip.tokenize(txt))
+            txt = clip_model.encode_text(clip.tokenize(txt).to(text_device))
 
             if args.fuzzy_prompt:
                 for _ in range(25):
@@ -288,8 +290,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     logger.info('creating artworks...')
 
     image_display = _output_fn()
-    is_sampling_done = threading.Event()
-    is_busy_evs = [threading.Event(), threading.Event()]
+    is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
     from rich.text import Text
@@ -371,7 +372,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     j,
                     loss_values,
                     output_dir,
-                    is_sampling_done,
+                    is_busy_evs[0],
                     is_save_step,
                 )
             )
@@ -381,8 +382,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     _persist_thread(
                         da_batches,
                         args.name_docarray,
-                        is_busy_evs,
-                        is_sampling_done,
+                        is_busy_evs[1:],
+                        is_busy_evs[0],
                         is_completed=cur_t == -1,
                     )
                 )
@@ -422,56 +423,59 @@ def _plot_sample(
     is_sampling_done,
     is_save_step,
 ):
-    is_sampling_done.clear()
-    _display_html = []
+    with threading.Lock():
+        is_sampling_done.clear()
+        _display_html = []
 
-    for k, image in enumerate(sample['pred_xstart']):  # batch_size
-        image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+        for k, image in enumerate(sample['pred_xstart']):  # batch_size
+            image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+
+            if is_save_step:
+                c = Document(
+                    tags={
+                        '_status': {
+                            'cur_t': cur_t,
+                            'step': j,
+                            'loss': loss_values[-1],
+                            'minibatch_idx': k,
+                        }
+                    }
+                )
+                c.load_pil_image_to_datauri(image)
+
+                if cur_t == -1:
+                    c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
+                else:
+                    c.save_uri_to_file(
+                        os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
+                    )
+
+                d.chunks.append(c)
+                # root doc always update with the latest progress
+                d.uri = c.uri
+            else:
+                c = Document().load_pil_image_to_datauri(image)
+
+            _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
+
+        image_display.value = '<br>\n'.join(_display_html)
 
         if is_save_step:
-            c = Document(
-                tags={
-                    '_status': {
-                        'cur_t': cur_t,
-                        'step': j,
-                        'loss': loss_values[-1],
-                        'minibatch_idx': k,
-                    }
-                }
+            # only print the first image of the minibatch in progress
+            d.chunks.plot_image_sprites(
+                os.path.join(output_dir, f'{_nb}-progress.png'),
+                skip_empty=True,
+                show_index=True,
+                keep_aspect_ratio=True,
             )
-            c.load_pil_image_to_datauri(image)
-
-            if cur_t == -1:
-                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
-            else:
-                c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png'))
-
-            d.chunks.append(c)
-            # root doc always update with the latest progress
-            d.uri = c.uri
-        else:
-            c = Document().load_pil_image_to_datauri(image)
-
-        _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
-
-    image_display.value = '<br>\n'.join(_display_html)
-
-    if is_save_step:
-        # only print the first image of the minibatch in progress
-        d.chunks.plot_image_sprites(
-            os.path.join(output_dir, f'{_nb}-progress.png'),
-            skip_empty=True,
-            show_index=True,
-            keep_aspect_ratio=True,
-        )
-        d.tags['_status'] = {
-            'completed': cur_t == -1,
-            'cur_t': cur_t,
-            'step': j,
-            'loss': loss_values,
-        }
-    is_sampling_done.set()
-    logger.debug('sample and plot is done')
+            d.tags['_status'] = {
+                'completed': cur_t == -1,
+                'cur_t': cur_t,
+                'step': j,
+                'loss': loss_values,
+            }
+        logger.debug('sample and plot is done')
+        is_sampling_done.set()
 
 
 def _persist_thread(

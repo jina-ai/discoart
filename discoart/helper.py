@@ -206,8 +206,19 @@ def _wget(url, outputdir):
         logger.error(f'failed to download {url}')
 
 
-def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {}):
+def load_clip_models(
+    device,
+    enabled: List[str],
+    clip_models: Dict[str, Any] = {},
+    text_clip_on_cpu: bool = False,
+):
     logger.debug('loading clip models...')
+
+    if text_clip_on_cpu:
+        first_device = torch.device('cpu')
+        logger.debug(f'CLIP will be first loaded to CPU')
+    else:
+        first_device = device
 
     # load enabled models
     for k in enabled:
@@ -220,6 +231,7 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
 
                 m = open_clip.create_model_and_transforms(
                     k1,
+                    device=first_device,
                     pretrained=k2,
                 )[0]
             else:
@@ -238,10 +250,12 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
 
                 import clip
 
-                m = clip.load(k1, device='cpu', jit=False)[0]
+                m = clip.load(k1, device=first_device, jit=False)[0]
             clip_models[k] = m.eval().requires_grad_(False)
-            m.visual.to(device)
-            logger.debug(f'move {k}.visual_transformer to GPU')
+            if text_clip_on_cpu:
+                # then the first device is CPU, we now load visual arm back to GPU.
+                m.visual.to(device)
+                logger.debug(f'move {k}.visual to GPU')
 
     # disable not enabled models to save memory
     for k in list(clip_models.keys()):

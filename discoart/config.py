@@ -32,7 +32,7 @@ def load_config(
     cfg = copy.deepcopy(default_args)
 
     for k in list(user_config.keys()):
-        if k not in cfg and k not in ('_status',):
+        if k not in cfg and not k.startswith('_'):
             raise AttributeError(f'unknown argument `{k}`, misspelled?')
 
     if user_config:
