@@ -28,7 +28,6 @@ _MAX_DIFFUSION_STEPS = 1000
 def do_run(args, models, device, events) -> 'DocumentArray':
     skip_event, stop_event = events
 
-    _set_seed(args.seed)
     output_dir = os.path.join(
         os.environ.get('DISCOART_OUTPUT_DIR', './'), args.name_docarray
     )
@@ -83,42 +82,46 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         if args.clip_models_schedules and model_name in args.clip_models_schedules:
             schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
 
-        model_stat = {
+        clip_model_stats = {
             'clip_model': clip_model,
-            'target_embeds': [],
-            'weights': [],
+            'prompt_embeds': [],
+            'prompt_weights': [],
             'schedules': schedules,
             'input_resolution': input_resolution,
         }
 
         for txt, weight in txt_weights:
-            txt = clip_model.encode_text(clip.tokenize(txt).to(device))
+            txt = clip_model.encode_text(clip.tokenize(txt))
 
             if args.fuzzy_prompt:
                 for _ in range(25):
-                    model_stat['target_embeds'].append(
+                    clip_model_stats['prompt_embeds'].append(
                         (txt + torch.randn(txt.shape).cuda() * args.rand_mag).clamp(
                             0, 1
                         )
                     )
-                    model_stat['weights'].append(weight)
+                    clip_model_stats['prompt_weights'].append(weight)
             else:
-                model_stat['target_embeds'].append(txt)
-                model_stat['weights'].append(weight)
+                clip_model_stats['prompt_embeds'].append(txt)
+                clip_model_stats['prompt_weights'].append(weight)
 
-        sum_weight = abs(sum(model_stat['weights']))
+        sum_weight = abs(sum(clip_model_stats['prompt_weights']))
         if sum_weight < 1e-3:
             raise ValueError(
-                f'The sum of all weights in the prompts must *not* be 0 but sum({model_stat["weights"]})={sum_weight}'
+                f'The sum of all weights in the prompts must *not* be 0 but sum({clip_model_stats["weights"]})={sum_weight}'
             )
-        model_stat['target_embeds'] = torch.cat(model_stat['target_embeds']).unsqueeze(
-            0
+        clip_model_stats['prompt_embeds'] = torch.cat(
+            clip_model_stats['prompt_embeds']
+        ).unsqueeze(0)
+        clip_model_stats['prompt_weights'] = torch.tensor(
+            clip_model_stats['prompt_weights'], device=device
         )
-        model_stat['weights'] = torch.tensor(model_stat['weights'], device=device)
-        model_stat['weights'] /= sum_weight
-        model_stats.append(model_stat)
+        clip_model_stats['prompt_weights'] /= sum_weight
+        model_stats.append(clip_model_stats)
 
     init = None
+
+    _set_seed(args.seed)
     if args.init_image:
         d = Document(uri=args.init_image).load_uri_to_image_tensor(side_x, side_y)
         init = TF.to_tensor(d.tensor).to(device).unsqueeze(0).mul(2).sub(1)
@@ -223,39 +226,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    try:
-                        if args.clip_sequential_evaluate:
-                            image_embeds = []
-                            for _clip_in in clip_in:
-                                result = model_stat['clip_model'].encode_image(
-                                    _clip_in.unsqueeze(0)
-                                )
-                                image_embeds.append(result)
-
-                            image_embeds = torch.cat(image_embeds).unsqueeze(1)
-                        else:
-                            image_embeds = (
-                                model_stat['clip_model']
-                                .encode_image(clip_in)
-                                .unsqueeze(1)
-                            )
-                    except RuntimeError as ex:
-                        if 'CUDA out of memory' in str(ex):
-                            logger.error(
-                                f'''
-CUDA out of memory while evaluating CLIP on cuts in shape: {clip_in.shape}
-
-Solutions:
-    - Set `create(clip_sequential_evaluate=True, ...)`.
-    - Try to reduce the number of cuts in the model. Currently you have {clip_in.shape[0]} cuts.
-    - Try to use smaller CLIP models. Currently you have {args.clip_models}.
-                            '''
-                            )
-                        raise
+                    image_embeds = (
+                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                    )
 
                     dists = spherical_dist_loss(
                         image_embeds,
-                        model_stat['target_embeds'],  # 1, 2, 512
+                        model_stat['prompt_embeds'],  # 1, 2, 512
                     )
 
                     dists = dists.view(
@@ -265,7 +242,7 @@ Solutions:
                             -1,
                         ]
                     )
-                    losses = dists.mul(model_stat['weights']).sum(2).mean(0)
+                    losses = dists.mul(model_stat['prompt_weights']).sum(2).mean(0)
 
                     x_in_grad += (
                         torch.autograd.grad(
