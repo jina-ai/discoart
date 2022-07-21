@@ -34,6 +34,9 @@ def load_config(
     for k in list(user_config.keys()):
         if k not in cfg and not k.startswith('_'):
             raise AttributeError(f'unknown argument `{k}`, misspelled?')
+        if k.startswith('_'):
+            # remove private arguments in tags
+            user_config.pop(k)
 
     if user_config:
         if user_config.get('cut_schedules_group', None):
