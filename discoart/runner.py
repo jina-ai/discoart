@@ -110,9 +110,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             raise ValueError(
                 f'The sum of all weights in the prompts must *not* be 0 but sum({clip_model_stats["weights"]})={sum_weight}'
             )
-        clip_model_stats['prompt_embeds'] = torch.cat(
-            clip_model_stats['prompt_embeds']
-        ).unsqueeze(0)
+        clip_model_stats['prompt_embeds'] = (
+            torch.cat(clip_model_stats['prompt_embeds']).unsqueeze(0).to(device)
+        )
         clip_model_stats['prompt_weights'] = torch.tensor(
             clip_model_stats['prompt_weights'], device=device
         )
