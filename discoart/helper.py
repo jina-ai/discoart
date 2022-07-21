@@ -242,8 +242,9 @@ def load_clip_models(device, enabled: List[str], clip_models: Dict[str, Any] = {
                 m = clip.load(k1, device=device, jit=False)[0]
             clip_models[k] = m.eval().requires_grad_(False)
             if next(m.transformer.parameters()).is_cuda:
-                m.transformer.to('cpu').float()
-                m.token_embedding.to('cpu').float()
+                for comp in ('positional_embedding', 'transformer', 'token_embedding'):
+                    getattr(m, comp).to('cpu').float()
+                free_memory()
                 logger.debug(f'move {k}.transformer back to CPU')
 
     # disable not enabled models to save memory
