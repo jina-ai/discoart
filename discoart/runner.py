@@ -288,8 +288,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     logger.info('creating artworks...')
 
     image_display = _output_fn()
-    is_sampling_done = threading.Event()
-    is_busy_evs = [threading.Event(), threading.Event()]
+    is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
     from rich.text import Text
@@ -371,7 +370,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     j,
                     loss_values,
                     output_dir,
-                    is_sampling_done,
+                    is_busy_evs[0],
                     is_save_step,
                 )
             )
@@ -381,8 +380,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     _persist_thread(
                         da_batches,
                         args.name_docarray,
-                        is_busy_evs,
-                        is_sampling_done,
+                        is_busy_evs[1:],
+                        is_busy_evs[0],
                         is_completed=cur_t == -1,
                     )
                 )
@@ -422,6 +421,9 @@ def _plot_sample(
     is_sampling_done,
     is_save_step,
 ):
+    if not is_sampling_done.is_set() and not is_save_step:
+        logger.debug('sampling is not done, skipping this display')
+        return
     is_sampling_done.clear()
     _display_html = []
 
@@ -470,8 +472,8 @@ def _plot_sample(
             'step': j,
             'loss': loss_values,
         }
-    is_sampling_done.set()
     logger.debug('sample and plot is done')
+    is_sampling_done.set()
 
 
 def _persist_thread(
