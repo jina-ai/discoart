@@ -141,8 +141,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
     """
     # end_create_docstring
 
-    me = multiprocessing.Event()
-    events = ((kwargs.pop(v, me) or me) for v in ('skip_event', 'stop_event'))
+    events = tuple(
+        kwargs.pop(v, multiprocessing.Event()) or multiprocessing.Event()
+        for v in ('skip_event', 'stop_event')
+    )
 
     from .config import load_config, save_config_svg
 
