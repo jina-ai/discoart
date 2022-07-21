@@ -69,6 +69,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1412,4 +1413,23 @@
 ### 🍹 Other Improvements
 
  - [[```f4da5222```](https://github.com/jina-ai/discoart/commit/f4da522225ca34dceb69cdc9decc8355f1ca4ce8)] __-__ __version__: the next version will be 0.7.7 (*Jina Dev Bot*)
+
+<a name=release-note-0-7-8></a>
+## Release Note (`0.7.8`)
+
+> Release time: 2022-07-21 16:20:25
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```7a4bcc48```](https://github.com/jina-ai/discoart/commit/7a4bcc48f59e028e1782947c862b0ffa32b1f421)] __-__ open clip loader device placement (#64) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```1fe838c0```](https://github.com/jina-ai/discoart/commit/1fe838c0c23debccbafa1f7d82c3fcab55bf53d3)] __-__ __version__: the next version will be 0.7.8 (*Jina Dev Bot*)
 
