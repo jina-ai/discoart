@@ -37,7 +37,8 @@ cut_innercut: "[4]*400+[12]*600"
 cut_icgray_p: "[0.2]*400+[0]*600"
 cut_ic_pow: 1.
 
-display_rate: 20
+display_rate:
+save_rate: 20
 n_batches: 4
 batch_size: 1
 batch_name:
@@ -56,6 +57,5 @@ on_misspelled_token: ignore
 diffusion_model_config:
 cut_schedules_group:
 name_docarray:
-clip_sequential_evaluate: False
 skip_event:
 stop_event:

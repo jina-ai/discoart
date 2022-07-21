@@ -360,7 +360,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
             cur_t -= 1
 
-            is_save_step = j % args.display_rate == 0 or cur_t == -1
+            is_save_step = j % (args.display_rate or args.save_rate) == 0 or cur_t == -1
             threads.append(
                 _plot_thread(
                     sample,

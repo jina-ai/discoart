@@ -106,7 +106,12 @@ cut_innercut: The schedule of inner cuts, which are smaller cropped images from 
 cut_icgray_p: This sets the size of the border used for inner cuts. High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
 
 display_rate: |
-  During a diffusion run, you can monitor the progress of each image being created with this variable.  If display_rate is set to 50, DD will show you the in-progress image every 50 timesteps. Setting this to a lower value, like 5 or 10, is a good way to get an early peek at where your image is heading. If you don’t like the progression, just interrupt execution, change some settings, and re-run.  If you are planning a long, unmonitored batch, it’s better to set display_rate equal to steps, because displaying interim images does slow Colab down slightly.
+  [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is in real-time. 
+  There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
+  Setting this will override the `save_rate` parameter.
+save_rate: |
+  [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter.
+
 n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
 batch_name: |
@@ -181,9 +186,6 @@ cut_schedules_group: |
 
 name_docarray: |
   When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
-
-clip_sequential_evaluate: |
-  [DiscoArt] Evaluate image cuts one-by-one sequentially via CLIP models, this helps to save VRAM and avoid OOM when using big CLIP models such as `ViT-L-14-336::openai`.
 
 skip_event: |
   A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
