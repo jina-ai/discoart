@@ -514,8 +514,11 @@ def _silent_save(
     is_sampling_done.wait()
     is_busy_event.set()
     try:
-        da_batches.save_binary(f'{name}.protobuf.lz4')
-        logger.debug(f'local backup to {name}.protobuf.lz4')
+        pb_path = os.path.join(
+            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{name}.protobuf.lz4'
+        )
+        da_batches.save_binary(pb_path)
+        logger.debug(f'local backup to {pb_path}')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
     is_busy_event.clear()

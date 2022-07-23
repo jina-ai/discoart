@@ -148,7 +148,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         for v in ('skip_event', 'stop_event')
     )
 
-    from .config import load_config, save_config_svg
+    from .config import load_config, print_args_table
 
     if 'init_document' in kwargs:
         d = kwargs['init_document']
@@ -169,6 +169,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     else:
         _args = load_config(user_config=kwargs)
 
+    print_args_table(_args)
     _args = SimpleNamespace(**_args)
 
     from .helper import (
@@ -210,12 +211,16 @@ def create(**kwargs) -> Optional['DocumentArray']:
     finally:
         _name = _args.name_docarray
 
-        if not os.path.exists(f'{_name}.protobuf.lz4'):
+        pb_path = os.path.join(
+            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
+        )
+
+        if not os.path.exists(pb_path):
             # not even a single document was created
             free_memory()
             return
 
-        _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
+        _da = DocumentArray.load_binary(pb_path)
         result = _da
 
         if (
