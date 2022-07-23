@@ -148,7 +148,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         for v in ('skip_event', 'stop_event')
     )
 
-    from .config import load_config, save_config_svg
+    from .config import load_config, print_args_table
 
     if 'init_document' in kwargs:
         d = kwargs['init_document']
@@ -169,6 +169,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     else:
         _args = load_config(user_config=kwargs)
 
+    print_args_table(_args)
     _args = SimpleNamespace(**_args)
 
     from .helper import (
