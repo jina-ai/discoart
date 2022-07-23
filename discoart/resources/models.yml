@@ -141,3 +141,22 @@ FeiArt_Handpainted_CG_Diffusion:
     rescale_timesteps: true
     timestep_respacing: ddim100
     use_scale_shift_norm: true
+
+Ukiyo-e_Diffusion_All_V1.by_thegenerativegeneration:
+  sha: 5f9af55461783619f25dcbf8953f028c0768108801860afe8c947428dee7a991
+  sources:
+    - https://huggingface.co/thegenerativegeneration/ukiyoe-diffusion-256/raw/main/models/ukiyoe-all/v1/ema_0.9999_056000.pt
+  config:
+    attention_resolutions: 32,16,8
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 256
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 128
+    num_heads: 4
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    timestep_respacing: ddim100
+    use_scale_shift_norm: true
