@@ -210,12 +210,16 @@ def create(**kwargs) -> Optional['DocumentArray']:
     finally:
         _name = _args.name_docarray
 
-        if not os.path.exists(f'{_name}.protobuf.lz4'):
+        pb_path = os.path.join(
+            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
+        )
+
+        if not os.path.exists(pb_path):
             # not even a single document was created
             free_memory()
             return
 
-        _da = DocumentArray.load_binary(f'{_name}.protobuf.lz4')
+        _da = DocumentArray.load_binary(pb_path)
         result = _da
 
         if (
