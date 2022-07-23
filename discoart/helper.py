@@ -99,7 +99,7 @@ def get_remote_model_list(local_model_list: Dict[str, Any], force_print: bool = 
 
         print(param_str)
         local_model_list.clear()
-        remote_model_list.update(remote_model_list)
+        local_model_list.update(remote_model_list)
 
 
 threading.Thread(
