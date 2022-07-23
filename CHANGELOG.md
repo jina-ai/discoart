@@ -73,6 +73,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1492,4 +1493,27 @@
 ### 🍹 Other Improvements
 
  - [[```975975c2```](https://github.com/jina-ai/discoart/commit/975975c2788defa099c8c12da78836e09fe79e9f)] __-__ __version__: the next version will be 0.7.11 (*Jina Dev Bot*)
+
+<a name=release-note-0-7-12></a>
+## Release Note (`0.7.12`)
+
+> Release time: 2022-07-23 21:29:15
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  TheGenerativeGeneration,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```b38e40ee```](https://github.com/jina-ai/discoart/commit/b38e40ee848c6344d6fc9889509858ca8ecb5749)] __-__ add ukiyo-e model (#70) (*TheGenerativeGeneration*)
+
+### 🐞 Bug fixes
+
+ - [[```34e9d6cd```](https://github.com/jina-ai/discoart/commit/34e9d6cdda1c8191415822eb52fef6911b4faee7)] __-__ protobuf store path (#72) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```846efd9c```](https://github.com/jina-ai/discoart/commit/846efd9cfb4d6cdca855a80f7311f50aef74a264)] __-__ __version__: the next version will be 0.7.12 (*Jina Dev Bot*)
 
