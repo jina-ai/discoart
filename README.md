@@ -34,9 +34,9 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 Do you see the `discoart-id` in each tweet? To get the config & prompts, simply:
 
 ```python
-from docarray import DocumentArray
+from discoart import show_config
 
-da = DocumentArray.pull('discoart-id')
+show_config('discoart-id')
 ```
 
 ## Install

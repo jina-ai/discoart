@@ -79,6 +79,20 @@ def load_config(
     return cfg
 
 
+def show_config(docs: Union['Document', 'Document', Dict, str]):
+    cfg = None
+
+    if isinstance(docs, DocumentArray):
+        cfg = docs[0].tags
+    elif isinstance(docs, Document):
+        cfg = docs.tags
+    elif isinstance(docs, dict):
+        cfg = docs
+    elif isinstance(docs, str):
+        cfg = DocumentArray.pull(docs)[0].tags
+    print_args_table(cfg)
+
+
 def save_config_svg(
     docs: Union['DocumentArray', 'Document', Dict],
     output: Optional[str] = None,
