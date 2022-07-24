@@ -156,6 +156,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     if 'init_document' in kwargs:
         d = kwargs['init_document']
+
+        if isinstance(d, str):
+            d = DocumentArray.pull(d)[0]
+
         _kwargs = d.tags
         if not _kwargs:
             warnings.warn('init_document has no .tags, fallback to default config')

@@ -128,7 +128,7 @@ FeiArt_Handpainted_CG_Diffusion:
   sources:
     - https://huggingface.co/Feiart/FeiArt-Handpainted-CG-Diffusion/resolve/main/FeiArt-Handpainted-CG-Diffusion.pt
   config:
-    attention_resolutions: 32,16,8
+    attention_resolutions: '32,16,8'
     class_cond: false
     diffusion_steps: 1000
     image_size: 512
@@ -147,7 +147,7 @@ Ukiyo-e_Diffusion_All_V1.by_thegenerativegeneration:
   sources:
     - https://huggingface.co/thegenerativegeneration/ukiyoe-diffusion-256/resolve/main/models/ukiyoe-all/v1/ema_0.9999_056000.pt
   config:
-    attention_resolutions: 32,16,8
+    attention_resolutions: '32,16,8'
     class_cond: false
     diffusion_steps: 1000
     image_size: 256
@@ -159,4 +159,23 @@ Ukiyo-e_Diffusion_All_V1.by_thegenerativegeneration:
     resblock_updown: true
     rescale_timesteps: true
     timestep_respacing: ddim100
+    use_scale_shift_norm: true
+
+IsometricDiffusionRevrart512px:
+  sha: 649bb7d10ea5170b71bc24adfb17f0305955fde38d2bb1bc5428c6d5baf9811c
+  sources:
+    - https://huggingface.co/Revrart/IsometricDiffusionRevrart512px/resolve/main/IsometricDiffusionRevrart512px.pt
+  config:
+    attention_resolutions: '32, 16, 8'
+    class_cond: false
+    diffusion_steps: 1000
+    image_size: 512
+    learn_sigma: true
+    noise_schedule: linear
+    num_channels: 256
+    num_head_channels: 64
+    num_res_blocks: 2
+    resblock_updown: true
+    rescale_timesteps: true
+    timestep_respacing: 250
     use_scale_shift_norm: true
