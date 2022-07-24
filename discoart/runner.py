@@ -226,7 +226,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 init_losses = lpips_model(x_in, init)
                 loss += init_losses.sum() * scheduler.init_scale
 
-            cut_loss = 0
+            x_in_grad = torch.autograd.grad(loss, x_in)[0]
+
             for model_stat in model_stats:
 
                 if not model_stat['schedules'][num_step]:
@@ -259,15 +260,17 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                             -1,
                         ]
                     )
-                    cut_loss += (
+                    cut_loss = (
                         dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
                     )
 
-            x_in_grad = torch.autograd.grad(
-                cut_loss * scheduler.clip_guidance_scale / scheduler.cutn_batches
-                + loss,
-                x_in,
-            )[0]
+                    x_in_grad += torch.autograd.grad(
+                        cut_loss
+                        * scheduler.clip_guidance_scale
+                        / scheduler.cutn_batches,
+                        x_in,
+                    )[0]
+
             if not torch.isnan(x_in_grad).any():
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
             else:
