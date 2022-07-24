@@ -55,7 +55,7 @@ def create(
     range_scale: Optional[Union[int, str]] = 150,
     sat_scale: Optional[Union[int, str]] = 0,
     save_rate: Optional[int] = 20,
-    seed: Optional[int] = None,
+    seed: Optional[NoneType] = None,
     skip_augs: Optional[Union[bool, str]] = False,
     skip_event: Optional[
         Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
