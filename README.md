@@ -36,7 +36,7 @@ Do you see the `discoart-id` in each tweet? To get the config & prompts, simply:
 ```python
 from discoart import show_config
 
-show_config('discoart-id')
+show_config('discoart-id', only_non_default=True)
 ```
 
 ## Install
