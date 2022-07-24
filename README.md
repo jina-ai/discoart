@@ -182,6 +182,8 @@ da[0].chunks.save_gif(
 
 ![](.github/lighthouse.gif)
 
+Note that >=0.7.14, a 20FPS gif is generated which includes all intermedidate steps. 
+
 ### Export configs
 
 You can review its parameters from `da[0].tags` or export it as an SVG image:
