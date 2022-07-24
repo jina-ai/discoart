@@ -198,7 +198,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
-
+    is_success = True
     try:
         from .runner import do_run
 
@@ -212,6 +212,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         pass
     except Exception as ex:
         logger.error(ex, exc_info=True)
+        is_success = False
     finally:
         _name = _args.name_docarray
 
@@ -219,7 +220,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
             os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
         )
 
-        if not os.path.exists(pb_path):
+        if not os.path.exists(pb_path) or not is_success:
             # not even a single document was created
             free_memory()
             return
