@@ -65,7 +65,10 @@ def get_remote_model_list(local_model_list: Dict[str, Any], force_print: bool = 
     if 'DISCOART_DISABLE_REMOTE_MODELS' not in os.environ:
         try:
             req = Request(
-                f'https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml',
+                os.environ.get(
+                    'DISCOART_REMOTE_MODELS_URL',
+                    'https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml',
+                ),
                 headers={'User-Agent': 'Mozilla/5.0'},
             )
             with urlopen(

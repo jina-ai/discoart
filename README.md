@@ -246,6 +246,7 @@ DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models fil
 DISCOART_OUTPUT_DIR='path/to/your-output-dir' # use a custom output directory for all images and results
 DISCOART_CACHE_DIR='path/to/your-cache-dir' # use a custom cache directory for models and downloads
 DISCOART_DISABLE_REMOTE_MODELS='1' # disable the listing of diffusion models on Github, remote diffusion models allows user to use latest models without updating the codebase.
+DISCOART_REMOTE_MODELS_URL='https://yourdomain/models.yml' # use a custom remote URL for fetching models list
 ```
 
 ## CLI
