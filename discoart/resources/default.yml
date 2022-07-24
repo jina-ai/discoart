@@ -39,8 +39,8 @@ cut_ic_pow: 1.
 
 display_rate:
 save_rate: 20
-gif_fps: 15
-gif_size_ratio: 10
+gif_fps: 20
+gif_size_ratio: 0.5
 n_batches: 4
 batch_size: 1
 batch_name:
