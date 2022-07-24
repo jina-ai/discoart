@@ -148,6 +148,8 @@ def print_args_table(
     param_str.add_column('Value', justify='left')
 
     for k, v in sorted(cfg.items()):
+        if k.startswith('_'):
+            continue
         value = str(v)
         _non_default = False
         if not default_args.get(k, None) == v:
