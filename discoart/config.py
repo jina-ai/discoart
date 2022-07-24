@@ -79,6 +79,24 @@ def load_config(
     return cfg
 
 
+def show_config(
+    docs: Union['Document', 'Document', Dict, str], only_non_default: bool = False
+):
+    cfg = None
+
+    if isinstance(docs, DocumentArray):
+        cfg = docs[0].tags
+    elif isinstance(docs, Document):
+        cfg = docs.tags
+    elif isinstance(docs, dict):
+        cfg = docs
+    elif isinstance(docs, str):
+        cfg = DocumentArray.pull(docs)[0].tags
+
+    cfg = load_config(cfg)
+    print_args_table(cfg, only_non_default=only_non_default)
+
+
 def save_config_svg(
     docs: Union['DocumentArray', 'Document', Dict],
     output: Optional[str] = None,
@@ -134,6 +152,8 @@ def print_args_table(
     param_str.add_column('Value', justify='left')
 
     for k, v in sorted(cfg.items()):
+        if k.startswith('_'):
+            continue
         value = str(v)
         _non_default = False
         if not default_args.get(k, None) == v:

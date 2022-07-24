@@ -18,4 +18,4 @@ __resources_path__ = os.path.join(
 )
 
 from .create import create
-from .config import cheatsheet
+from .config import cheatsheet, show_config

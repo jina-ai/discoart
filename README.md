@@ -34,9 +34,9 @@ Disco Diffusion is a Google Colab Notebook that leverages CLIP-Guided Diffusion 
 Do you see the `discoart-id` in each tweet? To get the config & prompts, simply:
 
 ```python
-from docarray import DocumentArray
+from discoart import show_config
 
-da = DocumentArray.pull('discoart-id')
+show_config('discoart-id', only_non_default=True)
 ```
 
 ## Install
@@ -103,6 +103,7 @@ Final results and intermediate results are created under the current working dir
 ```text
 ./{name-docarray}/{i}-step-{j}.png
 ./{name-docarray}/{i}-progress.png
+./{name-docarray}/{i}-progress.gif
 ./{name-docarray}/{i}-done.png
 ```
 
@@ -114,8 +115,10 @@ where:
 - `i-*` is up to the value of `n_batches`.
 - `*-done-*` is the final image on done.
 - `*-step-*` is the intermediate image at certain step.
-- `*-progress-*` is the sprite image of all intermediate results so far.
+- `*-progress.png` is the sprite image of all intermediate results so far.
+- `*-progress.gif` is the animated gif of all intermediate results so far.
 
+The save frequency is controlled by `save_rate`.
 
 Moreover, `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
 - All arguments passed to `create()` function, including seed, text prompts and model parameters.
@@ -178,6 +181,8 @@ da[0].chunks.save_gif(
 ```
 
 ![](.github/lighthouse.gif)
+
+Note that >=0.7.14, a 20FPS gif is generated which includes all intermedidate steps. 
 
 ### Export configs
 
