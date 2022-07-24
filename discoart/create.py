@@ -183,7 +183,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
         get_device,
         free_memory,
         show_result_summary,
-        logger,
     )
 
     device = get_device()
@@ -198,7 +197,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
-    is_success = True
+    is_exit_0 = False
     try:
         from .runner import do_run
 
@@ -208,11 +207,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
             device=device,
             events=events,
         )
+        is_exit_0 = True
     except KeyboardInterrupt:
-        pass
-    except:
-        is_success = False
-        raise
+        is_exit_0 = True
     finally:
         _name = _args.name_docarray
 
@@ -220,13 +217,13 @@ def create(**kwargs) -> Optional['DocumentArray']:
             os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
         )
 
-        if not is_success or not os.path.exists(pb_path):
+        free_memory()
+
+        if not is_exit_0 or not os.path.exists(pb_path):
             # not even a single document was created
-            free_memory()
             return
 
         _da = DocumentArray.load_binary(pb_path)
-        result = _da
 
         if (
             'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
@@ -234,6 +231,4 @@ def create(**kwargs) -> Optional['DocumentArray']:
         ):
             show_result_summary(_da, _name, _args)
 
-        free_memory()
-
-    return result
+        return _da
