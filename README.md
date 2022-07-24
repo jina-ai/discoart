@@ -116,7 +116,7 @@ where:
 - `*-done-*` is the final image on done.
 - `*-step-*` is the intermediate image at certain step.
 - `*-progress.png` is the sprite image of all intermediate results so far.
-- - `*-progress.gif` is the animated gif of all intermediate results so far.
+- `*-progress.gif` is the animated gif of all intermediate results so far.
 
 The save frequency is controlled by `save_rate`.
 
