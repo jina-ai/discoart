@@ -273,6 +273,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         else:
             x_is_NaN = True
             grad = torch.zeros_like(x)
+            logger.warning(
+                f'NaN detected in grad at step {num_step}, if this message continues to show up, then your image is not updated and further steps are unnecessary.'
+            )
 
         loss_values.append(loss.detach().item())
 
