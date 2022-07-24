@@ -276,7 +276,7 @@ def _get_sha(path):
 
 def _get_model_name(name: str) -> str:
     for k in models_list.keys():
-        if k.startswith(name):
+        if k.lower().startswith(name.lower().strip()):
             return k
 
 
