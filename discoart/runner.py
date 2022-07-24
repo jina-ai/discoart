@@ -267,11 +267,16 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         x_in,
                     )[0]
 
+        x_is_NaN = False
+        if not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
+        else:
+            x_is_NaN = True
+            grad = torch.zeros_like(x)
 
         loss_values.append(loss.detach().item())
 
-        if scheduler.clamp_grad:
+        if scheduler.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
