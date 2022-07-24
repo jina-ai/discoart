@@ -13,6 +13,7 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
+from torch import autocast
 
 from .config import print_args_table
 from .helper import logger, PromptParser, get_ipython_funcs, free_memory
@@ -186,45 +187,45 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         scheduler = _get_current_schedule(schedule_table, num_step)
 
         with torch.enable_grad():
-            x_is_NaN = False
-            x = x.detach().requires_grad_()
-            n = x.shape[0]
-            if scheduler.use_secondary_model:
-                alpha = torch.tensor(
-                    diffusion.sqrt_alphas_cumprod[cur_t],
-                    device=device,
-                    dtype=torch.float32,
-                )
-                sigma = torch.tensor(
-                    diffusion.sqrt_one_minus_alphas_cumprod[cur_t],
-                    device=device,
-                    dtype=torch.float32,
-                )
-                cosine_t = alpha_sigma_to_t(alpha, sigma)
-                out = secondary_model(x, cosine_t[None].repeat([n])).pred
-                fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                x_in = out * fac + x * (1 - fac)
-            else:
-                my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
-                fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                x_in = out['pred_xstart'] * fac + x * (1 - fac)
+            with autocast(device_type=device.type):
+                x = x.detach().requires_grad_()
+                n = x.shape[0]
+                if scheduler.use_secondary_model:
+                    alpha = torch.tensor(
+                        diffusion.sqrt_alphas_cumprod[cur_t],
+                        device=device,
+                        dtype=torch.float32,
+                    )
+                    sigma = torch.tensor(
+                        diffusion.sqrt_one_minus_alphas_cumprod[cur_t],
+                        device=device,
+                        dtype=torch.float32,
+                    )
+                    cosine_t = alpha_sigma_to_t(alpha, sigma)
+                    out = secondary_model(x, cosine_t[None].repeat([n])).pred
+                    fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+                    x_in = out * fac + x * (1 - fac)
+                else:
+                    my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
+                    out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
+                    fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+                    x_in = out['pred_xstart'] * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in)
-            range_losses = (
-                range_loss(out)
-                if scheduler.use_secondary_model
-                else range_loss(out['pred_xstart'])
-            )
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
-            loss = (
-                tv_losses.sum() * scheduler.tv_scale
-                + range_losses.sum() * scheduler.range_scale
-                + sat_losses.sum() * scheduler.sat_scale
-            )
-            if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init)
-                loss += init_losses.sum() * scheduler.init_scale
+                tv_losses = tv_loss(x_in)
+                range_losses = (
+                    range_loss(out)
+                    if scheduler.use_secondary_model
+                    else range_loss(out['pred_xstart'])
+                )
+                sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
+                loss = (
+                    tv_losses.sum() * scheduler.tv_scale
+                    + range_losses.sum() * scheduler.range_scale
+                    + sat_losses.sum() * scheduler.sat_scale
+                )
+                if init is not None and scheduler.init_scale:
+                    init_losses = lpips_model(x_in, init)
+                    loss += init_losses.sum() * scheduler.init_scale
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
 
@@ -271,15 +272,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         x_in,
                     )[0]
 
-            if not torch.isnan(x_in_grad).any():
-                grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
-            else:
-                x_is_NaN = True
-                grad = torch.zeros_like(x)
+            grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
 
         loss_values.append(loss.detach().item())
 
-        if scheduler.clamp_grad and not x_is_NaN:
+        if scheduler.clamp_grad:
             magnitude = grad.square().mean().sqrt()
             return (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
