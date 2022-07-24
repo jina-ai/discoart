@@ -407,7 +407,7 @@ def load_diffusion_model(user_args, device):
     elif _diff_model_name:
         model_filename = os.path.basename(models_list[_diff_model_name]['sources'][0])
         _model_path = os.path.join(cache_dir, model_filename)
-    model.load_state_dict(torch.load(_model_path, map_location='cpu'))
+    model.load_state_dict(torch.load(_model_path, map_location='cpu'), strict=False)
     model.requires_grad_(False).eval().to(device)
 
     for name, param in model.named_parameters():
