@@ -16,7 +16,7 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'str'
     elif k == 'init_document':
         v_type = '\'Document\''
-    elif k == ('seed', 'display_rate'):
+    elif k in ('seed', 'display_rate'):
         v_type = 'int'
     elif k in ('text_prompts', 'clip_models'):
         v_type = 'List[str]'
