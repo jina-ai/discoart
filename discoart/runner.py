@@ -13,7 +13,6 @@ import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
-from torch import autocast
 
 from .config import print_args_table
 from .helper import logger, PromptParser, get_ipython_funcs, free_memory
@@ -187,45 +186,41 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         scheduler = _get_current_schedule(schedule_table, num_step)
 
         with torch.enable_grad():
-            with autocast(device_type=device.type):
-                x = x.detach().requires_grad_()
-                n = x.shape[0]
-                if scheduler.use_secondary_model:
-                    alpha = torch.tensor(
-                        diffusion.sqrt_alphas_cumprod[cur_t],
-                        device=device,
-                        dtype=torch.float32,
-                    )
-                    sigma = torch.tensor(
-                        diffusion.sqrt_one_minus_alphas_cumprod[cur_t],
-                        device=device,
-                        dtype=torch.float32,
-                    )
-                    cosine_t = alpha_sigma_to_t(alpha, sigma)
-                    out = secondary_model(x, cosine_t[None].repeat([n])).pred
-                    fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                    x_in = out * fac + x * (1 - fac)
-                else:
-                    my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                    out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
-                    fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-                    x_in = out['pred_xstart'] * fac + x * (1 - fac)
 
-                tv_losses = tv_loss(x_in)
-                range_losses = (
-                    range_loss(out)
-                    if scheduler.use_secondary_model
-                    else range_loss(out['pred_xstart'])
+            x = x.detach().requires_grad_()
+            if scheduler.use_secondary_model:
+                alpha = torch.tensor(
+                    diffusion.sqrt_alphas_cumprod[cur_t],
+                    device=device,
+                    dtype=torch.float32,
                 )
-                sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
-                loss = (
-                    tv_losses.sum() * scheduler.tv_scale
-                    + range_losses.sum() * scheduler.range_scale
-                    + sat_losses.sum() * scheduler.sat_scale
+                sigma = torch.tensor(
+                    diffusion.sqrt_one_minus_alphas_cumprod[cur_t],
+                    device=device,
+                    dtype=torch.float32,
                 )
-                if init is not None and scheduler.init_scale:
-                    init_losses = lpips_model(x_in, init)
-                    loss += init_losses.sum() * scheduler.init_scale
+                cosine_t = alpha_sigma_to_t(alpha, sigma)
+                out = secondary_model(x, cosine_t[None].repeat([x.shape[0]])).pred
+            else:
+                my_t = torch.ones([x.shape[0]], device=device, dtype=torch.long) * cur_t
+                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)[
+                    'pred_xstart'
+                ]
+
+            fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+            x_in = out * fac + x * (1 - fac)
+
+            tv_losses = tv_loss(x_in)
+            range_losses = range_loss(out)
+            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
+            loss = (
+                tv_losses.sum() * scheduler.tv_scale
+                + range_losses.sum() * scheduler.range_scale
+                + sat_losses.sum() * scheduler.sat_scale
+            )
+            if init is not None and scheduler.init_scale:
+                init_losses = lpips_model(x_in, init)
+                loss += init_losses.sum() * scheduler.init_scale
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
 
@@ -235,36 +230,35 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
-                    with autocast(device_type=device.type):
-                        cuts = MakeCutoutsDango(
-                            model_stat['input_resolution'],
-                            Overview=scheduler.cut_overview,
-                            InnerCrop=scheduler.cut_innercut,
-                            IC_Size_Pow=scheduler.cut_ic_pow,
-                            IC_Grey_P=scheduler.cut_icgray_p,
-                            skip_augs=scheduler.skip_augs,
-                        )
-                        clip_in = normalize(cuts(x_in.add(1).div(2)))
+                    cuts = MakeCutoutsDango(
+                        model_stat['input_resolution'],
+                        Overview=scheduler.cut_overview,
+                        InnerCrop=scheduler.cut_innercut,
+                        IC_Size_Pow=scheduler.cut_ic_pow,
+                        IC_Grey_P=scheduler.cut_icgray_p,
+                        skip_augs=scheduler.skip_augs,
+                    )
+                    clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                        image_embeds = (
-                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
-                        )
+                    image_embeds = (
+                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                    )
 
-                        dists = spherical_dist_loss(
-                            image_embeds,
-                            model_stat['prompt_embeds'],  # 1, 2, 512
-                        )
+                    dists = spherical_dist_loss(
+                        image_embeds,
+                        model_stat['prompt_embeds'],  # 1, 2, 512
+                    )
 
-                        dists = dists.view(
-                            [
-                                scheduler.cut_overview + scheduler.cut_innercut,
-                                n,
-                                -1,
-                            ]
-                        )
-                        cut_loss = (
-                            dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
-                        )
+                    dists = dists.view(
+                        [
+                            scheduler.cut_overview + scheduler.cut_innercut,
+                            x.shape[0],
+                            -1,
+                        ]
+                    )
+                    cut_loss = (
+                        dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
+                    )
 
                     x_in_grad += torch.autograd.grad(
                         cut_loss
@@ -417,7 +411,6 @@ def _set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = True
 
 
 def _eval_scheduling_str(val) -> List[float]:
