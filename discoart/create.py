@@ -201,20 +201,18 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
-    is_exit_0 = False
     _da = None
     try:
         from .runner import do_run
 
-        do_run(
+        return do_run(
             _args,
             (model, diffusion, clip_models, secondary_model),
             device=device,
             events=events,
         )
-        is_exit_0 = True
     except KeyboardInterrupt:
-        is_exit_0 = True
+        pass
     finally:
         _name = _args.name_docarray
 
@@ -224,16 +222,11 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         free_memory()
 
-        if not is_exit_0 or not os.path.exists(pb_path):
-            # not even a single document was created
-            return
+        if os.path.exists(pb_path):
+            _da = DocumentArray.load_binary(pb_path)
 
-        _da = DocumentArray.load_binary(pb_path)
-
-        if (
-            'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
-            and 'DISCOART_DISABLE_IPYTHON' not in os.environ
-        ):
-            show_result_summary(_da, _name, _args)
-
-    return _da
+            if (
+                'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+                and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+            ):
+                show_result_summary(_da, _name, _args)
