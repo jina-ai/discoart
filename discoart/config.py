@@ -92,6 +92,8 @@ def show_config(
         cfg = docs
     elif isinstance(docs, str):
         cfg = DocumentArray.pull(docs)[0].tags
+
+    cfg = load_config(cfg)
     print_args_table(cfg, only_non_default=only_non_default)
 
 
