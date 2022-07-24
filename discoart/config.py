@@ -80,7 +80,7 @@ def load_config(
 
 
 def show_config(
-    docs: Union['Document', 'Document', Dict, str], only_non_default: bool = False
+    docs: Union['Document', 'Document', Dict, str], only_non_default: bool = True
 ):
     cfg = None
 

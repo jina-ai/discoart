@@ -156,6 +156,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     if 'init_document' in kwargs:
         d = kwargs['init_document']
+
+        if isinstance(d, str):
+            d = DocumentArray.pull(d)[0]
+
         _kwargs = d.tags
         if not _kwargs:
             warnings.warn('init_document has no .tags, fallback to default config')
@@ -183,7 +187,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
         get_device,
         free_memory,
         show_result_summary,
-        logger,
     )
 
     device = get_device()
@@ -198,7 +201,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
-
+    is_exit_0 = False
     try:
         from .runner import do_run
 
@@ -208,10 +211,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
             device=device,
             events=events,
         )
+        is_exit_0 = True
     except KeyboardInterrupt:
-        pass
-    except Exception as ex:
-        logger.error(ex, exc_info=True)
+        is_exit_0 = True
     finally:
         _name = _args.name_docarray
 
@@ -219,13 +221,13 @@ def create(**kwargs) -> Optional['DocumentArray']:
             os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
         )
 
-        if not os.path.exists(pb_path):
+        free_memory()
+
+        if not is_exit_0 or not os.path.exists(pb_path):
             # not even a single document was created
-            free_memory()
             return
 
         _da = DocumentArray.load_binary(pb_path)
-        result = _da
 
         if (
             'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
@@ -233,6 +235,4 @@ def create(**kwargs) -> Optional['DocumentArray']:
         ):
             show_result_summary(_da, _name, _args)
 
-        free_memory()
-
-    return result
+        return _da
