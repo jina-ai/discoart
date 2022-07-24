@@ -220,7 +220,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
             os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
         )
 
-        if not os.path.exists(pb_path) or not is_success:
+        if not is_success or not os.path.exists(pb_path):
             # not even a single document was created
             free_memory()
             return
