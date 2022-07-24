@@ -37,9 +37,11 @@ def create(
     diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
     diffusion_model_config: Optional[Dict[str, Any]] = None,
     diffusion_sampling_mode: Optional[str] = 'ddim',
-    display_rate: Optional[int] = 20,
+    display_rate: Optional[NoneType] = None,
     eta: Optional[float] = 0.8,
     fuzzy_prompt: Optional[bool] = False,
+    gif_fps: Optional[int] = 15,
+    gif_size_ratio: Optional[int] = 10,
     init_document: Optional['Document'] = None,
     init_image: Optional[str] = None,
     init_scale: Optional[Union[int, str]] = 1000,
@@ -112,6 +114,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param display_rate: [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.Setting this will override the `save_rate` parameter.
     :param eta: eta (greek letter η) is a diffusion model variable that mixes in a random amount of scaled noise into each timestep. 0 is no noise, 1.0 is more noise. As with most DD parameters, you can go below zero for eta, but it may give you unpredictable results. The steps parameter has a close relationship with the eta parameter. If you set eta to 0, then you can get decent output with only 50-75 steps. Setting eta to 1.0 favors higher step counts, ideally around 250 and up. eta has a subtle, unpredictable effect on image, so you’ll need to experiment to see how this affects your projects.
     :param fuzzy_prompt: Controls whether to add multiple noisy prompts to the prompt losses. If True, can increase variability of image output. Experiment with this.
+    :param gif_fps: [DiscoArt] The frame rate of the generated GIF.
+    :param gif_size_ratio: [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
     :param init_document: [DiscoArt] Use a Document object as the initial state for DD: its ``.tags`` will be used as parameters, ``.uri`` (if present) will be used as init image.
     :param init_image: Recall that in the image sequence above, the first image shown is just noise.  If an init_image is provided, diffusion will replace the noise with the init_image as its starting state.  To use an init_image, upload the image to the Colab instance or your Google Drive, and enter the full image path here. If using an init_image, you may need to increase skip_steps to ~ 50% of total steps to retain the character of the init. See skip_steps above for further discussion.
     :param init_scale: This controls how strongly CLIP will try to match the init_image provided.  This is balanced against the clip_guidance_scale (CGS) above.  Too much init scale, and the image won’t change much during diffusion. Too much CGS and the init image will be lost.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
