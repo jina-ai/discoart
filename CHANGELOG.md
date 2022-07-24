@@ -76,6 +76,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1557,4 +1558,33 @@
 ### 🍹 Other Improvements
 
  - [[```1ef6fd04```](https://github.com/jina-ai/discoart/commit/1ef6fd04a9655373c8cbb1e2799c9754887436dc)] __-__ __version__: the next version will be 0.7.14 (*Jina Dev Bot*)
+
+<a name=release-note-0-7-15></a>
+## Release Note (`0.7.15`)
+
+> Release time: 2022-07-24 20:48:45
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```3649d4f6```](https://github.com/jina-ai/discoart/commit/3649d4f621856bbe392c445648c9bd7b986c62f3)] __-__ add warning on nan (*Han Xiao*)
+ - [[```a486dedd```](https://github.com/jina-ai/discoart/commit/a486dedd7a83c5c890e354d551e6a06e60a2c5ef)] __-__ add han favorite cut schedule (*Han Xiao*)
+ - [[```44024547```](https://github.com/jina-ai/discoart/commit/440245471879160afecb7cb0d5b908d1bee5d3de)] __-__ allow customized remote url for diff models (*Han Xiao*)
+
+### 🐞 Bug fixes
+
+ - [[```58f14b6f```](https://github.com/jina-ai/discoart/commit/58f14b6f82eedf8c9f6d891d7722ee07d50087dd)] __-__ raise exception in create (#79) (*Han Xiao*)
+
+### 🧼 Code Refactoring
+
+ - [[```c76d9198```](https://github.com/jina-ai/discoart/commit/c76d9198e599775bbfb7229f781f1c5582f814ac)] __-__ optimize loss compute logic (#78) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```62a4ba17```](https://github.com/jina-ai/discoart/commit/62a4ba17723524e655685f7e345740542a2cdef0)] __-__ __version__: the next version will be 0.7.15 (*Jina Dev Bot*)
 
