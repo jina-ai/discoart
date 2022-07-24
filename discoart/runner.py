@@ -380,7 +380,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )
 
             if is_save_step:
-                threads.append(_save_progress_thread(d, _d_gif, _nb, output_dir))
+                threads.append(
+                    _save_progress_thread(
+                        d, _d_gif, _nb, output_dir, args.gif_fps, args.gif_size_ratio
+                    )
+                )
                 threads.extend(
                     _persist_thread(
                         da_batches,

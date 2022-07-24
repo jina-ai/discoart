@@ -86,7 +86,7 @@ def _save_progress_thread(*args):
     return t
 
 
-def _save_progress(d, _d_gif, _nb, output_dir):
+def _save_progress(d, _d_gif, _nb, output_dir, fps, size_ratio):
     with threading.Lock():
         try:
             if d.chunks:
@@ -102,7 +102,8 @@ def _save_progress(d, _d_gif, _nb, output_dir):
                     os.path.join(output_dir, f'{_nb}-progress.gif'),
                     skip_empty=True,
                     show_index=True,
-                    size_ratio=0.5,
+                    duration=1000 // fps,
+                    size_ratio=size_ratio,
                 )
             logger.debug('progress are stored in as png and gif')
         except ValueError:
