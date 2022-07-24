@@ -62,21 +62,23 @@ models_list = get_model_list()
 
 
 def get_remote_model_list(local_model_list: Dict[str, Any], force_print: bool = False):
-    if 'DISCOART_DISABLE_REMOTE_MODELS' not in os.environ:
-        try:
-            req = Request(
-                os.environ.get(
-                    'DISCOART_REMOTE_MODELS_URL',
-                    'https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml',
-                ),
-                headers={'User-Agent': 'Mozilla/5.0'},
-            )
-            with urlopen(
-                req, timeout=2
-            ) as resp:  # 'with' is important to close the resource after use
-                remote_model_list = yaml.load(resp, Loader=Loader)
-        except Exception as ex:
-            logger.error(f'can not fetch the latest `model_list` from remote, {ex}')
+    if 'DISCOART_DISABLE_REMOTE_MODELS' in os.environ:
+        return
+
+    try:
+        req = Request(
+            os.environ.get(
+                'DISCOART_REMOTE_MODELS_URL',
+                'https://raw.githubusercontent.com/jina-ai/discoart/main/discoart/resources/models.yml',
+            ),
+            headers={'User-Agent': 'Mozilla/5.0'},
+        )
+        with urlopen(
+            req, timeout=2
+        ) as resp:  # 'with' is important to close the resource after use
+            remote_model_list = yaml.load(resp, Loader=Loader)
+    except Exception as ex:
+        logger.error(f'can not fetch the latest `model_list` from remote, {ex}')
 
     if (remote_model_list and remote_model_list != local_model_list) or force_print:
         if not force_print:
