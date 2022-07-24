@@ -235,35 +235,36 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
-                    clip_in = normalize(cuts(x_in.add(1).div(2)))
+                    with autocast(device_type=device.type):
+                        cuts = MakeCutoutsDango(
+                            model_stat['input_resolution'],
+                            Overview=scheduler.cut_overview,
+                            InnerCrop=scheduler.cut_innercut,
+                            IC_Size_Pow=scheduler.cut_ic_pow,
+                            IC_Grey_P=scheduler.cut_icgray_p,
+                            skip_augs=scheduler.skip_augs,
+                        )
+                        clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    image_embeds = (
-                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
-                    )
+                        image_embeds = (
+                            model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                        )
 
-                    dists = spherical_dist_loss(
-                        image_embeds,
-                        model_stat['prompt_embeds'],  # 1, 2, 512
-                    )
+                        dists = spherical_dist_loss(
+                            image_embeds,
+                            model_stat['prompt_embeds'],  # 1, 2, 512
+                        )
 
-                    dists = dists.view(
-                        [
-                            scheduler.cut_overview + scheduler.cut_innercut,
-                            n,
-                            -1,
-                        ]
-                    )
-                    cut_loss = (
-                        dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
-                    )
+                        dists = dists.view(
+                            [
+                                scheduler.cut_overview + scheduler.cut_innercut,
+                                n,
+                                -1,
+                            ]
+                        )
+                        cut_loss = (
+                            dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
+                        )
 
                     x_in_grad += torch.autograd.grad(
                         cut_loss
