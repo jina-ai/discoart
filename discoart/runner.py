@@ -264,10 +264,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
             loss_values.append(loss.item())
 
-            x_in_grad = (
-                torch.autograd.grad(cut_loss * scheduler.clip_guidance_scale, x_in)[0]
-                / scheduler.cutn_batches
-            ) + torch.autograd.grad(loss, x_in)[0]
+            x_in_grad = torch.autograd.grad(
+                cut_loss * scheduler.clip_guidance_scale / scheduler.cutn_batches
+                + loss,
+                x_in,
+            )[0]
             if not torch.isnan(x_in_grad).any():
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
             else:
