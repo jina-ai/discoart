@@ -19,7 +19,7 @@ import torch
 import yaml
 from clip.simple_tokenizer import SimpleTokenizer, whitespace_clean, basic_clean
 from packaging.version import Version
-from rich.panel import Panel
+
 from spellchecker import SpellChecker
 from tqdm.auto import tqdm
 
@@ -630,6 +630,9 @@ def _version_check(package: str = None, github_repo: str = None):
                 Version(v) for v in releases.keys() if '.dev' not in v
             )
             if cur_ver < latest_release_ver:
+                from rich import print
+                from rich.panel import Panel
+
                 print(
                     Panel(
                         f'You are using [b]{package} {cur_ver}[/b], but [bold green]{latest_release_ver}[/] is available. '
