@@ -202,6 +202,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     free_memory()
     is_exit_0 = False
+    _da = None
     try:
         from .runner import do_run
 
@@ -235,4 +236,4 @@ def create(**kwargs) -> Optional['DocumentArray']:
         ):
             show_result_summary(_da, _name, _args)
 
-        return _da
+    return _da
