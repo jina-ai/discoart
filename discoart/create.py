@@ -214,6 +214,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
         is_exit_0 = True
     except KeyboardInterrupt:
         is_exit_0 = True
+    except:
+        raise
     finally:
         _name = _args.name_docarray
 
