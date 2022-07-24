@@ -212,6 +212,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         pass
     except:
         is_success = False
+        raise
     finally:
         _name = _args.name_docarray
 
