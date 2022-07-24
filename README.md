@@ -36,7 +36,7 @@ Do you see the `discoart-id` in each tweet? To get the config & prompts, simply:
 ```python
 from discoart import show_config
 
-show_config('discoart-id', only_non_default=True)
+show_config('discoart-id')
 ```
 
 ## Install
@@ -229,6 +229,15 @@ create(
     use_secondary_model=False,
 )
 ```
+
+If you just want to initialize from a known DocArray ID, then simply:
+
+```python
+from discoart import create
+
+create(init_document='discoart-3205998582')
+```
+
 
 
 ### Environment variables
