@@ -210,6 +210,22 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
 
+            tv_losses = tv_loss(x_in)
+            range_losses = (
+                range_loss(out)
+                if scheduler.use_secondary_model
+                else range_loss(out['pred_xstart'])
+            )
+            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
+            loss = (
+                tv_losses.sum() * scheduler.tv_scale
+                + range_losses.sum() * scheduler.range_scale
+                + sat_losses.sum() * scheduler.sat_scale
+            )
+            if init is not None and scheduler.init_scale:
+                init_losses = lpips_model(x_in, init)
+                loss += init_losses.sum() * scheduler.init_scale
+
             cut_loss = 0
             for model_stat in model_stats:
 
@@ -247,23 +263,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
                     )
 
-            tv_losses = tv_loss(x_in)
-            if scheduler.use_secondary_model:
-                range_losses = range_loss(out)
-            else:
-                range_losses = range_loss(out['pred_xstart'])
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
-            loss = (
-                tv_losses.sum() * scheduler.tv_scale
-                + range_losses.sum() * scheduler.range_scale
-                + sat_losses.sum() * scheduler.sat_scale
-            )
-            if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init)
-                loss += init_losses.sum() * scheduler.init_scale
-
-            loss_values.append(loss.item())
-
             x_in_grad = torch.autograd.grad(
                 cut_loss * scheduler.clip_guidance_scale / scheduler.cutn_batches
                 + loss,
@@ -274,6 +273,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             else:
                 x_is_NaN = True
                 grad = torch.zeros_like(x)
+
+        loss_values.append(loss.detach().item())
+
         if scheduler.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
             return (
