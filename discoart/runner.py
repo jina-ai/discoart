@@ -462,7 +462,7 @@ def _plot_sample(
 
         image_display.value = '<br>\n'.join(_display_html)
 
-        if is_save_step:
+        if is_save_step and d.chunks:
             try:
                 # only print the first image of the minibatch in progress
                 d.chunks.plot_image_sprites(
