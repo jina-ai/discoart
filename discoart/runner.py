@@ -204,14 +204,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 out = secondary_model(x, cosine_t[None].repeat([n])).pred
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out * fac + x * (1 - fac)
-                x_in_grad = torch.zeros_like(x_in)
             else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
                 out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False)
                 fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
-                x_in_grad = torch.zeros_like(x_in)
 
+            cut_loss = 0
             for model_stat in model_stats:
 
                 if not model_stat['schedules'][num_step]:
@@ -244,14 +243,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                             -1,
                         ]
                     )
-                    losses = dists.mul(model_stat['prompt_weights']).sum(2).mean(0)
-
-                    x_in_grad += (
-                        torch.autograd.grad(
-                            losses.sum() * scheduler.clip_guidance_scale, x_in
-                        )[0]
-                        / scheduler.cutn_batches
+                    cut_loss += (
+                        dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
                     )
+
             tv_losses = tv_loss(x_in)
             if scheduler.use_secondary_model:
                 range_losses = range_loss(out)
@@ -269,7 +264,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
             loss_values.append(loss.item())
 
-            x_in_grad += torch.autograd.grad(loss, x_in)[0]
+            x_in_grad = (
+                torch.autograd.grad(cut_loss * scheduler.clip_guidance_scale, x_in)[0]
+                / scheduler.cutn_batches
+            ) + torch.autograd.grad(loss, x_in)[0]
             if not torch.isnan(x_in_grad).any():
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
             else:
