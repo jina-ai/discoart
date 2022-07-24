@@ -51,6 +51,7 @@ setup(
         'guided-diffusion-sdk',
         'resize-right-sdk',
         'openai-clip',
+        'packaging',
     ],
     extras_require={
         'test': [

@@ -1,7 +1,9 @@
 import gc
 import hashlib
+import json
 import logging
 import os
+import sys
 import threading
 import urllib.parse
 import urllib.request
@@ -11,10 +13,13 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from urllib.request import Request, urlopen
 
+import pkg_resources
 import regex as re
 import torch
 import yaml
 from clip.simple_tokenizer import SimpleTokenizer, whitespace_clean, basic_clean
+from packaging.version import Version
+from rich.panel import Panel
 from spellchecker import SpellChecker
 from tqdm.auto import tqdm
 
@@ -595,3 +600,40 @@ More usage such as plotting, post-analysis can be found in the [README](https://
 
 def list_diffusion_models():
     get_remote_model_list(models_list, force_print=True)
+
+
+def _version_check(package: str = None, github_repo: str = None):
+    try:
+        if not package:
+            package = vars(sys.modules[__name__])['__package__']
+        if not github_repo:
+            github_repo = package
+
+        cur_ver = Version(pkg_resources.get_distribution(package).version)
+        req = Request(
+            f'https://pypi.python.org/pypi/{package}/json',
+            headers={'User-Agent': 'Mozilla/5.0'},
+        )
+        with urlopen(
+            req, timeout=1
+        ) as resp:  # 'with' is important to close the resource after use
+            j = json.load(resp)
+            releases = j.get('releases', {})
+            latest_release_ver = max(
+                Version(v) for v in releases.keys() if '.dev' not in v
+            )
+            if cur_ver < latest_release_ver:
+                print(
+                    Panel(
+                        f'You are using [b]{package} {cur_ver}[/b], but [bold green]{latest_release_ver}[/] is available. '
+                        f'You may upgrade it via [b]pip install -U {package}[/b]. [link=https://github.com/jina-ai/{github_repo}/releases]Read Changelog here[/link].',
+                        title=':new: New version available!',
+                        width=50,
+                    )
+                )
+    except Exception as ex:
+        # no network, too slow, PyPi is down
+        logger.error(f'can not fetch the lastest version number: {ex}')
+
+
+threading.Thread(target=_version_check, args=(__package__, 'discoart')).start()
