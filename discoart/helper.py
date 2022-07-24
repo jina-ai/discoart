@@ -80,7 +80,9 @@ def get_remote_model_list(local_model_list: Dict[str, Any], force_print: bool = 
 
     if (remote_model_list and remote_model_list != local_model_list) or force_print:
         if not force_print:
-            logger.warning('remote model list is different from the local model list')
+            logger.warning(
+                'remote model list is different from the local model list, override local list.'
+            )
 
         from rich.table import Table
         from rich import box, print
