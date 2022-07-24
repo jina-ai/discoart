@@ -312,6 +312,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         free_memory()
 
         d = Document(tags=copy.deepcopy(vars(args)))
+        _d_gif = Document()
         da_batches.append(d)
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
@@ -368,6 +369,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     _nb,
                     cur_t,
                     d,
+                    _d_gif,
                     image_display,
                     j,
                     loss_values,
@@ -416,6 +418,7 @@ def _plot_sample(
     _nb,
     cur_t,
     d,
+    _d_gif,
     image_display,
     j,
     loss_values,
@@ -430,19 +433,18 @@ def _plot_sample(
         for k, image in enumerate(sample['pred_xstart']):  # batch_size
             image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
 
-            if is_save_step:
-                c = Document(
-                    tags={
-                        '_status': {
-                            'cur_t': cur_t,
-                            'step': j,
-                            'loss': loss_values[-1],
-                            'minibatch_idx': k,
-                        }
+            c = Document(
+                tags={
+                    '_status': {
+                        'cur_t': cur_t,
+                        'step': j,
+                        'loss': loss_values[-1],
+                        'minibatch_idx': k,
                     }
-                )
-                c.load_pil_image_to_datauri(image)
+                }
+            ).load_pil_image_to_datauri(image)
 
+            if is_save_step:
                 if cur_t == -1:
                     c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
                 else:
@@ -454,7 +456,7 @@ def _plot_sample(
                 # root doc always update with the latest progress
                 d.uri = c.uri
             else:
-                c = Document().load_pil_image_to_datauri(image)
+                _d_gif.chunks.append(c)
 
             _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
@@ -469,8 +471,15 @@ def _plot_sample(
                     show_index=True,
                     keep_aspect_ratio=True,
                 )
+                _d_gif.chunks.save_gif(
+                    os.path.join(output_dir, f'{_nb}-progress.gif'),
+                    skip_empty=True,
+                    show_index=True,
+                    size_ratio=0.5,
+                )
             except ValueError:
                 logger.debug('can not plot progress into sprite image')
+
             d.tags['_status'] = {
                 'completed': cur_t == -1,
                 'cur_t': cur_t,

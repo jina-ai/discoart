@@ -103,6 +103,7 @@ Final results and intermediate results are created under the current working dir
 ```text
 ./{name-docarray}/{i}-step-{j}.png
 ./{name-docarray}/{i}-progress.png
+./{name-docarray}/{i}-progress.gif
 ./{name-docarray}/{i}-done.png
 ```
 
@@ -114,8 +115,10 @@ where:
 - `i-*` is up to the value of `n_batches`.
 - `*-done-*` is the final image on done.
 - `*-step-*` is the intermediate image at certain step.
-- `*-progress-*` is the sprite image of all intermediate results so far.
+- `*-progress.png` is the sprite image of all intermediate results so far.
+- - `*-progress.gif` is the animated gif of all intermediate results so far.
 
+The save frequency is controlled by `save_rate`.
 
 Moreover, `create()` returns `da`, a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/)-type object. It contains the following information:
 - All arguments passed to `create()` function, including seed, text prompts and model parameters.
