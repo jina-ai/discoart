@@ -164,7 +164,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         if not _kwargs:
             warnings.warn('init_document has no .tags, fallback to default config')
         if d.uri:
-            _kwargs['init_image'] = kwargs['init_document'].uri
+            _kwargs['init_image'] = d.uri
         else:
             warnings.warn('init_document has no .uri, fallback to no init image')
         kwargs.pop('init_document')
