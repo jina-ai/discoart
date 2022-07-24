@@ -201,7 +201,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
-    _da = None
     try:
         from .runner import do_run
 
