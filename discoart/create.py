@@ -37,7 +37,7 @@ def create(
     diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
     diffusion_model_config: Optional[Dict[str, Any]] = None,
     diffusion_sampling_mode: Optional[str] = 'ddim',
-    display_rate: Optional[NoneType] = None,
+    display_rate: Optional[int] = None,
     eta: Optional[float] = 0.8,
     fuzzy_prompt: Optional[bool] = False,
     gif_fps: Optional[int] = 20,
@@ -55,7 +55,7 @@ def create(
     range_scale: Optional[Union[int, str]] = 150,
     sat_scale: Optional[Union[int, str]] = 0,
     save_rate: Optional[int] = 20,
-    seed: Optional[NoneType] = None,
+    seed: Optional[int] = None,
     skip_augs: Optional[Union[bool, str]] = False,
     skip_event: Optional[
         Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
