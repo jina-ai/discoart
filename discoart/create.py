@@ -210,8 +210,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         )
     except KeyboardInterrupt:
         pass
-    except Exception as ex:
-        logger.error(ex, exc_info=True)
+    except:
         is_success = False
     finally:
         _name = _args.name_docarray
