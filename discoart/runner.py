@@ -94,7 +94,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         for txt, weight in txt_weights:
             txt = clip_model.encode_text(
-                clip.tokenize(txt, args.truncate_overlength_prompt).to(text_device)
+                clip.tokenize(txt, truncate=args.truncate_overlength_prompt).to(text_device)
             )
 
             if args.fuzzy_prompt:
