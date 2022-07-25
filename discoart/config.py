@@ -199,7 +199,9 @@ def cheatsheet():
             param_tab.add_row(
                 str(k),
                 value,
-                d_string.replace('[DiscoArt]', '[bold white on red]:new: DiscoArt[/]'),
+                d_string.replace(
+                    '[DiscoArt]', '[bold black on yellow]:new: DiscoArt[/]'
+                ),
             )
 
     console.print(param_tab)
