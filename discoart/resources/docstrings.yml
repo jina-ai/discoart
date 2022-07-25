@@ -2,6 +2,10 @@ text_prompts: |
   Phrase, sentence, or string of words and phrases describing what the image should look like.  The words will be analyzed by the AI and will guide the diffusion process toward the image(s) you describe. These can include commas and weights to adjust the relative importance of each element.  E.g. "A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation."
   Notice that this prompt loosely follows a structure: [subject], [prepositional details], [setting], [meta modifiers and artist]; this is a good starting point for your experiments. 
   Developing text prompts takes practice and experience, and is not the subject of this guide.  If you are a beginner to writing text prompts, a good place to start is on a simple AI art app like Night Cafe, starry ai or WOMBO prior to using DD, to get a feel for how text gets translated into images by GAN tools.  These other apps use different technologies, but many of the same principles apply.
+  
+  You can add weight at the end of each prompt string, say `:10` for positive weights and `:-3` for negative weights. 
+  
+  [DiscoArt] Unlike original DD notebook, `text_prompts` does not need to be indexed by the timestamp. It is a list of strings.
 init_image: |
   Recall that in the image sequence above, the first image shown is just noise.  If an init_image is provided, diffusion will replace the noise with the init_image as its starting state.  To use an init_image, upload the image to the Colab instance or your Google Drive, and enter the full image path here. 
   If using an init_image, you may need to increase skip_steps to ~ 50% of total steps to retain the character of the init. See skip_steps above for further discussion.
@@ -24,6 +28,7 @@ steps: |
 
 cut_ic_pow: |
   This sets the size of the border used for inner cuts.  High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
+  
   [DiscoArt] This can be a list of floats that represents the value at different steps, the syntax follows the same as `cut_overview`.
 
 init_scale: |
@@ -60,11 +65,21 @@ cutn_batches: |
   [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 
-diffusion_model: Diffusion_model of choice.
+diffusion_model: | 
+  Diffusion_model of choice. Note that you don't have to write the full name of the diffusion model, e.g. any prefix is enough.
+  
+  To use a listed all diffusion models, you can do:
+  ```python
+  from discoart import create
+  create(diffusion_model='portrait_generator', ...)
+  ```
 
 use_secondary_model: |
   Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.
-  [DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.   
+  
+  [DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.
+  
+  Note that without secondary model it will consume higher VRAM but gives better quality. Simply put, secondary model is faster, but a less accurate approximation to `p_mean_variance`.
 
 diffusion_sampling_mode: |
   Two alternate diffusion denoising algorithms. ddim has been around longer, and is more established and tested.  plms is a newly added alternate method that promises good diffusion results in fewer steps, but has not been as fully tested and may have side effects. This new plms mode is actively being researched in the #settings-and-techniques channel in the DD Discord.
@@ -101,12 +116,16 @@ fuzzy_prompt: |
 rand_mag: |
   Affects only the fuzzy_prompt.  Controls the magnitude of the random noise added by fuzzy_prompt.
 
-cut_overview: The schedule of overview cuts, which take a snapshot of the entire image and evaluate that against the prompt.
-cut_innercut: The schedule of inner cuts, which are smaller cropped images from the interior of the image, helpful in tuning fine details. The size of the inner cuts can be adjusted using the `cut_ic_pow` parameter.
-cut_icgray_p: This sets the size of the border used for inner cuts. High cut_ic_pow values have larger borders, and therefore the cuts themselves will be smaller and provide finer details.  If you have too many or too-small inner cuts, you may lose overall image coherency and/or it may cause an undesirable ‘mosaic’ effect.   Low cut_ic_pow values will allow the inner cuts to be larger, helping image coherency while still helping with some details.
+cut_overview: |
+  The schedule of overview cuts, which take a snapshot of the entire image and evaluate that against the prompt.
+cut_innercut: |
+  The schedule of inner cuts, which are smaller cropped images from the interior of the image, helpful in tuning fine details. The size of the inner cuts can be adjusted using the `cut_ic_pow` parameter.
+cut_icgray_p: |
+  In addition to the overall cut schedule, a portion of the cuts can be set to be grayscale instead of color. This may help with improved definition of shapes and edges, especially in the early diffusion steps where the image structure is being defined.  
 
 display_rate: |
   [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. 
+  
   There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
   Setting this will override the `save_rate` parameter.
 save_rate: |
@@ -120,9 +139,12 @@ batch_size: |
   [DiscoArt] The number of samples generated at each steps. Say `batch_size=3`, then you can generate three images in one run. Not only this is faster than three runs, but it leverages loss function better and potentially yields higher quality images.
   
   One can of course also do `n_batches=3` and `batch_size=1` to generate three images in one run. But using `batch_size=3` is marginally faster and yield higher quality images.
+  
+  High `batch_size` can lead to OOM. 
 
 clip_models: |
   [DiscoArt] CLIP Model selectors provided by open-clip package. 
+  
   These various CLIP models are available for you to use during image generation.  Models have different styles or ‘flavors,’ so look around.  
   You can mix in multiple models as well for different results. However, keep in mind that some models are extremely memory-hungry, and turning on additional models will take additional memory and may cause a crash.
   Also supported open_clip pretrained models, use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`. Full list of models and weights can be found here: https://github.com/mlfoundations/open_clip#pretrained-model-interface
@@ -163,7 +185,8 @@ skip_augs: |
   [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 
-on_misspelled_token: Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
+on_misspelled_token: |
+  [DiscoArt] Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.
 clip_models_schedules: |
   [DiscoArt] A dictionary of string to boolean list that represents on/off of CLIP models at each step. CLIP Model schedules use a similar mechanism to cut_overview and `cut_innercut`. For example, `{"RN101::openai": "[True]*400+[False]*600"}` schedules RN101 to run for the first 40% of steps and then is no longer used for the remaining steps. `[True]*1000` is equivalent to always on and is the default if this parameter is not set. Note, the model must be included in the `clip_models` otherwise this parameter is ignored.
 
@@ -185,13 +208,13 @@ cut_schedules_group: |
   This parameter has less priority than the cut_overview, cut_innercut, cut_ic_pow, cut_icgray_p parameters, meaning that one can override cut_overview, cut_innercut, cut_ic_pow, cut_icgray_p by setting them afterwards.
 
 name_docarray: |
-  When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
+  [DiscoArt] When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
 
 skip_event: |
-  A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
+  [DiscoArt] A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
 
 stop_event: |
-  A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
+  [DiscoArt] A multiprocessing/asyncio/threading.Event that once set, will stop all generation of `n_batches` and immediately return from `create`.
 
 text_clip_on_cpu: |
   [DiscoArt] Place text transformers of CLIP models on CPU. This saves more VRAM and will not hurt the speed at all on T4, P100, 3090; however, there are few community members report issue on V100 when it is `False`.
