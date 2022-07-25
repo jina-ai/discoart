@@ -224,3 +224,6 @@ gif_fps: |
 
 gif_size_ratio: |
   [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
+
+truncate_overlength_prompt: |
+  [DiscoArt] all CLIP models use 77 as the context length. Set this parameter truncates the prompt to the length of the model's context length.
