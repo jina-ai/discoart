@@ -226,7 +226,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 )
 
                 if active_prompt_ids:
-                    logger.debug(active_prompt_ids)
+                    logger.debug(f'active ids: {active_prompt_ids}')
+                    logger.debug(masked_weights)
                     masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
                     masked_weights = model_stat['prompt_weights'][active_prompt_ids]
                     if masked_weights.sum().abs() <= 1e-5:
