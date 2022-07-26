@@ -105,9 +105,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             clip_model_stats['prompt_embeds'].append(txt)
             clip_model_stats['prompt_weights'].append(_p.weight)
 
-        clip_model_stats['prompt_embeds'] = (
-            torch.cat(clip_model_stats['prompt_embeds']).unsqueeze(0).to(device)
-        )
+        clip_model_stats['prompt_embeds'] = torch.cat(
+            clip_model_stats['prompt_embeds']
+        ).to(device)
         clip_model_stats['prompt_weights'] = torch.tensor(
             clip_model_stats['prompt_weights'], device=device
         ).unsqueeze(0)
@@ -253,7 +253,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                     dists = spherical_dist_loss(
                         image_embeds,
-                        masked_embeds,  # 1, 2, 512
+                        masked_embeds.unsqueeze(0),  # 1, 2, 512
                     )
 
                     dists = dists.view(
