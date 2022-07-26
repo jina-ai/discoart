@@ -22,11 +22,7 @@ class PromptPlanner:
                 prompts = text_prompts['prompts']
                 for _p in text_prompts['prompts']:
                     txt, weight = pmp.parse(_p['text'])
-                    weight2 = _p.get('weight', 1)
-                    if weight != weight2:
-                        raise ValueError(
-                            f'weight is defined twice for the prompt `{_p["text"]}`: {weight} != {weight2}'
-                        )
+                    weight = _p.get('weight', weight)
                     _p['tokenized'] = txt
                     _p['weight'] = weight
             else:
