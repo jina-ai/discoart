@@ -1,3 +1,4 @@
+import copy
 from types import SimpleNamespace
 from typing import List, Dict, Any, Union
 
@@ -6,7 +7,7 @@ from .helper import PromptParser, _eval_scheduling_str
 
 class PromptPlanner:
     def __init__(self, args):
-        text_prompts = args.text_prompts
+        text_prompts = copy.deepcopy(args.text_prompts)
         if isinstance(text_prompts, str):
             text_prompts = [text_prompts]
 
