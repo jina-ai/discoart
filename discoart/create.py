@@ -203,17 +203,20 @@ def create(**kwargs) -> Optional['DocumentArray']:
     secondary_model = load_secondary_model(_args, device=device)
 
     free_memory()
+    is_exit0 = False
     try:
         from .runner import do_run
 
-        return do_run(
+        da = do_run(
             _args,
             (model, diffusion, clip_models, secondary_model),
             device=device,
             events=events,
         )
+        is_exit0 = True
+        return da
     except KeyboardInterrupt:
-        pass
+        is_exit0 = True
     finally:
         _name = _args.name_docarray
 
@@ -223,7 +226,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         free_memory()
 
-        if os.path.exists(pb_path):
+        if os.path.exists(pb_path) and is_exit0:
             _da = DocumentArray.load_binary(pb_path)
 
             if (

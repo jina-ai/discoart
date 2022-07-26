@@ -47,11 +47,6 @@ class PromptPlanner:
                 )
             prompts[idx] = SimpleNamespace(**p)
 
-        # sum_weight = sum(p.weight for p in prompts)
-        # if sum_weight <= 0:
-        #     raise ValueError(
-        #         f'The sum of all weights in the prompts must be strictly positive but get {sum_weight}'
-        #     )
         self.prompts = prompts
 
     def get_prompt_ids(self, active_clip, num_step) -> List[int]:
