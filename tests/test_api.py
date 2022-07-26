@@ -1,5 +1,3 @@
-import pytest
-
 from discoart import create, cheatsheet
 
 

@@ -10,6 +10,7 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
+from torch.nn.functional import normalize as normalize_fn
 from docarray import DocumentArray, Document
 
 from .config import print_args_table
@@ -238,7 +239,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         logger.warning(
                             f'Negative sum weights for prompt ids: {active_prompt_ids}'
                         )
-                    masked_weights /= masked_weights.sum()
+                    masked_weights = normalize_fn(masked_weights)
+                    logger.debug(f'Prompt weights: {masked_weights}')
                 else:
                     continue
 
