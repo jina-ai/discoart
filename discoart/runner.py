@@ -109,7 +109,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             clip_model_stats['prompt_embeds']
         ).to(device)
         clip_model_stats['prompt_weights'] = torch.tensor(
-            clip_model_stats['prompt_weights'], device=device
+            clip_model_stats['prompt_weights'], device=device, dtype=torch.float16
         )
 
         model_stats.append(clip_model_stats)
