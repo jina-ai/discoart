@@ -63,9 +63,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     _dp1, _, _output_fn = get_ipython_funcs()
     _dp1.clear_output(wait=True)
 
-    if isinstance(args.text_prompts, str):
-        args.text_prompts = [args.text_prompts]
-
     prompts = PromptPlanner(args)
 
     text_device = torch.device('cpu') if args.text_clip_on_cpu else device
@@ -101,9 +98,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         for _p in prompts:
             print(_p)
             txt = clip_model.encode_text(
-                clip.tokenize(_p.text, truncate=args.truncate_overlength_prompt).to(
-                    text_device
-                )
+                clip.tokenize(
+                    _p.tokenized, truncate=args.truncate_overlength_prompt
+                ).to(text_device)
             )
 
             clip_model_stats['prompt_embeds'].append(txt)

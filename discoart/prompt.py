@@ -6,17 +6,21 @@ from .helper import PromptParser, _eval_scheduling_str
 
 class PromptPlanner:
     def __init__(self, args):
+        text_prompts = args.text_prompts
+        if isinstance(text_prompts, str):
+            text_prompts = [text_prompts]
+
         pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
         prompts = []  # type: List[Union[Dict[str, Any], SimpleNamespace]]
-        if isinstance(args.text_prompts, list):
+        if isinstance(text_prompts, list):
             # for legacy prompts
-            for _p in args.text_prompts:
-                _p = pmp.parse(_p)
-                prompts.append({'tokenized': _p[0], 'weight': _p[1]})
-        elif isinstance(args.text_prompts, dict):
-            if args.text_prompts.get('version') == '1':
-                prompts = args.text_prompts['prompts']
-                for _p in args.text_prompts['prompts']:
+            for _p in text_prompts:
+                _pw = pmp.parse(_p)
+                prompts.append({'tokenized': _pw[0], 'weight': _pw[1]})
+        elif isinstance(text_prompts, dict):
+            if text_prompts.get('version') == '1':
+                prompts = text_prompts['prompts']
+                for _p in text_prompts['prompts']:
                     txt, weight = pmp.parse(_p['text'])
                     weight2 = _p.get('weight', 1)
                     if weight != weight2:
@@ -27,10 +31,10 @@ class PromptPlanner:
                     _p['weight'] = weight
             else:
                 raise ValueError(
-                    f'unsupported text prompts schema: {args.text_prompts.get("version")}'
+                    f'unsupported text prompts schema: {text_prompts.get("version")}'
                 )
         else:
-            raise TypeError(f'unsupported text prompts type: {type(args.text_prompts)}')
+            raise TypeError(f'unsupported text prompts type: {type(text_prompts)}')
 
         if not prompts:
             raise ValueError('no prompts found')
