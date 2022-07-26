@@ -228,9 +228,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 if active_prompt_ids:
                     logger.debug(f'active ids: {active_prompt_ids}')
                     logger.debug(model_stat['prompt_weights'][active_prompt_ids])
-                    logger.debug('here')
+                    logger.debug('here1')
                     masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
+                    logger.debug('here2')
                     masked_weights = model_stat['prompt_weights'][active_prompt_ids]
+                    logger.debug('here3')
                     if masked_weights.sum().abs() <= 1e-5:
                         logger.warning(
                             f'Zero sum weights for prompt ids: {active_prompt_ids}'
