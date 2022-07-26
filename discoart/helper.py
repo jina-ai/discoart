@@ -10,6 +10,7 @@ import urllib.request
 import warnings
 from os.path import expanduser
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Dict, Any, List, Tuple
 from urllib.request import Request, urlopen
 
@@ -548,10 +549,6 @@ To save the full-size images, please check out the instruction in the next secti
         ),
         result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
     )
-    config_file = _fl(
-        f'{_name}.svg',
-        result_html_prefix=f'▶ Download the config as SVG image: ',
-    )
 
     md = Markdown(
         f'''
@@ -603,7 +600,7 @@ More usage such as plotting, post-analysis can be found in the [README](https://
     if is_google_colab():
         _dp1.display(md)
     else:
-        _dp1.display(config_file, persist_file, md)
+        _dp1.display(persist_file, md)
 
 
 def list_diffusion_models():
@@ -648,3 +645,43 @@ def _version_check(package: str = None, github_repo: str = None):
 
 
 threading.Thread(target=_version_check, args=(__package__, 'discoart')).start()
+_MAX_DIFFUSION_STEPS = 1000
+
+
+def _eval_scheduling_str(val) -> List[float]:
+    if isinstance(val, str):
+        r = eval(val)
+    elif isinstance(val, (int, float, bool)):
+        r = [val] * _MAX_DIFFUSION_STEPS
+    else:
+        raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
+
+    if len(r) != _MAX_DIFFUSION_STEPS:
+        raise ValueError(f'invalid scheduling string: {val}')
+    return r
+
+
+def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':
+    return SimpleNamespace(**{k: schedule_table[k][t] for k in schedule_table.keys()})
+
+
+def _get_schedule_table(args) -> Dict:
+    return {
+        k: _eval_scheduling_str(getattr(args, k))
+        for k in (
+            'cut_overview',
+            'cut_innercut',
+            'cut_icgray_p',
+            'cut_ic_pow',
+            'use_secondary_model',
+            'cutn_batches',
+            'skip_augs',
+            'clip_guidance_scale',
+            'tv_scale',
+            'range_scale',
+            'sat_scale',
+            'init_scale',
+            'clamp_grad',
+            'clamp_max',
+        )
+    }
