@@ -110,7 +110,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         )
         clip_model_stats['prompt_weights'] = torch.tensor(
             clip_model_stats['prompt_weights'], device=device
-        )
+        ).unsqueeze(0)
         model_stats.append(clip_model_stats)
 
     init = None
@@ -229,9 +229,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     logger.debug(f'active ids: {active_prompt_ids}')
                     logger.debug(model_stat['prompt_weights'][active_prompt_ids])
                     logger.debug('here1')
-                    masked_weights = model_stat['prompt_weights']
+                    masked_weights = model_stat['prompt_weights'][active_prompt_ids]
                     logger.debug('here2')
-                    masked_embeds = model_stat['prompt_embeds']
+                    masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
                     logger.debug('here3')
                     if masked_weights.sum().abs() <= 1e-5:
                         logger.warning(
