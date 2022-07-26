@@ -96,7 +96,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         }
 
         for _p in prompts:
-            print(_p)
             txt = clip_model.encode_text(
                 clip.tokenize(
                     _p.tokenized, truncate=args.truncate_overlength_prompt
