@@ -111,6 +111,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         clip_model_stats['prompt_weights'] = torch.tensor(
             clip_model_stats['prompt_weights'], device=device
         ).unsqueeze(0)
+
         model_stats.append(clip_model_stats)
 
     init = None
@@ -226,6 +227,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 )
 
                 if active_prompt_ids:
+                    logger.debug(clip_model_stats['prompt_embeds'].shape)
+
                     logger.debug(f'active ids: {active_prompt_ids}')
                     masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
                     masked_weights = model_stat['prompt_weights']
