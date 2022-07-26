@@ -229,14 +229,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     logger.debug(f'active ids: {active_prompt_ids}')
                     masked_weights = model_stat['prompt_weights']
                     masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
-                    if masked_weights.sum().abs() <= 1e-5:
-                        logger.warning(
-                            f'Zero sum weights for prompt ids: {active_prompt_ids}'
-                        )
-                    elif masked_weights.sum() < 0:
-                        logger.warning(
-                            f'Negative sum weights for prompt ids: {active_prompt_ids}'
-                        )
                     masked_weights = normalize_fn(masked_weights)
                     logger.debug(f'Prompt weights: {masked_weights}')
                 else:
