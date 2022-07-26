@@ -228,8 +228,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                 if active_prompt_ids:
                     masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
-                    masked_weights = model_stat['prompt_weights'][active_prompt_ids]
-                    masked_weights = normalize_fn(masked_weights.unsqueeze(0)).squeeze()
+                    masked_weights = normalize_fn(
+                        model_stat['prompt_weights'][active_prompt_ids], dim=0
+                    )
                     logger.debug(
                         f'activate prompt ids: {active_prompt_ids} prompt weights: {masked_weights}'
                     )
