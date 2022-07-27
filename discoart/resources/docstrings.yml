@@ -111,8 +111,6 @@ randomize_class: |
 clip_denoised: |
   Determines whether CLIP discriminates a noisy or denoised image
 
-fuzzy_prompt: |
-  Controls whether to add multiple noisy prompts to the prompt losses. If True, can increase variability of image output. Experiment with this.
 rand_mag: |
   Affects only the fuzzy_prompt.  Controls the magnitude of the random noise added by fuzzy_prompt.
 

@@ -32,9 +32,11 @@ class DiscoArtExecutor(Executor):
 class ResultPoller(Executor):
     @requests(on='/result')
     def poll_results(self, parameters: Dict, **kwargs):
+        from discoart.helper import get_output_dir
+
         path = os.path.join(
-            os.environ.get('DISCOART_OUTPUT_DIR', './'),
-            f'{parameters["name_docarray"]}.protobuf.lz4',
+            get_output_dir(parameters['name_docarray']),
+            'da.protobuf.lz4',
         )
         if os.path.exists(path):
             return DocumentArray.load_binary(path)

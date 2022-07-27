@@ -29,7 +29,6 @@ clamp_max: 0.05
 
 randomize_class: True
 clip_denoised: False
-fuzzy_prompt: False
 rand_mag: 0.05
 
 cut_overview: "[12]*400+[4]*600"

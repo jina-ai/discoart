@@ -10,6 +10,7 @@ import urllib.request
 import warnings
 from os.path import expanduser
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Dict, Any, List, Tuple
 from urllib.request import Request, urlopen
 
@@ -453,7 +454,7 @@ class PromptParser(SimpleTokenizer):
             vals = [prompt, 1]
         return vals[0], float(vals[1])
 
-    def parse(self, text: str) -> Tuple[str, float]:
+    def parse(self, text: str, on_misspelled_token=None) -> Tuple[str, float]:
         text, weight = self._split_weight(text)
         text = whitespace_clean(basic_clean(text)).lower()
         all_tokens = []
@@ -470,7 +471,8 @@ class PromptParser(SimpleTokenizer):
             for v in unknowns:
                 vc = self.spell.correction(v)
                 pairs.append((v, vc))
-                if self.on_misspelled_token == 'correct':
+                on_misspelled_token = on_misspelled_token or self.on_misspelled_token
+                if on_misspelled_token == 'correct':
                     for idx, ov in enumerate(all_tokens):
                         if ov == v:
                             all_tokens[idx] = vc
@@ -479,9 +481,9 @@ class PromptParser(SimpleTokenizer):
                 warning_str = '\n'.join(
                     f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
                 )
-                if self.on_misspelled_token == 'raise':
+                if on_misspelled_token == 'raise':
                     raise ValueError(warning_str)
-                elif self.on_misspelled_token == 'correct':
+                elif on_misspelled_token == 'correct':
                     logger.warning(
                         'auto-corrected the following tokens:\n' + warning_str
                     )
@@ -543,14 +545,8 @@ To save the full-size images, please check out the instruction in the next secti
     print_args_table(vars(_args))
 
     persist_file = _fl(
-        os.path.join(
-            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
-        ),
+        os.path.join(get_output_dir(_name), 'da.protobuf.lz4'),
         result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
-    )
-    config_file = _fl(
-        f'{_name}.svg',
-        result_html_prefix=f'▶ Download the config as SVG image: ',
     )
 
     md = Markdown(
@@ -559,12 +555,13 @@ To save the full-size images, please check out the instruction in the next secti
 
 # 🖼️ Save images
 
-Final results and intermediate results are created under the current working directory, e.g.
+Final results and intermediate results are created, i.e.
 ```text
 ./{_name}/[i]-done.png
 ./{_name}/[i]-step-[i].png
 ./{_name}/[i]-progress.gif
 ./{_name}/[i]-progress.png
+./{_name}/da.protobuf.lz4
 ```
 
 where:
@@ -574,7 +571,7 @@ where:
 - `*-step-*` is the intermediate image at certain step.
 - `*-progress.png` is the sprite image of all intermediate results so far.
 - `*-progress.gif` is the animated gif of all intermediate results so far.
-
+- `da.protobuf.lz4` is the LZ4 compressed Protobuf file of all intermediate results of all `n_batches`.
 
 # 💾 Save & load the batch        
 
@@ -584,7 +581,7 @@ Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/do
 You may also download the file manually and load it from local disk:
 
 ```python
-da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+da = DocumentArray.load_binary('{get_output_dir(_name)}/da.protobuf.lz4')
 ```
 
 You can simply pull it from any machine:
@@ -603,7 +600,7 @@ More usage such as plotting, post-analysis can be found in the [README](https://
     if is_google_colab():
         _dp1.display(md)
     else:
-        _dp1.display(config_file, persist_file, md)
+        _dp1.display(persist_file, md)
 
 
 def list_diffusion_models():
@@ -648,3 +645,51 @@ def _version_check(package: str = None, github_repo: str = None):
 
 
 threading.Thread(target=_version_check, args=(__package__, 'discoart')).start()
+_MAX_DIFFUSION_STEPS = 1000
+
+
+def _eval_scheduling_str(val) -> List[float]:
+    if isinstance(val, str):
+        r = eval(val)
+    elif isinstance(val, (int, float, bool)):
+        r = [val] * _MAX_DIFFUSION_STEPS
+    else:
+        raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
+
+    if len(r) != _MAX_DIFFUSION_STEPS:
+        raise ValueError(
+            f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
+        )
+    return r
+
+
+def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':
+    return SimpleNamespace(**{k: schedule_table[k][t] for k in schedule_table.keys()})
+
+
+def _get_schedule_table(args) -> Dict:
+    return {
+        k: _eval_scheduling_str(getattr(args, k))
+        for k in (
+            'cut_overview',
+            'cut_innercut',
+            'cut_icgray_p',
+            'cut_ic_pow',
+            'use_secondary_model',
+            'cutn_batches',
+            'skip_augs',
+            'clip_guidance_scale',
+            'tv_scale',
+            'range_scale',
+            'sat_scale',
+            'init_scale',
+            'clamp_grad',
+            'clamp_max',
+        )
+    }
+
+
+def get_output_dir(name_da):
+    output_dir = os.path.join(os.environ.get('DISCOART_OUTPUT_DIR', './'), name_da)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    return output_dir

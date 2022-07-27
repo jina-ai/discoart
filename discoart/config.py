@@ -25,6 +25,8 @@ with open(
 ) as ymlfile:
     cut_schedules = yaml.load(ymlfile, Loader=Loader)
 
+_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt'}
+
 
 def load_config(
     user_config: Dict,
@@ -32,9 +34,9 @@ def load_config(
     cfg = copy.deepcopy(default_args)
 
     for k in list(user_config.keys()):
-        if k not in cfg and not k.startswith('_'):
+        if k not in cfg and not k.startswith('_') and k not in _legacy_args:
             raise AttributeError(f'unknown argument `{k}`, misspelled?')
-        if k.startswith('_'):
+        if k in _legacy_args or k.startswith('_'):
             # remove private arguments in tags
             user_config.pop(k)
 

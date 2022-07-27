@@ -3,8 +3,6 @@ import os
 import random
 import threading
 from pathlib import Path
-from types import SimpleNamespace
-from typing import List, Dict
 
 import clip
 import lpips
@@ -12,26 +10,32 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
+from torch.nn.functional import normalize as normalize_fn
 from docarray import DocumentArray, Document
 
 from .config import print_args_table
-from .helper import logger, PromptParser, get_ipython_funcs, free_memory
+from .helper import (
+    logger,
+    get_ipython_funcs,
+    free_memory,
+    _MAX_DIFFUSION_STEPS,
+    _eval_scheduling_str,
+    _get_current_schedule,
+    _get_schedule_table,
+    get_output_dir,
+)
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
-
-_MAX_DIFFUSION_STEPS = 1000
+from .prompt import PromptPlanner
 
 
 def do_run(args, models, device, events) -> 'DocumentArray':
     skip_event, stop_event = events
 
-    output_dir = os.path.join(
-        os.environ.get('DISCOART_OUTPUT_DIR', './'), args.name_docarray
-    )
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    output_dir = get_output_dir(args.name_docarray)
 
     logger.info('preparing models...')
 
@@ -57,11 +61,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     _dp1, _, _output_fn = get_ipython_funcs()
     _dp1.clear_output(wait=True)
 
-    if isinstance(args.text_prompts, str):
-        args.text_prompts = [args.text_prompts]
-
-    pmp = PromptParser(on_misspelled_token=args.on_misspelled_token)
-    txt_weights = [pmp.parse(prompt) for prompt in args.text_prompts]
+    prompts = PromptPlanner(args)
 
     text_device = torch.device('cpu') if args.text_clip_on_cpu else device
 
@@ -85,6 +85,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             schedules = _eval_scheduling_str(args.clip_models_schedules[model_name])
 
         clip_model_stats = {
+            'model_name': model_name,
             'clip_model': clip_model,
             'prompt_embeds': [],
             'prompt_weights': [],
@@ -92,37 +93,23 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             'input_resolution': input_resolution,
         }
 
-        for txt, weight in txt_weights:
+        for _p in prompts:
             txt = clip_model.encode_text(
-                clip.tokenize(txt, truncate=args.truncate_overlength_prompt).to(
-                    text_device
-                )
+                clip.tokenize(
+                    _p.tokenized, truncate=args.truncate_overlength_prompt
+                ).to(text_device)
             )
 
-            if args.fuzzy_prompt:
-                for _ in range(25):
-                    clip_model_stats['prompt_embeds'].append(
-                        (txt + torch.randn(txt.shape).cuda() * args.rand_mag).clamp(
-                            0, 1
-                        )
-                    )
-                    clip_model_stats['prompt_weights'].append(weight)
-            else:
-                clip_model_stats['prompt_embeds'].append(txt)
-                clip_model_stats['prompt_weights'].append(weight)
+            clip_model_stats['prompt_embeds'].append(txt)
+            clip_model_stats['prompt_weights'].append(_p.weight)
 
-        sum_weight = abs(sum(clip_model_stats['prompt_weights']))
-        if sum_weight < 1e-3:
-            raise ValueError(
-                f'The sum of all weights in the prompts must *not* be 0 but sum({clip_model_stats["weights"]})={sum_weight}'
-            )
-        clip_model_stats['prompt_embeds'] = (
-            torch.cat(clip_model_stats['prompt_embeds']).unsqueeze(0).to(device)
-        )
+        clip_model_stats['prompt_embeds'] = torch.cat(
+            clip_model_stats['prompt_embeds']
+        ).to(device)
         clip_model_stats['prompt_weights'] = torch.tensor(
-            clip_model_stats['prompt_weights'], device=device
+            clip_model_stats['prompt_weights'], device=device, dtype=torch.float16
         )
-        clip_model_stats['prompt_weights'] /= sum_weight
+
         model_stats.append(clip_model_stats)
 
     init = None
@@ -233,6 +220,21 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 if not model_stat['schedules'][num_step]:
                     continue
 
+                active_prompt_ids = prompts.get_prompt_ids(
+                    model_stat['model_name'], num_step
+                )
+
+                if active_prompt_ids:
+                    masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
+                    masked_weights = normalize_fn(
+                        model_stat['prompt_weights'][active_prompt_ids], dim=0
+                    )
+                    logger.debug(
+                        f'activate prompt ids: {active_prompt_ids} prompt weights: {masked_weights}'
+                    )
+                else:
+                    continue
+
                 for _ in range(scheduler.cutn_batches):
                     cuts = MakeCutoutsDango(
                         model_stat['input_resolution'],
@@ -250,7 +252,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                     dists = spherical_dist_loss(
                         image_embeds,
-                        model_stat['prompt_embeds'],  # 1, 2, 512
+                        masked_embeds.unsqueeze(0),  # 1, 2, 512
                     )
 
                     dists = dists.view(
@@ -260,9 +262,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                             -1,
                         ]
                     )
-                    cut_loss = (
-                        dists.mul(model_stat['prompt_weights']).sum(2).mean(0).sum()
-                    )
+
+                    cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
 
                     x_in_grad += torch.autograd.grad(
                         cut_loss
@@ -278,7 +279,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             x_is_NaN = True
             grad = torch.zeros_like(x)
             logger.warning(
-                f'NaN detected in grad at step {num_step}, if this message continues to show up, then your image is not updated and further steps are unnecessary.'
+                f'NaN detected in grad at the diffusion inner-step {num_step}, '
+                f'if this message continues to show up, '
+                f'then your image is not updated and further steps are unnecessary.'
             )
 
         loss_values.append(loss.detach().item())
@@ -423,42 +426,3 @@ def _set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
-
-
-def _eval_scheduling_str(val) -> List[float]:
-    if isinstance(val, str):
-        r = eval(val)
-    elif isinstance(val, (int, float, bool)):
-        r = [val] * _MAX_DIFFUSION_STEPS
-    else:
-        raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
-
-    if len(r) != _MAX_DIFFUSION_STEPS:
-        raise ValueError(f'invalid scheduling string: {val}')
-    return r
-
-
-def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':
-    return SimpleNamespace(**{k: schedule_table[k][t] for k in schedule_table.keys()})
-
-
-def _get_schedule_table(args) -> Dict:
-    return {
-        k: _eval_scheduling_str(getattr(args, k))
-        for k in (
-            'cut_overview',
-            'cut_innercut',
-            'cut_icgray_p',
-            'cut_ic_pow',
-            'use_secondary_model',
-            'cutn_batches',
-            'skip_augs',
-            'clip_guidance_scale',
-            'tv_scale',
-            'range_scale',
-            'sat_scale',
-            'init_scale',
-            'clamp_grad',
-            'clamp_max',
-        )
-    }

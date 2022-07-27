@@ -5,7 +5,7 @@ from threading import Thread
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 
-from .helper import logger
+from .helper import logger, get_output_dir
 
 
 def _sample_thread(*args):
@@ -135,9 +135,7 @@ def _local_save(
     is_sampling_done.wait()
     is_busy_event.set()
     try:
-        pb_path = os.path.join(
-            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{name}.protobuf.lz4'
-        )
+        pb_path = os.path.join(get_output_dir(name), f'da.protobuf.lz4')
         da_batches.save_binary(pb_path)
         logger.debug(f'local backup to {pb_path}')
     except Exception as ex:
