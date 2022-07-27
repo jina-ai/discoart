@@ -554,7 +554,7 @@ To save the full-size images, please check out the instruction in the next secti
 
 # 🖼️ Save images
 
-Final results and intermediate results are created under the current working directory, e.g.
+Final results and intermediate results are created, i.e.
 ```text
 ./{_name}/[i]-done.png
 ./{_name}/[i]-step-[i].png
@@ -570,7 +570,7 @@ where:
 - `*-step-*` is the intermediate image at certain step.
 - `*-progress.png` is the sprite image of all intermediate results so far.
 - `*-progress.gif` is the animated gif of all intermediate results so far.
-- `da.protobuf.lz4` is the LZ4 compressed protobuf file of all intermediate.
+- `da.protobuf.lz4` is the LZ4 compressed Protobuf file of all intermediate results of all `n_batches`.
 
 # 💾 Save & load the batch        
 

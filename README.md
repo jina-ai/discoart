@@ -99,7 +99,7 @@ The difference on the parameters between DiscoArt and DD5.6 [is explained here](
 
 ### Visualize results
 
-Final results and intermediate results are created under the current working directory, e.g.
+Final results and intermediate results are created under the current working directory, i.e.
 ```text
 ./{name-docarray}/{i}-done.png
 ./{name-docarray}/{i}-step-{j}.png
