@@ -22,7 +22,7 @@ class PromptPlanner:
             if text_prompts.get('version') == '1':
                 prompts = text_prompts['prompts']
                 for _p in text_prompts['prompts']:
-                    txt, weight = pmp.parse(_p['text'])
+                    txt, weight = pmp.parse(_p['text'], _p.get('spellcheck'))
                     weight = _p.get('weight', weight)
                     _p['tokenized'] = txt
                     _p['weight'] = weight

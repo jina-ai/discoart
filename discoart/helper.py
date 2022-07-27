@@ -454,7 +454,7 @@ class PromptParser(SimpleTokenizer):
             vals = [prompt, 1]
         return vals[0], float(vals[1])
 
-    def parse(self, text: str) -> Tuple[str, float]:
+    def parse(self, text: str, on_misspelled_token=None) -> Tuple[str, float]:
         text, weight = self._split_weight(text)
         text = whitespace_clean(basic_clean(text)).lower()
         all_tokens = []
@@ -471,7 +471,8 @@ class PromptParser(SimpleTokenizer):
             for v in unknowns:
                 vc = self.spell.correction(v)
                 pairs.append((v, vc))
-                if self.on_misspelled_token == 'correct':
+                on_misspelled_token = on_misspelled_token or self.on_misspelled_token
+                if on_misspelled_token == 'correct':
                     for idx, ov in enumerate(all_tokens):
                         if ov == v:
                             all_tokens[idx] = vc
@@ -480,9 +481,9 @@ class PromptParser(SimpleTokenizer):
                 warning_str = '\n'.join(
                     f'Misspelled `{v}`, do you mean `{vc}`?' for v, vc in pairs
                 )
-                if self.on_misspelled_token == 'raise':
+                if on_misspelled_token == 'raise':
                     raise ValueError(warning_str)
-                elif self.on_misspelled_token == 'correct':
+                elif on_misspelled_token == 'correct':
                     logger.warning(
                         'auto-corrected the following tokens:\n' + warning_str
                     )
