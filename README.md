@@ -240,6 +240,17 @@ from discoart import create
 create(init_document='discoart-3205998582')
 ```
 
+### Export config as YAML
+
+```python
+from discoart import export_config
+
+# export a document array or document as a YAML file
+export_config(da, 'my.yml')
+
+# or export cloud da configs as YAML
+export_config('discoart-3205998582', 'my.yml')
+```
 
 
 ### Environment variables

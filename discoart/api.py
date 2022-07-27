@@ -1,16 +1,14 @@
 import os
-from typing import Dict
 
 os.environ['DISCOART_DISABLE_IPYTHON'] = '1'  # turn on when using from CLI
 
-from yaml import Loader
 import yaml
+from yaml import Loader
 from . import __resources_path__
 
 
 def serve(args):
     from jina import Flow
-    from .executors import DiscoArtExecutor, ResultPoller
 
     with Flow.load_config(args.input) as f:
         f.block()

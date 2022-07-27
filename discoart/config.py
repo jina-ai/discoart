@@ -84,18 +84,7 @@ def load_config(
 def show_config(
     docs: Union['Document', 'Document', Dict, str], only_non_default: bool = True
 ):
-    cfg = None
-
-    if isinstance(docs, DocumentArray):
-        cfg = docs[0].tags
-    elif isinstance(docs, Document):
-        cfg = docs.tags
-    elif isinstance(docs, dict):
-        cfg = docs
-    elif isinstance(docs, str):
-        cfg = DocumentArray.pull(docs)[0].tags
-
-    cfg = load_config(cfg)
+    cfg = _extract_config_from_docs(docs)
     print_args_table(cfg, only_non_default=only_non_default)
 
 
@@ -207,3 +196,24 @@ def cheatsheet():
             )
 
     console.print(param_tab)
+
+
+def export_config(docs: Union['Document', 'Document', Dict, str], output: str) -> None:
+    cfg = _extract_config_from_docs(docs)
+    with open(output, 'w') as f:
+        yaml.dump(cfg, f)
+
+
+def _extract_config_from_docs(docs):
+    cfg = None
+
+    if isinstance(docs, DocumentArray):
+        cfg = docs[0].tags
+    elif isinstance(docs, Document):
+        cfg = docs.tags
+    elif isinstance(docs, dict):
+        cfg = docs
+    elif isinstance(docs, str):
+        cfg = DocumentArray.pull(docs)[0].tags
+
+    return load_config(cfg)

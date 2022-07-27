@@ -1,8 +1,6 @@
 import copy
-import os
 import random
 import threading
-from pathlib import Path
 
 import clip
 import lpips
@@ -10,8 +8,8 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
-from torch.nn.functional import normalize as normalize_fn
 from docarray import DocumentArray, Document
+from torch.nn.functional import normalize as normalize_fn
 
 from .config import print_args_table
 from .helper import (
