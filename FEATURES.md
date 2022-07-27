@@ -1,6 +1,6 @@
 # DiscoArt vs. DD5.6
 
-DiscoArt and DD5.6 starts from the same family of algorithms (i.e. CLIP guided diffusion), but DiscoArt has a much better implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
+DiscoArt and DD5.6 start from the same family of algorithms (i.e. CLIP guided diffusion), but DiscoArt has a much better implementation ([guaranteed by me](https://github.com/hanxiao)) with **top** code quality, **the best** user experience and **rich** features. It is perfect for integration to professional developers. 
 
 DiscoArt is synced with the upstream update of original DD notebook. The list below summarizes the major differences between DiscoArt and DD5.6:
 
@@ -58,14 +58,6 @@ At every step, DiscoArt will check if the condition is met according to schedule
 - Imagine a human painting where big picture comes first and then small details. Rarely we see people work on big picture small details **at the same time** or small details before big pictures. However, before DiscoArt 0.8, all prompts are involved in the loss computation at all steps. Prompt scheduling enables the possibility to have first thing first and details later.
 - Don't look at me, you guys like sophisticated scheduling and you know that.
 
-### Remark to original DD-style prompts syntax
-
-The original DD prompts syntax `['prompts:weight', ...]` is still supported. However, here are some remarks:
-- Prompt weights is now normalized via L2 norm, this normalization happens at every step based on the activated prompts. The original weighted by sum doesn't make sense from math perspective, hence it is removed.
-- The restriction of "the sum of weights must not be 0 or negative" is waived, as this condition makes no sense in the first place, and it makes no sense under the new L2 normalization.
-- When weight is provided in both `'text': prompts:weight` and `'weight': ` field, then `'weight': ` value overrides the former one.
-- For system integrations, it is highly recommended to follow the new syntax. It is more structured and less ambiguous.
-
 ### Prompts as YAML 
 
 Of course the above syntax is not the only way to define prompts. You can also define prompts in YAML format. For instance, the above example can be written as:
@@ -85,6 +77,15 @@ prompts:
   - text: some negative modifier
     weight: -4
 ```
+
+### Remark to legacy prompts syntax
+
+The original DD-style prompt syntax `['prompts:weight', ...]` is still supported. However, here are some remarks:
+- Prompt weights is now normalized via L2 norm, this normalization happens at every step based on the activated prompts. The original weighted by sum doesn't make sense from math perspective, hence it is removed.
+- The restriction of "the sum of weights must not be 0 or negative" is waived, as this condition makes no sense in the first place, and it makes no sense under the new L2 normalization.
+- When weight is provided in both `'text': prompts:weight` and `'weight': ` field, then `'weight': ` value overrides the former one.
+- `fuzzy_prompt` is removed, as it is a good idea but ineffective implementation. If the intention is to add variance of the image by paraphrasing the prompts, then there must be a better way to do that.  
+- For system integrations, it is highly recommended to follow the new syntax. It is more structured and less ambiguous.
 
 ## K-shot sampling in one run 
 
