@@ -63,20 +63,29 @@ At every step, DiscoArt will check if the condition is met according to schedule
 Of course the above syntax is not the only way to define prompts. You can also define prompts in YAML format. For instance, the above example can be written as:
 
 ```yaml
-version: 1
-prompts:
-  - text: the main prompt
-    weight: 10
-    spellcheck: ignore
-  - text: the second prompt effective at later steps
-    weight: 7
-    schedule: '[False]*500+[True]*500'
-  - text: some positive modifier
-    weight: 3
-    clip_guidance: ['RN50x4::openai']
-  - text: some negative modifier
-    weight: -4
+text_prompts:
+  version: 1
+  prompts:
+    - text: the main prompt
+      weight: 10
+      spellcheck: ignore
+    - text: the second prompt effective at later steps
+      weight: 7
+      schedule: '[False]*500+[True]*500'
+    - text: some positive modifier
+      weight: 3
+      clip_guidance: ['RN50x4::openai']
+    - text: some negative modifier
+      weight: -4
+width_height: [512, 512]
 ```
+
+Save it to `my.yml` and then load it in DiscoArt:
+
+```bash
+python -m discoart create my.yml
+```
+
 
 ### Remark to legacy prompts syntax
 
