@@ -544,9 +544,7 @@ To save the full-size images, please check out the instruction in the next secti
     print_args_table(vars(_args))
 
     persist_file = _fl(
-        os.path.join(
-            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
-        ),
+        os.path.join(get_output_dir(_name), 'da.protobuf.lz4'),
         result_html_prefix=f'▶ Download the local backup (in case cloud storage failed): ',
     )
 
@@ -562,6 +560,7 @@ Final results and intermediate results are created under the current working dir
 ./{_name}/[i]-step-[i].png
 ./{_name}/[i]-progress.gif
 ./{_name}/[i]-progress.png
+./{_name}/da.protobuf.lz4
 ```
 
 where:
@@ -571,7 +570,7 @@ where:
 - `*-step-*` is the intermediate image at certain step.
 - `*-progress.png` is the sprite image of all intermediate results so far.
 - `*-progress.gif` is the animated gif of all intermediate results so far.
-
+- `da.protobuf.lz4` is the LZ4 compressed protobuf file of all intermediate.
 
 # 💾 Save & load the batch        
 
@@ -581,7 +580,7 @@ Results are stored in a [DocumentArray](https://docarray.jina.ai/fundamentals/do
 You may also download the file manually and load it from local disk:
 
 ```python
-da = DocumentArray.load_binary('{_name}.protobuf.lz4')
+da = DocumentArray.load_binary('{get_output_dir(_name)}/da.protobuf.lz4')
 ```
 
 You can simply pull it from any machine:
@@ -687,3 +686,9 @@ def _get_schedule_table(args) -> Dict:
             'clamp_max',
         )
     }
+
+
+def get_output_dir(name_da):
+    output_dir = os.path.join(os.environ.get('DISCOART_OUTPUT_DIR', './'), name_da)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    return output_dir

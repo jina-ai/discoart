@@ -22,6 +22,7 @@ from .helper import (
     _eval_scheduling_str,
     _get_current_schedule,
     _get_schedule_table,
+    get_output_dir,
 )
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
@@ -34,10 +35,7 @@ from .prompt import PromptPlanner
 def do_run(args, models, device, events) -> 'DocumentArray':
     skip_event, stop_event = events
 
-    output_dir = os.path.join(
-        os.environ.get('DISCOART_OUTPUT_DIR', './'), args.name_docarray
-    )
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    output_dir = get_output_dir(args.name_docarray)
 
     logger.info('preparing models...')
 

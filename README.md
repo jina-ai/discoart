@@ -105,6 +105,7 @@ Final results and intermediate results are created under the current working dir
 ./{name-docarray}/{i}-step-{j}.png
 ./{name-docarray}/{i}-progress.png
 ./{name-docarray}/{i}-progress.gif
+./{name-docarray}/da.protobuf.lz4
 ```
 
 ![](.github/result-persist.png)
@@ -114,9 +115,10 @@ where:
 - `name-docarray` is the name of the run, you can specify it otherwise it is a random name.
 - `i-*` is up to the value of `n_batches`.
 - `*-done-*` is the final image on done.
-- `*-step-*` is the intermediate image at certain step.
-- `*-progress.png` is the sprite image of all intermediate results so far.
-- `*-progress.gif` is the animated gif of all intermediate results so far.
+- `*-step-*` is the intermediate image at certain step, updated in real-time.
+- `*-progress.png` is the sprite image of all intermediate results so far, updated in real-time.
+- `*-progress.gif` is the animated gif of all intermediate results so far, updated in real-time.
+- `da.protobuf.lz4` is the compressed protobuf of all intermediate results so far, updated in real-time.
 
 The save frequency is controlled by `save_rate`.
 

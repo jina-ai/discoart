@@ -4,6 +4,7 @@ import warnings
 from types import SimpleNamespace
 from typing import overload, List, Optional, Dict, Any, Union, TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     import threading
     import asyncio
@@ -189,6 +190,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
         get_device,
         free_memory,
         show_result_summary,
+        get_output_dir,
     )
 
     device = get_device()
@@ -222,9 +224,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         _name = _args.name_docarray
 
-        pb_path = os.path.join(
-            os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
-        )
+        pb_path = os.path.join(get_output_dir(_name), 'da.protobuf.lz4')
 
         if os.path.exists(pb_path) and is_exit0:
             _da = DocumentArray.load_binary(pb_path)
