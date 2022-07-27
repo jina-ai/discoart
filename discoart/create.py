@@ -39,7 +39,6 @@ def create(
     diffusion_sampling_mode: Optional[str] = 'ddim',
     display_rate: Optional[int] = None,
     eta: Optional[float] = 0.8,
-    fuzzy_prompt: Optional[bool] = False,
     gif_fps: Optional[int] = 20,
     gif_size_ratio: Optional[float] = 0.5,
     init_document: Optional['Document'] = None,
@@ -114,7 +113,6 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param diffusion_sampling_mode: Two alternate diffusion denoising algorithms. ddim has been around longer, and is more established and tested.  plms is a newly added alternate method that promises good diffusion results in fewer steps, but has not been as fully tested and may have side effects. This new plms mode is actively being researched in the #settings-and-techniques channel in the DD Discord.
     :param display_rate: [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.Setting this will override the `save_rate` parameter.
     :param eta: eta (greek letter η) is a diffusion model variable that mixes in a random amount of scaled noise into each timestep. 0 is no noise, 1.0 is more noise. As with most DD parameters, you can go below zero for eta, but it may give you unpredictable results. The steps parameter has a close relationship with the eta parameter. If you set eta to 0, then you can get decent output with only 50-75 steps. Setting eta to 1.0 favors higher step counts, ideally around 250 and up. eta has a subtle, unpredictable effect on image, so you’ll need to experiment to see how this affects your projects.
-    :param fuzzy_prompt: Controls whether to add multiple noisy prompts to the prompt losses. If True, can increase variability of image output. Experiment with this.
     :param gif_fps: [DiscoArt] The frame rate of the generated GIF.
     :param gif_size_ratio: [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
     :param init_document: [DiscoArt] Use a Document object as the initial state for DD: its ``.tags`` will be used as parameters, ``.uri`` (if present) will be used as init image.
