@@ -657,7 +657,9 @@ def _eval_scheduling_str(val) -> List[float]:
         raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
 
     if len(r) != _MAX_DIFFUSION_STEPS:
-        raise ValueError(f'invalid scheduling string: {val}')
+        raise ValueError(
+            f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
+        )
     return r
 
 

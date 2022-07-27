@@ -13,8 +13,8 @@ def test_prompt_get_active_based_on_steps():
     smp.text_prompts = {
         'version': '1',
         'prompts': [
-            {'text': 'hello', 'steps': '[True]*500+[False]*250+[True]*250'},
-            {'text': 'bye', 'steps': '[False]*500+[True]*500'},
+            {'text': 'hello', 'schedule': '[True]*500+[False]*250+[True]*250'},
+            {'text': 'bye', 'schedule': '[False]*500+[True]*500'},
         ],
     }
     pp = PromptPlanner(smp)
@@ -53,13 +53,13 @@ def test_prompt_get_active_based_on_clips_steps():
             {
                 'text': 'hello',
                 'clip_guidance': ['a', 'b', 'c'],
-                'steps': '[True]*500+[False]*500',
+                'schedule': '[True]*500+[False]*500',
             },
-            {'text': 'bye', 'clip_guidance': ['a'], 'steps': '[True]*1000'},
+            {'text': 'bye', 'clip_guidance': ['a'], 'schedule': '[True]*1000'},
             {
                 'text': 'world',
                 'clip_guidance': ['c'],
-                'steps': '[True]*400+[False]*300+[True]*300',
+                'schedule': '[True]*400+[False]*300+[True]*300',
             },
         ],
     }

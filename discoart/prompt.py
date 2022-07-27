@@ -38,9 +38,7 @@ class PromptPlanner:
 
         # unify and set default for all prompts
         for idx, p in enumerate(prompts):
-            p['steps'] = _eval_scheduling_str(p.get('steps', True))
-            p['is_fuzzy'] = p.get('is_fuzzy', False)
-
+            p['schedule'] = _eval_scheduling_str(p.get('schedule', True))
             p['clip_guidance'] = set(p.get('clip_guidance', args.clip_models))
             if not set(p['clip_guidance']).issubset(args.clip_models):
                 raise ValueError(
@@ -54,7 +52,7 @@ class PromptPlanner:
         return [
             idx
             for idx, p in enumerate(self)
-            if p.steps[num_step] and active_clip in p.clip_guidance
+            if p.schedule[num_step] and active_clip in p.clip_guidance
         ]
 
     def __iter__(self):
