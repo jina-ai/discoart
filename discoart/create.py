@@ -218,13 +218,13 @@ def create(**kwargs) -> Optional['DocumentArray']:
     except KeyboardInterrupt:
         is_exit0 = True
     finally:
+        free_memory()
+
         _name = _args.name_docarray
 
         pb_path = os.path.join(
             os.environ.get('DISCOART_OUTPUT_DIR', './'), f'{_name}.protobuf.lz4'
         )
-
-        free_memory()
 
         if os.path.exists(pb_path) and is_exit0:
             _da = DocumentArray.load_binary(pb_path)
