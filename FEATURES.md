@@ -51,7 +51,7 @@ text_prompts = {
    - `clip_guidance`: **(optional)** the list of CLIP models to be used for the prompt. When not specified, it will be all CLIP models specified via `create(..., clip_models=...)`.
    - `spellcheck`: **(optional)** the spellcheck strategy of the prompt. If not specified, it will be set to `'ignore'`.
 
-At every step, DiscoArt will check if the condition is met according to schedule step *and* clip guidance. If so, it will activate the prompt, otherwise it will deactivate the prompt, which means the prompt will not be involved in the loss computation. 
+At every step, DiscoArt will check if the condition is met according to schedule step *and* CLIP guidance (remember in the DiscoArt, `clip_models_schedules` allows one to schedule CLIP on certain steps). If so, it will activate the prompt, otherwise it will deactivate the prompt, which means the prompt will not be involved in the loss computation. 
 
 ### Rationales of prompt scheduling
 
