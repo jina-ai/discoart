@@ -354,7 +354,6 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
                 'num_channels': 128,
                 'num_heads': 1,
                 'num_res_blocks': 2,
-                'use_checkpoint': True,
                 'use_scale_shift_norm': False,
             }
         )
@@ -366,6 +365,7 @@ def get_diffusion_config(user_args, device=torch.device('cuda:0')) -> Dict[str, 
             'use_fp16': device.type != 'cpu',
             'timestep_respacing': timestep_respacing,
             'diffusion_steps': diffusion_steps,
+            'use_checkpoint': True,
         }
     )
 
