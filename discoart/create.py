@@ -155,7 +155,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     from .config import load_config, print_args_table
 
-    if 'init_document' in kwargs:
+    if kwargs.get('init_document'):
         d = kwargs['init_document']
 
         if isinstance(d, str):
