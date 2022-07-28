@@ -503,6 +503,26 @@ da = c.post(
 da = c.post('/result', parameters={'name_docarray': 'mydisco-123'})
 ```
 
+To use an existing Document/DocumentArray as init Document for `create`:
+
+```python
+from jina import Client
+
+c = Client(host='grpc://0.0.0.0:51001')
+
+old_da = ...
+
+da = c.post(
+    '/create',
+    old_da,
+    parameters={
+        'width_height': [1024, 768],
+    },
+)
+```
+
+This equals to: `create(init_document=old_da, width_height=[1024, 768])`. Note, follow-up parameters have higher priorities than the parameters in `init_document`.
+
 ### Hosting on Google Colab
 
 Though not recommended, it is also possible to use Google Colab to host DiscoArt server. 
