@@ -66,7 +66,7 @@ def create(
         Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
     ] = None,
     text_clip_on_cpu: Optional[bool] = False,
-    text_prompts: Optional[List[str]] = [
+    text_prompts: Optional[Union[List[str], Dict[str, Any]]] = [
         'A beautiful painting of a singular lighthouse, shining its light across a tumultuous sea of blood by greg rutkowski and thomas kinkade, Trending on artstation.',
         'yellow color scheme',
     ],
