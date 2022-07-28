@@ -160,7 +160,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         if isinstance(d, str):
             d = DocumentArray.pull(d)[0]
-        elif isinstance(d, DocumentArray):
+        elif isinstance(d, DocumentArray) and d:
             d = d[0]
 
         _kwargs = d.tags
