@@ -16,5 +16,11 @@ executors:
       CUDA_VISIBLE_DEVICES: RR0:2  # change this if you have multiple GPU
     replicas: 1  # change this if you have larger VRAM
     floating: false  # new feature in Jina 3.7, set this to true allows `create` to be immediately returned without waiting the response on the client
+    uses_metas:
+      py_modules:
+        - discoart.executors
   - name: poller
     uses: ResultPoller
+    uses_metas:
+      py_modules:
+        - discoart.executors
