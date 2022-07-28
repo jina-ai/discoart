@@ -510,18 +510,21 @@ from jina import Client
 
 c = Client(host='grpc://0.0.0.0:51001')
 
-old_da = ...
+old_da = create(...)
 
 da = c.post(
     '/create',
-    old_da,
+    old_da,  # this can be a DocumentArray or a single Document
     parameters={
         'width_height': [1024, 768],
     },
 )
 ```
 
-This equals to: `create(init_document=old_da, width_height=[1024, 768])`. Note, follow-up parameters have higher priorities than the parameters in `init_document`.
+This equals to run `create(init_document=old_da, width_height=[1024, 768])` on the server. Note:
+- follow-up parameters have higher priorities than the parameters in `init_document`.
+- if `init_document` is a DocumentArray, then the first Document in the array will be used as the init Document.
+- there is no need to do any serialization before sending, Jina automatically handles it.
 
 ### Hosting on Google Colab
 
