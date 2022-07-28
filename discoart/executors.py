@@ -10,14 +10,19 @@ class DiscoArtExecutor(Executor):
     stop_event = asyncio.Event()
 
     @requests(on='/create')
-    async def create_artworks(self, parameters: Dict, **kwargs):
-        await asyncio.get_event_loop().run_in_executor(None, self._create, parameters)
+    async def create_artworks(self, docs: DocumentArray, parameters: Dict, **kwargs):
+        await asyncio.get_event_loop().run_in_executor(
+            None, self._create, docs, parameters
+        )
 
-    def _create(self, parameters: Dict, **kwargs):
+    def _create(self, docs: DocumentArray, parameters: Dict, **kwargs):
         from .create import create
 
         return create(
-            skip_event=self.skip_event, stop_event=self.stop_event, **parameters
+            init_document=docs,
+            skip_event=self.skip_event,
+            stop_event=self.stop_event,
+            **parameters
         )
 
     @requests(on='/skip')
