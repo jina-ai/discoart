@@ -1,8 +1,8 @@
 import os
 
 os.environ['DISCOART_DISABLE_IPYTHON'] = '1'  # turn on when using from CLI
-import argparse
 
+import argparse
 import sys
 
 from . import __version__, __resources_path__
