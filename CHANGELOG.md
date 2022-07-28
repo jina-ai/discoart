@@ -84,6 +84,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1728,4 +1729,24 @@
 ### 🍹 Other Improvements
 
  - [[```244fae9b```](https://github.com/jina-ai/discoart/commit/244fae9b9bad539ec144c971d388139bd7045c20)] __-__ __version__: the next version will be 0.8.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-9-0></a>
+## Release Note (`0.9.0`)
+
+> Release time: 2022-07-28 09:30:14
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```9bb45ce4```](https://github.com/jina-ai/discoart/commit/9bb45ce441c94767b54b2aa46b30f4a47eb42370)] __-__ allow scheduling on prompt weight (#96) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```9c1209ad```](https://github.com/jina-ai/discoart/commit/9c1209ad555c6c7fb466ec0d2ba7a3749703c125)] __-__ fix readme (*Han Xiao*)
+ - [[```855308ce```](https://github.com/jina-ai/discoart/commit/855308ce6b77a19e04e58a473463b8299dae0db7)] __-__ __version__: the next version will be 0.8.3 (*Jina Dev Bot*)
 
