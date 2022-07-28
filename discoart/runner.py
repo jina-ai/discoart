@@ -86,7 +86,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             'model_name': model_name,
             'clip_model': clip_model,
             'prompt_embeds': [],
-            'prompt_weights': [],
             'schedules': schedules,
             'input_resolution': input_resolution,
         }
@@ -219,7 +218,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 )
 
                 if active_prompt_ids:
-                    masked_embeds = model_stat['prompt_embeds'][active_prompt_ids[0]]
+                    masked_embeds = model_stat['prompt_embeds'][
+                        list(active_prompt_ids[0])
+                    ]
                     masked_weights = normalize_fn(
                         torch.tensor(
                             active_prompt_ids[1], device=device, dtype=torch.float16
