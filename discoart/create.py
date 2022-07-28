@@ -1,3 +1,4 @@
+import copy
 import multiprocessing
 import os
 import warnings
@@ -155,21 +156,22 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
     from .config import load_config, print_args_table
 
-    if kwargs.get('init_document'):
+    if 'init_document' in kwargs:
         d = kwargs['init_document']
+        _kwargs = {}
+        if d:
+            if isinstance(d, str):
+                d = DocumentArray.pull(d)[0]
+            elif isinstance(d, DocumentArray):
+                d = d[0]
 
-        if isinstance(d, str):
-            d = DocumentArray.pull(d)[0]
-        elif isinstance(d, DocumentArray) and d:
-            d = d[0]
-
-        _kwargs = d.tags
-        if not _kwargs:
-            warnings.warn('init_document has no .tags, fallback to default config')
-        if d.uri:
-            _kwargs['init_image'] = d.uri
-        else:
-            warnings.warn('init_document has no .uri, fallback to no init image')
+            _kwargs = copy.deepcopy(d.tags)
+            if not _kwargs:
+                warnings.warn('init_document has no .tags, fallback to default config')
+            if d.uri:
+                _kwargs['init_image'] = d.uri
+            else:
+                warnings.warn('init_document has no .uri, fallback to no init image')
         kwargs.pop('init_document')
         if kwargs:
             warnings.warn(
