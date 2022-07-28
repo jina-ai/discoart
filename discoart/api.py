@@ -9,6 +9,7 @@ from . import __resources_path__
 
 def serve(args):
     from jina import Flow
+    from .executors import DiscoArtExecutor, ResultPoller
 
     with Flow.load_config(args.input) as f:
         f.block()
