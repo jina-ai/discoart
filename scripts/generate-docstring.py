@@ -15,7 +15,7 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
     if k == 'init_image':
         v_type = 'str'
     elif k == 'init_document':
-        v_type = '\'Document\''
+        v_type = 'Union[\'Document\', \'DocumentArray\']'
     elif k in ('seed', 'display_rate'):
         v_type = 'int'
     elif k in ('text_prompts', 'clip_models'):
