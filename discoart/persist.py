@@ -97,7 +97,7 @@ def _save_progress(d, _d_gif, _nb, output_dir, fps, size_ratio):
                     show_index=True,
                     keep_aspect_ratio=True,
                 )
-            if _d_gif.chunks:
+            if _d_gif.chunks and fps > 0:
                 _d_gif.chunks.save_gif(
                     os.path.join(output_dir, f'{_nb}-progress.gif'),
                     skip_empty=True,
