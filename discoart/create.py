@@ -42,7 +42,7 @@ def create(
     eta: Optional[float] = 0.8,
     gif_fps: Optional[int] = 20,
     gif_size_ratio: Optional[float] = 0.5,
-    init_document: Optional['Document'] = None,
+    init_document: Optional[Union['Document', 'DocumentArray']] = None,
     init_image: Optional[str] = None,
     init_scale: Optional[Union[int, str]] = 1000,
     n_batches: Optional[int] = 4,
