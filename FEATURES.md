@@ -16,6 +16,7 @@ DiscoArt is synced with the upstream update of original DD notebook. The list be
 
 Beside supporting the original prompts syntax in DD (i.e. `['prompts:weight', ...]`), DiscoArt >=0.8 supports a new prompt schema which
 - allows one to schedule certain prompt on/off on certain steps;
+- allows one to weight certain prompt on certain steps;
 - allows one to schedule certain prompt on/off on certain CLIP models;
 - explicitly defines the weight of each prompt;
 - allows one to define the spellcheck strategy for each prompt;
@@ -34,7 +35,7 @@ text_prompts = {
         },
         {
             'text': 'some positive modifier',
-            'weight': 3,
+            'weight': '[1]*100+[2]*300+[8]*600',
             'clip_guidance': ['RN50x4::openai'],
         },
         {'text': 'some negative modifier', 'weight': -4},
@@ -46,8 +47,8 @@ text_prompts = {
 - `version`: **(required)** the version of the schema. Currently, it is always `1`.
 - `prompts`: **(required)** the list of prompts, where each prompt is a dictionary structured as follows:
    - `text`: **(required)** the text of the prompt.
-   - `weight`: **(optional)** the weight of the prompt, can be positive or negative. If not specified, it will be set to `1`.
-   - `schedule`: **(optional)** the schedule of the prompt. The syntax is similar to cut sceduling, i.e. `[True]*300+[False]*300+[True]*400`. When not specified, it will be set to `True`, which means prompt guidance will be effective at every step.
+   - `weight`: **(optional)** the weight of the prompt, can be positive or negative float or a schedule string, e.g. `[1]*100+[10]*500+[3]*400`. If not specified, it will be set to `1`, means `1` for all steps.
+   - `schedule`: **(optional)** the schedule of the prompt. The syntax is similar to cut scheduling, i.e. `[True]*300+[False]*300+[True]*400`. When not specified, it will be set to `True`, which means prompt guidance will be effective at every step.
    - `clip_guidance`: **(optional)** the list of CLIP models to be used for the prompt. When not specified, it will be all CLIP models specified via `create(..., clip_models=...)`.
    - `spellcheck`: **(optional)** the spellcheck strategy of the prompt. If not specified, it will be set to `'ignore'`.
 
