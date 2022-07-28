@@ -1,6 +1,6 @@
 import copy
 from types import SimpleNamespace
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Tuple
 
 from .helper import PromptParser, _eval_scheduling_str
 
@@ -17,7 +17,9 @@ class PromptPlanner:
             # for legacy prompts
             for _p in text_prompts:
                 _pw = pmp.parse(_p)
-                prompts.append({'tokenized': _pw[0], 'weight': _pw[1]})
+                prompts.append(
+                    {'tokenized': _pw[0], 'weight': _eval_scheduling_str(_pw[1])}
+                )
         elif isinstance(text_prompts, dict):
             if text_prompts.get('version') == '1':
                 prompts = text_prompts['prompts']
@@ -25,7 +27,7 @@ class PromptPlanner:
                     txt, weight = pmp.parse(_p['text'], _p.get('spellcheck'))
                     weight = _p.get('weight', weight)
                     _p['tokenized'] = txt
-                    _p['weight'] = weight
+                    _p['weight'] = _eval_scheduling_str(weight)
             else:
                 raise ValueError(
                     f'unsupported text prompts schema: {text_prompts.get("version")}'
@@ -48,12 +50,18 @@ class PromptPlanner:
 
         self.prompts = prompts
 
-    def get_prompt_ids(self, active_clip, num_step) -> List[int]:
-        return [
-            idx
-            for idx, p in enumerate(self)
-            if p.schedule[num_step] and active_clip in p.clip_guidance
-        ]
+    def get_prompt_ids(self, active_clip, num_step) -> Tuple[List[int], List[float]]:
+        return tuple(
+            zip(
+                *[
+                    (idx, p.weight[num_step])
+                    for idx, p in enumerate(self)
+                    if p.weight[num_step]
+                    and p.schedule[num_step]
+                    and active_clip in p.clip_guidance
+                ]
+            )
+        )
 
     def __iter__(self):
         return iter(self.prompts)

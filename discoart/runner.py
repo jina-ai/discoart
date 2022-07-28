@@ -99,14 +99,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )
 
             clip_model_stats['prompt_embeds'].append(txt)
-            clip_model_stats['prompt_weights'].append(_p.weight)
 
         clip_model_stats['prompt_embeds'] = torch.cat(
             clip_model_stats['prompt_embeds']
         ).to(device)
-        clip_model_stats['prompt_weights'] = torch.tensor(
-            clip_model_stats['prompt_weights'], device=device, dtype=torch.float16
-        )
 
         model_stats.append(clip_model_stats)
 
@@ -223,9 +219,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 )
 
                 if active_prompt_ids:
-                    masked_embeds = model_stat['prompt_embeds'][active_prompt_ids]
+                    masked_embeds = model_stat['prompt_embeds'][active_prompt_ids[0]]
                     masked_weights = normalize_fn(
-                        model_stat['prompt_weights'][active_prompt_ids], dim=0
+                        torch.tensor(
+                            active_prompt_ids[1], device=device, dtype=torch.float16
+                        ),
+                        dim=0,
                     )
                     logger.debug(
                         f'activate prompt ids: {active_prompt_ids} prompt weights: {masked_weights}'
