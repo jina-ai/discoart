@@ -18,7 +18,9 @@ for k, v in sorted(cfg.items(), key=lambda v: v[0]):
         v_type = 'Union[\'Document\', \'DocumentArray\']'
     elif k in ('seed', 'display_rate'):
         v_type = 'int'
-    elif k in ('text_prompts', 'clip_models'):
+    elif k in ('text_prompts',):
+        v_type = 'Union[List[str], Dict[str, Any]]'
+    elif k in ('clip_models',):
         v_type = 'List[str]'
     elif k in (
         'cut_overview',
