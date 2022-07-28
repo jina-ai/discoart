@@ -1,6 +1,7 @@
 import copy
 import os
 import random
+from types import SimpleNamespace
 from typing import Dict, Union, Optional
 
 import yaml
@@ -29,8 +30,12 @@ _legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt'}
 
 
 def load_config(
-    user_config: Dict,
+    user_config: Union[Dict, str],
 ) -> Dict:
+    if not isinstance(user_config, dict):
+        with open(user_config) as f:
+            user_config = yaml.load(f, Loader=Loader)
+
     cfg = copy.deepcopy(default_args)
 
     for k in list(user_config.keys()):
@@ -198,7 +203,7 @@ def cheatsheet():
     console.print(param_tab)
 
 
-def export_config(docs: Union['Document', 'Document', Dict, str], output: str) -> None:
+def save_config(docs: Union['Document', 'Document', Dict, str], output: str) -> None:
     cfg = _extract_config_from_docs(docs)
     with open(output, 'w') as f:
         yaml.dump(cfg, f)
@@ -213,6 +218,8 @@ def _extract_config_from_docs(docs):
         cfg = docs.tags
     elif isinstance(docs, dict):
         cfg = docs
+    elif isinstance(docs, SimpleNamespace):
+        cfg = vars(docs)
     elif isinstance(docs, str):
         cfg = DocumentArray.pull(docs)[0].tags
 

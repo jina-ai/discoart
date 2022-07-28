@@ -186,9 +186,39 @@ da[0].chunks.save_gif(
 
 Note that >=0.7.14, a 20FPS gif is generated which includes all intermedidate steps. 
 
-### Export configs
+### Show/save/load configs
 
-You can review its parameters from `da[0].tags` or export it as an SVG image:
+To show the config of a Document/DocumentArray,
+
+```python
+from discoart import show_config
+
+show_config(da)  # show the config of the first run
+show_config(da[3])  # show the config of the fourth run
+show_config(
+    'discoart-06030a0198843332edc554ffebfbf288'
+)  # show the config of the run with a known DocArray ID
+```
+
+To save the config of a Document/DocumentArray,
+
+```python
+from discoart import save_config
+
+save_config(da, 'my.yml')  # save the config of the first run
+save_config(da[3], 'my.yml')  # save the config of the fourth run
+```
+
+To run `create` from a YAML config of Document/DocumentArray,
+
+```python
+from discoart import create, load_config
+
+config = load_config('my.yml')
+create(**config)
+```
+
+You can also export the config as an SVG image:
 
 ```python
 from discoart.config import save_config_svg
@@ -238,18 +268,6 @@ If you just want to initialize from a known DocArray ID, then simply:
 from discoart import create
 
 create(init_document='discoart-3205998582')
-```
-
-### Export config as YAML
-
-```python
-from discoart import export_config
-
-# export a document array or document as a YAML file
-export_config(da, 'my.yml')
-
-# or export cloud da configs as YAML
-export_config('discoart-3205998582', 'my.yml')
 ```
 
 
