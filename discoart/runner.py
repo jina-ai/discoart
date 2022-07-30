@@ -433,10 +433,12 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
 
     svg0 = os.path.join(output_dir, 'config.svg')
     save_config_svg(args, svg0, only_non_default=True)
-    _handlers.config.value = f'<img src="{svg0}" alt="non-default config">'
+    d = Document(uri=svg0).convert_uri_to_datauri()
+    _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
     svg1 = os.path.join(output_dir, 'all-config.svg')
     save_config_svg(args, svg1)
-    _handlers.all_config.value = f'<img src="{svg1}" alt="all config">'
+    d = Document(uri=svg1).convert_uri_to_datauri()
+    _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
 
     non_defaults = {}
     taboo = {'name_docarray'}
