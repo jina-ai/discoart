@@ -322,6 +322,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
         _da_gif = [Document() for _ in range(args.batch_size)]
+        print(len(_da))
         da_batches.extend(_da)
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
