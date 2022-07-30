@@ -297,7 +297,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
 
-        loss_info = {
+        traced_info = {
             'losses/total': loss.detach().item() + cut_losses,
             'losses/tv': tv_losses.detach().item(),
             'losses/range': range_losses.detach().item(),
@@ -308,9 +308,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             'losses/cuts': cut_losses,
             'gradients': wandb.Histogram(r_grad.detach().cpu().numpy()),
         }
-        loss_info.update({f'scheduler/{k}': v for k, v in vars(scheduler).items()})
-        loss_values.append(loss_info['losses/total'])
-        wandb.log(loss_info)
+        traced_info.update(
+            {
+                f'scheduler/{k}': int(v) if isinstance(v, bool) else v
+                for k, v in vars(scheduler).items()
+            }
+        )
+        loss_values.append(traced_info['losses/total'])
+        wandb.log(traced_info)
 
         return r_grad
 
