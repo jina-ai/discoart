@@ -445,7 +445,10 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
         if not default_args.get(k, None) == v:
             non_defaults[k] = v
 
-    kwargs_string = ',\n    '.join(f'{k}={v}' for k, v in non_defaults.items())
+    kwargs_string = ',\n    '.join(
+        f'{k}=\'{v}\'' if isinstance(v, str) else f'{k}={v}'
+        for k, v in non_defaults.items()
+    )
     _handlers.code.value = f'''
 #!pip install docarray=={__version__}
 

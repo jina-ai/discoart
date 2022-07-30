@@ -186,7 +186,7 @@ def get_ipython_funcs(show_widgets: bool = False):
         handlers = None
 
         if show_widgets:
-            from ipywidgets import HTML, IntProgress, Textarea, Tab, Box, Button
+            from ipywidgets import HTML, IntProgress, Textarea, Tab
 
             pg_bar = IntProgress(
                 value=1,
@@ -201,7 +201,7 @@ def get_ipython_funcs(show_widgets: bool = False):
 
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
-            code_snippet_handle = Textarea()
+            code_snippet_handle = Textarea(rows=20)
             tab = Tab()
             tab.children = [
                 html_handle,
