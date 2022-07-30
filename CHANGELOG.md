@@ -91,6 +91,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1870,4 +1871,23 @@
 ### 🍹 Other Improvements
 
  - [[```3056aa66```](https://github.com/jina-ai/discoart/commit/3056aa66886ce1c2f32c8af80ec7666ad4ccd6f2)] __-__ __version__: the next version will be 0.9.6 (*Jina Dev Bot*)
+
+<a name=release-note-0-9-7></a>
+## Release Note (`0.9.7`)
+
+> Release time: 2022-07-30 15:29:53
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```668d0061```](https://github.com/jina-ai/discoart/commit/668d0061fb89a24dce2923df91f8098b4efd570f)] __-__ add name to output (#106) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```038ea6bc```](https://github.com/jina-ai/discoart/commit/038ea6bcf373ece2bc238a4391ba309b3c14e7b5)] __-__ __version__: the next version will be 0.9.7 (*Jina Dev Bot*)
 
