@@ -21,8 +21,8 @@ def _sample(
     sample,
     _nb,
     cur_t,
-    d,
-    _d_gif,
+    da,
+    da_gif,
     image_display,
     j,
     loss_values,
@@ -56,23 +56,22 @@ def _sample(
                         os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
                     )
 
-                d.chunks.append(c)
+                da[k].chunks.append(c)
                 # root doc always update with the latest progress
-                d.uri = c.uri
+                da[k].uri = c.uri
             else:
-                _d_gif.chunks.append(c)
+                da_gif[k].chunks.append(c)
+
+            da[k].tags['_status'] = {
+                'completed': cur_t == -1,
+                'cur_t': cur_t,
+                'step': j,
+                'loss': loss_values,
+            }
 
             _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
         image_display.value = '<br>\n'.join(_display_html)
-
-        d.tags['_status'] = {
-            'completed': cur_t == -1,
-            'cur_t': cur_t,
-            'step': j,
-            'loss': loss_values,
-        }
-
         logger.debug('sample and plot is done')
         is_sampling_done.set()
 
@@ -86,25 +85,27 @@ def _save_progress_thread(*args):
     return t
 
 
-def _save_progress(d, _d_gif, _nb, output_dir, fps, size_ratio):
+def _save_progress(da, da_gif, _nb, output_dir, fps, size_ratio):
     with threading.Lock():
         try:
-            if d.chunks:
-                # only print the first image of the minibatch in progress
-                d.chunks.plot_image_sprites(
-                    os.path.join(output_dir, f'{_nb}-progress.png'),
-                    skip_empty=True,
-                    show_index=True,
-                    keep_aspect_ratio=True,
-                )
-            if _d_gif.chunks and fps > 0:
-                _d_gif.chunks.save_gif(
-                    os.path.join(output_dir, f'{_nb}-progress.gif'),
-                    skip_empty=True,
-                    show_index=True,
-                    duration=1000 // fps,
-                    size_ratio=size_ratio,
-                )
+            for idx, d in enumerate(da):
+                if d.chunks:
+                    # only print the first image of the minibatch in progress
+                    d.chunks.plot_image_sprites(
+                        os.path.join(output_dir, f'{_nb}-progress-{idx}.png'),
+                        skip_empty=True,
+                        show_index=True,
+                        keep_aspect_ratio=True,
+                    )
+            for idx, d_gif in enumerate(da_gif):
+                if d_gif.chunks and fps > 0:
+                    d_gif.chunks.save_gif(
+                        os.path.join(output_dir, f'{_nb}-progress-{idx}.gif'),
+                        skip_empty=True,
+                        show_index=True,
+                        duration=1000 // fps,
+                        size_ratio=size_ratio,
+                    )
             logger.debug('progress are stored in as png and gif')
         except ValueError:
             logger.debug('can not plot progress into sprite image and gif')
