@@ -9,9 +9,9 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
+import wandb
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
-import wandb
 
 from . import __version__
 from .config import save_config_svg, default_args
@@ -291,17 +291,18 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )
 
         loss_info = {
-            'loss_total': loss.detach().item() + cut_losses,
-            'loss_tv': tv_losses.detach().item(),
-            'loss_range': range_losses.detach().item(),
-            'loss_sat': sat_losses.detach().item(),
-            'loss_init': init_losses.detach().item()
+            'losses/total': loss.detach().item() + cut_losses,
+            'losses/tv': tv_losses.detach().item(),
+            'losses/range': range_losses.detach().item(),
+            'losses/sat': sat_losses.detach().item(),
+            'losses/init': init_losses.detach().item()
             if init is not None and scheduler.init_scale
             else 0,
-            'loss_cut': cut_losses,
+            'losses/cuts': cut_losses,
             'num_step': num_step,
             't': t,
         }
+        loss_info.update({f'scheduler/{k}': v for k, v in vars(scheduler).items()})
         loss_values.append(loss_info)
         wandb.log(loss_info)
 
