@@ -212,7 +212,7 @@ def get_ipython_funcs(show_widgets: bool = False):
                 orientation='horizontal',
             )
             html_handle = HTML()
-            control_bar = Box(pg_bar, skip_btn, cancel_btn)
+            control_bar = Box([pg_bar, skip_btn, cancel_btn])
 
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
