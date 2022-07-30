@@ -76,13 +76,11 @@ def load_config(
         da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
         da_name = f'{__package__}-{_id}'
-        from .helper import logger
-
-        logger.debug('you did not set `batch_name`, set it to have unique session ID')
 
     if not cfg.get('name_docarray', None):
         cfg['name_docarray'] = da_name
 
+    cfg['name_docarray'] = cfg['name_docarray'].format(**cfg)
     return cfg
 
 

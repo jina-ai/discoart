@@ -207,6 +207,8 @@ cut_schedules_group: |
 
 name_docarray: |
   [DiscoArt] When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.
+  
+  The name also supports variable substitution via `{}`. For example, `name_docarray='test-{steps}-{perlin_init}'` will give the name of the DocumentArray as `test-250-False`. Any variable in the config can be substituted.
 
 skip_event: |
   [DiscoArt] A multiprocessing/asyncio/threading.Event that once set, will skip the current run and move to the next run as defined in `n_batches`.
