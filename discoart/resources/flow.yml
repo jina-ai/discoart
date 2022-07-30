@@ -9,6 +9,7 @@ with:
     JINA_LOG_LEVEL: debug
     DISCOART_DISABLE_IPYTHON: 1
     DISCOART_DISABLE_RESULT_SUMMARY: 1
+    WANDB_MODE: disabled
 executors:
   - name: discoart
     uses: DiscoArtExecutor
