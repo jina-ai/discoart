@@ -303,7 +303,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             't': t,
         }
         loss_info.update({f'scheduler/{k}': v for k, v in vars(scheduler).items()})
-        loss_values.append(loss_info)
+        loss_values.append(loss_info['losses/total'])
         wandb.log(loss_info)
 
         if scheduler.clamp_grad and not x_is_NaN:
