@@ -324,7 +324,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     da_batches = DocumentArray()
 
     org_seed = args.seed
-    wandb.init(project=args.name_docarray, config=vars(args))
+    wandb.init(project=args.name_docarray, config=vars(args), anonymous='allow')
 
     for _nb in range(args.n_batches):
 
