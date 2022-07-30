@@ -323,9 +323,12 @@ def load_clip_models(
     return clip_models
 
 
-def _get_sha(path):
-    with open(path, 'rb') as f:
-        return hashlib.sha256(f.read()).hexdigest()
+def _get_sha(path, expected_sha):
+    if 'DISCOART_CHECK_MODEL_SHA' in os.environ:
+        with open(path, 'rb') as f:
+            return hashlib.sha256(f.read()).hexdigest() == expected_sha
+    else:
+        return True
 
 
 def _get_model_name(name: str) -> str:
@@ -348,15 +351,14 @@ def download_model(model_name: str):
 
     model_filename = os.path.basename(models_list[model_name]['sources'][0])
     model_local_path = os.path.join(cache_dir, model_filename)
-    if (
-        os.path.exists(model_local_path)
-        and _get_sha(model_local_path) == models_list[model_name]['sha']
+    if os.path.exists(model_local_path) and _get_sha(
+        model_local_path, models_list[model_name]['sha']
     ):
         logger.debug(f'{model_filename} is already downloaded with correct SHA')
     else:
         for url in models_list[model_name]['sources']:
             _wget(url, cache_dir)
-            if _get_sha(model_local_path) == models_list[model_name]['sha']:
+            if _get_sha(model_local_path, models_list[model_name]['sha']):
                 logger.debug(f'{model_filename} is downloaded with correct SHA')
                 break
 
