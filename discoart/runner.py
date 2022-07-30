@@ -1,4 +1,5 @@
 import copy
+import os.path
 import random
 import threading
 
@@ -11,7 +12,7 @@ import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
 
-from .config import print_args_table
+from .config import print_args_table, save_config_svg
 from .helper import (
     logger,
     get_ipython_funcs,
@@ -312,10 +313,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         _set_seed(new_seed)
         args.seed = new_seed
         _handlers.progress.value = _nb + 1
-        _dp1.display(
-            print_args_table(vars(args), only_non_default=True, console_print=False),
-            image_display,
+        save_config_svg(
+            args, os.path.join(output_dir, 'config.svg'), only_non_default=True
         )
+        _handlers.config.value = 'config.svg'
+        save_config_svg(args, os.path.join(output_dir, 'all-config.svg'))
+        _handlers.all_config.value = 'all-config.svg'
         free_memory()
 
         _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
@@ -377,7 +380,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     cur_t,
                     _da,
                     _da_gif,
-                    image_display,
+                    _handlers,
                     j,
                     loss_values,
                     output_dir,

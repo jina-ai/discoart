@@ -198,19 +198,27 @@ def get_ipython_funcs(show_widgets: bool = False):
                 orientation='horizontal',
             )
             html_handle = HTML()
-            svg_config_handle = HTML()
+            nondefault_config_handle = HTML()
+            all_config_handle = HTML()
             code_snippet_handle = Textarea()
             tab = Tab()
-            tab.children = [html_handle, svg_config_handle, code_snippet_handle]
-            tab.set_title(0, 'Preview')
-            tab.set_title(1, 'Config')
-            tab.set_title(2, 'Code')
+            tab.children = [
+                html_handle,
+                nondefault_config_handle,
+                all_config_handle,
+                code_snippet_handle,
+            ]
+            for idx, j in enumerate(
+                ('Preview', 'Non-default config', 'Full config', 'Code snippet')
+            ):
+                tab.set_title(idx, j)
 
             dp1.display(pg_bar, tab)
 
             handlers = SimpleNamespace(
                 preview=html_handle,
-                config=svg_config_handle,
+                config=nondefault_config_handle,
+                all_config=all_config_handle,
                 code=code_snippet_handle,
                 progress=pg_bar,
             )
