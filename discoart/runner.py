@@ -421,7 +421,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
 def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb, skip_event, stop_event):
     _handlers.skip_btn.on_click(lambda: skip_event.set())
-    _handlers.stop_btn.on_click(lambda: stop_event.set())
+    _handlers.cancel_btn.on_click(lambda: stop_event.set())
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '
