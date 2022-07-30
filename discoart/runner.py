@@ -23,6 +23,7 @@ from .helper import (
     _get_current_schedule,
     _get_schedule_table,
     get_output_dir,
+    is_jupyter,
 )
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
 from .nn.make_cutouts import MakeCutoutsDango
@@ -312,13 +313,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
-        redraw_widget(
-            _handlers,
-            _redraw_fn,
-            args,
-            output_dir,
-            _nb,
-        )
+        if is_jupyter():
+            redraw_widget(
+                _handlers,
+                _redraw_fn,
+                args,
+                output_dir,
+                _nb,
+            )
         free_memory()
 
         _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
@@ -425,7 +427,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
 
 def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
-
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '

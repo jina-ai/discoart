@@ -227,7 +227,7 @@ def get_ipython_funcs(show_widgets: bool = False):
 
         return dp1, fl, handlers, redraw
     else:
-        return NOP(), NOP(), NOP()
+        return NOP(), NOP(), NOP(), NOP()
 
 
 if not os.path.exists(cache_dir):
