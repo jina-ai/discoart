@@ -122,7 +122,8 @@ By default, all losses, cut schedules are logged to W&B, this allows you to trac
 
 ![](.github/wandb.png)
 
-To turn off this feature, please use [W&B environment variables](https://docs.wandb.ai/guides/track/advanced/environment-variables).
+Please follow [W&B environment variables](https://docs.wandb.ai/guides/track/advanced/environment-variables) to control W&B behaviors. For example, po turn off this feature please set `WANDB_MODE=disable`.
+
 
 ## Spellchecking
 
