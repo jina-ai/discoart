@@ -290,6 +290,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 f'then your image is not updated and further steps are unnecessary.'
             )
 
+        r_grad = grad
+        if scheduler.clamp_grad and not x_is_NaN:
+            magnitude = grad.square().mean().sqrt()
+            r_grad = (
+                grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
+            )  # min=-0.02, min=-clamp_max,
+
         loss_info = {
             'losses/total': loss.detach().item() + cut_losses,
             'losses/tv': tv_losses.detach().item(),
@@ -299,17 +306,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             if init is not None and scheduler.init_scale
             else 0,
             'losses/cuts': cut_losses,
+            'gradients': wandb.Histogram(r_grad.detach().cpu().numpy()),
         }
         loss_info.update({f'scheduler/{k}': v for k, v in vars(scheduler).items()})
         loss_values.append(loss_info['losses/total'])
         wandb.log(loss_info)
 
-        if scheduler.clamp_grad and not x_is_NaN:
-            magnitude = grad.square().mean().sqrt()
-            return (
-                grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
-            )  # min=-0.02, min=-clamp_max,
-        return grad
+        return r_grad
 
     if args.diffusion_sampling_mode == 'ddim':
         sample_fn = diffusion.ddim_sample_loop_progressive
