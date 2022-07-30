@@ -86,20 +86,20 @@ def _save_progress_thread(*args):
     return t
 
 
-def _save_progress(d, _d_gif, _nb, output_dir, fps, size_ratio):
+def _save_progress(d, _d_gif, _nb, output_dir, fps, size_ratio, j):
     with threading.Lock():
         try:
             if d.chunks:
                 # only print the first image of the minibatch in progress
                 d.chunks.plot_image_sprites(
-                    os.path.join(output_dir, f'{_nb}-progress.png'),
+                    os.path.join(output_dir, f'{_nb}-progress-{j}.png'),
                     skip_empty=True,
                     show_index=True,
                     keep_aspect_ratio=True,
                 )
             if _d_gif.chunks and fps > 0:
                 _d_gif.chunks.save_gif(
-                    os.path.join(output_dir, f'{_nb}-progress.gif'),
+                    os.path.join(output_dir, f'{_nb}-progress-{j}.gif'),
                     skip_empty=True,
                     show_index=True,
                     duration=1000 // fps,

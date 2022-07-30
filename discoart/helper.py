@@ -511,11 +511,12 @@ def show_result_summary(_da, _name, _args):
     imcomplete_str = ''
 
     fully_done = sum(bool(j) for j in _da[:, 'tags___status__completed'])
-    if _da and fully_done < _args.n_batches:
+    num_expected = _args.n_batches * _args.batch_size
+    if _da and fully_done < num_expected:
         imcomplete_str = f'''
-# ⚠️ Incomplete result ({fully_done}/{_args.n_batches})
+# ⚠️ Incomplete result ({fully_done}/{num_expected})
 
-Your `n_batches={_args.n_batches}` so supposedly {_args.n_batches} images will be generated, 
+Your `n_batches={_args.n_batches}, batch_size={_args.batch_size}` so supposedly {num_expected} images will be generated, 
 but only {fully_done} images were fully completed. This may due to the following reasons:
 - You cancel the process before it finishes;
 - (On Google Colab) your GPU session is expired;
