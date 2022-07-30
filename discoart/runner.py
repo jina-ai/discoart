@@ -57,7 +57,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     model_stats = []
 
-    _dp1, _, _handlers, _redraw_fn = get_ipython_funcs()
+    _dp1, _, _handlers, _redraw_fn = get_ipython_funcs(show_widgets=True)
     _dp1.clear_output(wait=True)
 
     prompts = PromptPlanner(args)
