@@ -57,7 +57,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     model_stats = []
 
-    _dp1, _, _handlers = get_ipython_funcs(show_widgets=True)
+    _dp1, _, _handlers, _redraw_fn = get_ipython_funcs()
     _dp1.clear_output(wait=True)
 
     prompts = PromptPlanner(args)
@@ -319,6 +319,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         _handlers.config.value = 'config.svg'
         save_config_svg(args, os.path.join(output_dir, 'all-config.svg'))
         _handlers.all_config.value = 'all-config.svg'
+        _redraw_fn()
         free_memory()
 
         _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]

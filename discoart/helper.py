@@ -213,8 +213,6 @@ def get_ipython_funcs(show_widgets: bool = False):
             ):
                 tab.set_title(idx, j)
 
-            dp1.display(pg_bar, tab)
-
             handlers = SimpleNamespace(
                 preview=html_handle,
                 config=nondefault_config_handle,
@@ -223,7 +221,10 @@ def get_ipython_funcs(show_widgets: bool = False):
                 progress=pg_bar,
             )
 
-        return dp1, fl, handlers
+        def redraw():
+            dp1.display(pg_bar, tab)
+
+        return dp1, fl, handlers, redraw
     else:
         return NOP(), NOP(), NOP()
 
