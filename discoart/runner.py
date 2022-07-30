@@ -296,7 +296,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             'range': range_losses.detach().item(),
             'sat': sat_losses.detach().item(),
             'init': init_losses.detach().item()
-            if init_losses is not None and scheduler.init_scale
+            if init is not None and scheduler.init_scale
             else 0,
             'cut': cut_losses,
             'num_step': num_step,
