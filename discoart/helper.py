@@ -544,7 +544,7 @@ def free_memory():
 def show_result_summary(_da, _name, _args):
     from .config import print_args_table
 
-    _dp1, _fl, _ = get_ipython_funcs()
+    _dp1, _fl = get_ipython_funcs()[:2]
 
     _dp1.clear_output(wait=True)
 
