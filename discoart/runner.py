@@ -299,7 +299,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     else:
         sample_fn = diffusion.plms_sample_loop_progressive
 
-    logger.info('creating artworks...')
+    logger.info(f'creating artworks `{args.name_docarray}`...')
 
     is_busy_evs = [threading.Event() for _ in range(3)]
 
