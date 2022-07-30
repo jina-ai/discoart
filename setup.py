@@ -52,6 +52,7 @@ setup(
         'resize-right-sdk',
         'openai-clip',
         'packaging',
+        'wandb',
     ],
     extras_require={
         'test': [
