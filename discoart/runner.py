@@ -306,8 +306,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             if init is not None and scheduler.init_scale
             else 0,
             'losses/cuts': cut_losses,
-            'gradients': wandb.Histogram(r_grad.detach().cpu().numpy()),
         }
+
+        if not x_is_NaN:
+            traced_info['gradients'] = wandb.Histogram(r_grad.detach().cpu().numpy())
+
         traced_info.update(
             {
                 f'scheduler/{k}': int(v) if isinstance(v, bool) else v
