@@ -438,8 +438,9 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
     _handlers.all_config.value = f'<img src="{svg1}" alt="all config">'
 
     non_defaults = {}
+    taboo = {'name_docarray'}
     for k, v in vars(args).items():
-        if k.startswith('_'):
+        if k.startswith('_') or k in taboo:
             continue
 
         if not default_args.get(k, None) == v:
