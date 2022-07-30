@@ -299,7 +299,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             if init is not None and scheduler.init_scale
             else 0,
             'losses/cuts': cut_losses,
-            'gradients': wandb.Histogram(grad),
         }
         loss_info.update({f'scheduler/{k}': v for k, v in vars(scheduler).items()})
         loss_values.append(loss_info['losses/total'])
