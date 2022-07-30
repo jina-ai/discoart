@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
+import wandb
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
 
@@ -197,19 +198,21 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in)
-            range_losses = range_loss(out)
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
+            tv_losses = tv_loss(x_in).sum()
+            range_losses = range_loss(out).sum()
+            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
             loss = (
-                tv_losses.sum() * scheduler.tv_scale
-                + range_losses.sum() * scheduler.range_scale
-                + sat_losses.sum() * scheduler.sat_scale
+                tv_losses * scheduler.tv_scale
+                + range_losses * scheduler.range_scale
+                + sat_losses * scheduler.sat_scale
             )
             if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init)
-                loss += init_losses.sum() * scheduler.init_scale
+                init_losses = lpips_model(x_in, init).sum()
+                loss += init_losses * scheduler.init_scale
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
+
+            cut_losses = 0
 
             for model_stat in model_stats:
 
@@ -273,6 +276,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         x_in,
                     )[0]
 
+                    cut_losses += cut_loss.detach().item()
+
         x_is_NaN = False
         if not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
@@ -285,14 +290,41 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 f'then your image is not updated and further steps are unnecessary.'
             )
 
-        loss_values.append(loss.detach().item())
-
+        r_grad = grad
         if scheduler.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
-            return (
+            r_grad = (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
-        return grad
+
+        traced_info = {
+            'losses/total': loss.detach().item() + cut_losses,
+            'losses/tv': tv_losses.detach().item(),
+            'losses/range': range_losses.detach().item(),
+            'losses/sat': sat_losses.detach().item(),
+            'losses/init': init_losses.detach().item()
+            if init is not None and scheduler.init_scale
+            else 0,
+            'losses/cuts': cut_losses,
+        }
+
+        traced_info.update(
+            {
+                f'scheduler/{k}': int(v) if isinstance(v, bool) else v
+                for k, v in vars(scheduler).items()
+            }
+        )
+
+        try:
+            traced_info['gradients'] = wandb.Histogram(r_grad.detach().cpu().numpy())
+        except ValueError:
+            # avoid nan gradients
+            pass
+
+        wandb.log(traced_info)
+        loss_values.append(traced_info['losses/total'])
+
+        return r_grad
 
     if args.diffusion_sampling_mode == 'ddim':
         sample_fn = diffusion.ddim_sample_loop_progressive
@@ -308,6 +340,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     org_seed = args.seed
 
     for _nb in range(args.n_batches):
+        wrun = wandb.init(
+            project=args.name_docarray,
+            config=vars(args),
+            anonymous='must',
+            reinit=True,
+        )
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
@@ -411,6 +449,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         is_completed=cur_t == -1,
                     )
                 )
+
+        wrun.finish()
 
         for t in threads:
             t.join()
