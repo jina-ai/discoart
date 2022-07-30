@@ -112,7 +112,7 @@ def save_config_svg(
         console = Console(
             record=True, file=fp, force_jupyter=False, force_interactive=False
         )
-        print_args_table(cfg, console, **kwargs)
+        print_args_table(cfg, console, table_title=' ', **kwargs)
         console.save_svg(
             output or f'{cfg["name_docarray"]}.svg',
             theme=MONOKAI,
@@ -121,7 +121,11 @@ def save_config_svg(
 
 
 def print_args_table(
-    cfg, console=None, only_non_default: bool = False, console_print: bool = True
+    cfg,
+    console=None,
+    only_non_default: bool = False,
+    console_print: bool = True,
+    table_title: Optional[str] = None,
 ):
     from rich.table import Table
     from rich import box
@@ -131,7 +135,7 @@ def print_args_table(
         console = Console()
 
     param_str = Table(
-        title=cfg['name_docarray'],
+        title=table_title or cfg['name_docarray'],
         caption=f'showing only non-default args'
         if only_non_default
         else 'showing all args ([b]bold *[/] args are non-default)',
