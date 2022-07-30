@@ -109,7 +109,9 @@ def save_config_svg(
     from tempfile import NamedTemporaryFile
 
     with NamedTemporaryFile(mode='wt') as fp:
-        console = Console(record=True, file=fp)
+        console = Console(
+            record=True, file=fp, force_jupyter=False, force_interactive=False
+        )
         print_args_table(cfg, console, **kwargs)
         console.save_svg(
             output or f'{cfg["name_docarray"]}.svg',
