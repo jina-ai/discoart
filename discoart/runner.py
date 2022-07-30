@@ -438,7 +438,7 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
     _handlers.all_config.value = f'<img src="{svg1}" alt="all config">'
 
     non_defaults = {}
-    for k, v in vars(args):
+    for k, v in vars(args).items():
         if k.startswith('_'):
             continue
 
