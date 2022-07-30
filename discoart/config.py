@@ -8,7 +8,7 @@ import yaml
 from docarray import DocumentArray, Document
 from yaml import Loader
 
-from . import __resources_path__
+from . import __resources_path__, __version__
 
 with open(
     os.environ.get(
@@ -112,11 +112,11 @@ def save_config_svg(
         console = Console(
             record=True, file=fp, force_jupyter=False, force_interactive=False
         )
-        print_args_table(cfg, console, table_title=' ', **kwargs)
+        print_args_table(cfg, console, **kwargs)
         console.save_svg(
             output or f'{cfg["name_docarray"]}.svg',
             theme=MONOKAI,
-            title=cfg['name_docarray'],
+            title=f'DiscoArt {__version__}',
         )
 
 

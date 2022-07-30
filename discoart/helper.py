@@ -188,20 +188,6 @@ def get_ipython_funcs(show_widgets: bool = False):
         if show_widgets:
             from ipywidgets import HTML, IntProgress, Textarea, Tab, Box, Button
 
-            skip_btn = Button(
-                description='Skip this run',
-                disabled=False,
-                button_style='',  # 'success', 'info', 'warning', 'danger' or ''
-                tooltip='Skip the current run and move to the next run according to n_batches',
-                icon='forward',
-            )
-            cancel_btn = Button(
-                description='Cancel all runs',
-                disabled=False,
-                button_style='',  # 'success', 'info', 'warning', 'danger' or ''
-                tooltip='Cancel all runs n_batches',
-                icon='ban',
-            )
             pg_bar = IntProgress(
                 value=1,
                 min=0,
@@ -212,7 +198,6 @@ def get_ipython_funcs(show_widgets: bool = False):
                 orientation='horizontal',
             )
             html_handle = HTML()
-            control_bar = Box([pg_bar, skip_btn, cancel_btn])
 
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
@@ -230,8 +215,6 @@ def get_ipython_funcs(show_widgets: bool = False):
                 tab.set_title(idx, j)
 
             handlers = SimpleNamespace(
-                skip_btn=skip_btn,
-                cancel_btn=cancel_btn,
                 preview=html_handle,
                 config=nondefault_config_handle,
                 all_config=all_config_handle,
@@ -240,7 +223,7 @@ def get_ipython_funcs(show_widgets: bool = False):
             )
 
         def redraw():
-            dp1.display(control_bar, tab)
+            dp1.display(pg_bar, tab)
 
         return dp1, fl, handlers, redraw
     else:

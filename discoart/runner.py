@@ -12,7 +12,8 @@ import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
 
-from .config import save_config_svg
+from . import __version__
+from .config import save_config_svg, default_args
 from .helper import (
     logger,
     get_ipython_funcs,
@@ -312,7 +313,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
         _set_seed(new_seed)
         args.seed = new_seed
         redraw_widget(
-            _handlers, _redraw_fn, args, output_dir, _nb, skip_event, stop_event
+            _handlers,
+            _redraw_fn,
+            args,
+            output_dir,
+            _nb,
         )
         free_memory()
 
@@ -419,14 +424,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     return da_batches
 
 
-def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb, skip_event, stop_event):
-    def _skip(*x):
-        print('hello')
-        skip_event.set()
-        print('bye')
+def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
 
-    _handlers.skip_btn.on_click(_skip)
-    _handlers.cancel_btn.on_click(lambda *x: stop_event.set())
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '
@@ -437,6 +436,25 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb, skip_event, stop
     svg1 = os.path.join(output_dir, 'all-config.svg')
     save_config_svg(args, svg1)
     _handlers.all_config.value = f'<img src="{svg1}" alt="all config">'
+
+    non_defaults = {}
+    for k, v in vars(args):
+        if k.startswith('_'):
+            continue
+
+        if not default_args.get(k, None) == v:
+            non_defaults[k] = v
+
+    kwargs_string = ',\n    '.join(f'{k}={v}' for k, v in non_defaults.items())
+    _handlers.code.value = f'''
+#!pip install docarray=={__version__}
+
+from discoart import create
+
+da = create(
+    {kwargs_string}
+)    
+    '''
     _redraw_fn()
 
 
