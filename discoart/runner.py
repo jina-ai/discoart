@@ -56,7 +56,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     model_stats = []
 
-    _dp1, _, _output_fn = get_ipython_funcs()
+    _dp1, _, _handlers = get_ipython_funcs(show_widgets=True)
     _dp1.clear_output(wait=True)
 
     prompts = PromptPlanner(args)
@@ -298,23 +298,22 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     logger.info('creating artworks...')
 
-    image_display = _output_fn()
     is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
     from rich.text import Text
 
     org_seed = args.seed
+    _handlers.progress.max = args.n_batches
+
     for _nb in range(args.n_batches):
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
-        pgbar = '▰' * (_nb + 1) + '▱' * (args.n_batches - _nb - 1)
-
+        _handlers.progress.value = _nb + 1
         _dp1.display(
-            Text(f'n_batches={args.n_batches}: {pgbar}'),
             print_args_table(vars(args), only_non_default=True, console_print=False),
             image_display,
         )

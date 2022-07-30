@@ -172,7 +172,7 @@ def is_google_colab() -> bool:  # pragma: no cover
     return shell == 'Shell'
 
 
-def get_ipython_funcs():
+def get_ipython_funcs(show_widgets: bool = False):
     class NOP:
         def __call__(self, *args, **kwargs):
             return NOP()
@@ -182,9 +182,40 @@ def get_ipython_funcs():
     if is_jupyter():
         from IPython import display as dp1
         from IPython.display import FileLink as fl
-        from ipywidgets import HTML
 
-        return dp1, fl, HTML
+        handlers = None
+
+        if show_widgets:
+            from ipywidgets import HTML, IntProgress, Textarea, Tab
+
+            pg_bar = IntProgress(
+                value=1,
+                min=0,
+                max=4,
+                step=1,
+                description=f'n_batches:',
+                bar_style='info',  # 'success', 'info', 'warning', 'danger' or ''
+                orientation='horizontal',
+            )
+            html_handle = HTML()
+            svg_config_handle = HTML()
+            code_snippet_handle = Textarea()
+            tab = Tab()
+            tab.children = [html_handle, svg_config_handle, code_snippet_handle]
+            tab.set_title(0, 'Preview')
+            tab.set_title(1, 'Config')
+            tab.set_title(2, 'Code')
+
+            dp1.display(pg_bar, tab)
+
+            handlers = SimpleNamespace(
+                preview=html_handle,
+                config=svg_config_handle,
+                code=code_snippet_handle,
+                progress=pg_bar,
+            )
+
+        return dp1, fl, handlers
     else:
         return NOP(), NOP(), NOP()
 

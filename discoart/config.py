@@ -101,26 +101,20 @@ def save_config_svg(
     :param output: the filename to store the SVG, if not given, it will be saved as `{name_docarray}.svg`
     :return:
     """
-    cfg = None
-
-    if isinstance(docs, DocumentArray):
-        cfg = docs[0].tags
-    elif isinstance(docs, Document):
-        cfg = docs.tags
-    elif isinstance(docs, dict):
-        cfg = docs
+    cfg = _extract_config_from_docs(docs)
 
     from rich.console import Console
     from rich.terminal_theme import MONOKAI
+    from tempfile import NamedTemporaryFile
 
-    console = Console(record=True)
-    cfg = load_config(cfg)
-    print_args_table(cfg, console)
-    console.save_svg(
-        output or f'{cfg["name_docarray"]}.svg',
-        theme=MONOKAI,
-        title=cfg['name_docarray'],
-    )
+    with NamedTemporaryFile(mode='wt') as fp:
+        console = Console(record=True, file=fp)
+        print_args_table(cfg, console)
+        console.save_svg(
+            output or f'{cfg["name_docarray"]}.svg',
+            theme=MONOKAI,
+            title=cfg['name_docarray'],
+        )
 
 
 def print_args_table(
