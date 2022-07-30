@@ -340,12 +340,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     org_seed = args.seed
 
     for _nb in range(args.n_batches):
-        wrun = wandb.init(
-            project=args.name_docarray,
-            config=vars(args),
-            anonymous='must',
-            reinit=True,
-        )
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
@@ -404,53 +398,60 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )
 
         threads = []
-        for j, sample in enumerate(samples):
-            if skip_event.is_set() or stop_event.is_set():
-                logger.debug('skip_event/stop_event is set, skipping this run')
-                skip_event.clear()
-                break
 
-            cur_t -= 1
+        with wandb.init(
+            project=args.name_docarray,
+            config=vars(args),
+            anonymous='must',
+            reinit=True,
+        ):
+            for j, sample in enumerate(samples):
+                if skip_event.is_set() or stop_event.is_set():
+                    logger.debug('skip_event/stop_event is set, skipping this run')
+                    skip_event.clear()
+                    break
 
-            is_save_step = j % (args.display_rate or args.save_rate) == 0 or cur_t == -1
-            threads.append(
-                _sample_thread(
-                    sample,
-                    _nb,
-                    cur_t,
-                    _da,
-                    _da_gif,
-                    _handlers,
-                    j,
-                    loss_values,
-                    output_dir,
-                    is_busy_evs[0],
-                    is_save_step,
+                cur_t -= 1
+
+                is_save_step = (
+                    j % (args.display_rate or args.save_rate) == 0 or cur_t == -1
                 )
-            )
-
-            if is_save_step:
                 threads.append(
-                    _save_progress_thread(
+                    _sample_thread(
+                        sample,
+                        _nb,
+                        cur_t,
                         _da,
                         _da_gif,
-                        _nb,
+                        _handlers,
+                        j,
+                        loss_values,
                         output_dir,
-                        args.gif_fps,
-                        args.gif_size_ratio,
-                    )
-                )
-                threads.extend(
-                    _persist_thread(
-                        da_batches,
-                        args.name_docarray,
-                        is_busy_evs[1:],
                         is_busy_evs[0],
-                        is_completed=cur_t == -1,
+                        is_save_step,
                     )
                 )
 
-        wrun.finish()
+                if is_save_step:
+                    threads.append(
+                        _save_progress_thread(
+                            _da,
+                            _da_gif,
+                            _nb,
+                            output_dir,
+                            args.gif_fps,
+                            args.gif_size_ratio,
+                        )
+                    )
+                    threads.extend(
+                        _persist_thread(
+                            da_batches,
+                            args.name_docarray,
+                            is_busy_evs[1:],
+                            is_busy_evs[0],
+                            is_completed=cur_t == -1,
+                        )
+                    )
 
         for t in threads:
             t.join()
