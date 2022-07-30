@@ -88,6 +88,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1810,4 +1811,23 @@
 ### 🍹 Other Improvements
 
  - [[```2409f658```](https://github.com/jina-ai/discoart/commit/2409f6586ced9360a0bea29bb27c89c6c65333cf)] __-__ __version__: the next version will be 0.9.3 (*Jina Dev Bot*)
+
+<a name=release-note-0-9-4></a>
+## Release Note (`0.9.4`)
+
+> Release time: 2022-07-30 11:10:53
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```c4e2179e```](https://github.com/jina-ai/discoart/commit/c4e2179ea010b2e3f57d5a305a499232074cdc65)] __-__ save gif and progress correctly on batch size (#104) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```fc372cc7```](https://github.com/jina-ai/discoart/commit/fc372cc7e66338b850cc685f3e6181debd1ace35)] __-__ __version__: the next version will be 0.9.4 (*Jina Dev Bot*)
 
