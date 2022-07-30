@@ -116,6 +116,14 @@ Which means you can generate three images in one run. Not only this is faster th
 ![](.github/batch_size.png)
 
 
+## Weights & Biases integration
+
+By default, all losses, cut schedules are logged to W&B, this allows you to track and analyze and design your schedule strategy professionally, instead of flying blind. One `create()` corresponds to one W&B **project**, each `n_batches` corresponds to one W&B **run**.
+
+![](.github/wandb.png)
+
+To turn off this feature, please use [W&B environment variables](https://docs.wandb.ai/guides/track/advanced/environment-variables).
+
 ## Spellchecking
 
 Typos in the prompts can lead to suboptimal image generation; and they are often hard to recognize. In DiscoArt, you will see a warning message when you have a typo as follows:
