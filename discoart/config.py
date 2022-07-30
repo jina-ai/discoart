@@ -94,6 +94,7 @@ def show_config(
 def save_config_svg(
     docs: Union['DocumentArray', 'Document', Dict],
     output: Optional[str] = None,
+    **kwargs,
 ) -> None:
     """
     Save the config as SVG.
@@ -109,7 +110,7 @@ def save_config_svg(
 
     with NamedTemporaryFile(mode='wt') as fp:
         console = Console(record=True, file=fp)
-        print_args_table(cfg, console)
+        print_args_table(cfg, console, **kwargs)
         console.save_svg(
             output or f'{cfg["name_docarray"]}.svg',
             theme=MONOKAI,

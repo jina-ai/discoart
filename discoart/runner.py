@@ -301,7 +301,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
-    from rich.text import Text
 
     org_seed = args.seed
     _handlers.progress.max = args.n_batches
