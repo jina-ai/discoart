@@ -8,7 +8,7 @@ import yaml
 from docarray import DocumentArray, Document
 from yaml import Loader
 
-from . import __resources_path__
+from . import __resources_path__, __version__
 
 with open(
     os.environ.get(
@@ -76,13 +76,11 @@ def load_config(
         da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
         da_name = f'{__package__}-{_id}'
-        from .helper import logger
-
-        logger.debug('you did not set `batch_name`, set it to have unique session ID')
 
     if not cfg.get('name_docarray', None):
         cfg['name_docarray'] = da_name
 
+    cfg['name_docarray'] = cfg['name_docarray'].format(**cfg)
     return cfg
 
 
@@ -96,6 +94,7 @@ def show_config(
 def save_config_svg(
     docs: Union['DocumentArray', 'Document', Dict],
     output: Optional[str] = None,
+    **kwargs,
 ) -> None:
     """
     Save the config as SVG.
@@ -103,30 +102,30 @@ def save_config_svg(
     :param output: the filename to store the SVG, if not given, it will be saved as `{name_docarray}.svg`
     :return:
     """
-    cfg = None
-
-    if isinstance(docs, DocumentArray):
-        cfg = docs[0].tags
-    elif isinstance(docs, Document):
-        cfg = docs.tags
-    elif isinstance(docs, dict):
-        cfg = docs
+    cfg = _extract_config_from_docs(docs)
 
     from rich.console import Console
     from rich.terminal_theme import MONOKAI
+    from tempfile import NamedTemporaryFile
 
-    console = Console(record=True)
-    cfg = load_config(cfg)
-    print_args_table(cfg, console)
-    console.save_svg(
-        output or f'{cfg["name_docarray"]}.svg',
-        theme=MONOKAI,
-        title=cfg['name_docarray'],
-    )
+    with NamedTemporaryFile(mode='wt') as fp:
+        console = Console(
+            record=True, file=fp, force_jupyter=False, force_interactive=False
+        )
+        print_args_table(cfg, console, **kwargs)
+        console.save_svg(
+            output or f'{cfg["name_docarray"]}.svg',
+            theme=MONOKAI,
+            title=f'DiscoArt {__version__}',
+        )
 
 
 def print_args_table(
-    cfg, console=None, only_non_default: bool = False, console_print: bool = True
+    cfg,
+    console=None,
+    only_non_default: bool = False,
+    console_print: bool = True,
+    table_title: Optional[str] = None,
 ):
     from rich.table import Table
     from rich import box
@@ -136,7 +135,7 @@ def print_args_table(
         console = Console()
 
     param_str = Table(
-        title=cfg['name_docarray'],
+        title=table_title or cfg['name_docarray'],
         caption=f'showing only non-default args'
         if only_non_default
         else 'showing all args ([b]bold *[/] args are non-default)',

@@ -23,7 +23,7 @@ def _sample(
     cur_t,
     da,
     da_gif,
-    image_display,
+    _handlers,
     j,
     loss_values,
     output_dir,
@@ -71,7 +71,7 @@ def _sample(
 
             _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
-        image_display.value = '<br>\n'.join(_display_html)
+        _handlers.preview.value = '<br>\n'.join(_display_html)
         logger.debug('sample and plot is done')
         is_sampling_done.set()
 

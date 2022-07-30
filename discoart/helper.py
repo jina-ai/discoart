@@ -172,7 +172,7 @@ def is_google_colab() -> bool:  # pragma: no cover
     return shell == 'Shell'
 
 
-def get_ipython_funcs():
+def get_ipython_funcs(show_widgets: bool = False):
     class NOP:
         def __call__(self, *args, **kwargs):
             return NOP()
@@ -182,11 +182,52 @@ def get_ipython_funcs():
     if is_jupyter():
         from IPython import display as dp1
         from IPython.display import FileLink as fl
-        from ipywidgets import HTML
 
-        return dp1, fl, HTML
+        handlers = None
+
+        if show_widgets:
+            from ipywidgets import HTML, IntProgress, Textarea, Tab
+
+            pg_bar = IntProgress(
+                value=1,
+                min=0,
+                max=4,
+                step=1,
+                description=f'n_batches:',
+                bar_style='info',  # 'success', 'info', 'warning', 'danger' or ''
+                orientation='horizontal',
+            )
+            html_handle = HTML()
+
+            nondefault_config_handle = HTML()
+            all_config_handle = HTML()
+            code_snippet_handle = Textarea(rows=20)
+            tab = Tab()
+            tab.children = [
+                html_handle,
+                nondefault_config_handle,
+                all_config_handle,
+                code_snippet_handle,
+            ]
+            for idx, j in enumerate(
+                ('Preview', 'Non-default config', 'Full config', 'Code snippet')
+            ):
+                tab.set_title(idx, j)
+
+            handlers = SimpleNamespace(
+                preview=html_handle,
+                config=nondefault_config_handle,
+                all_config=all_config_handle,
+                code=code_snippet_handle,
+                progress=pg_bar,
+            )
+
+        def redraw():
+            dp1.display(pg_bar, tab)
+
+        return dp1, fl, handlers, redraw
     else:
-        return NOP(), NOP(), NOP()
+        return NOP(), NOP(), NOP(), NOP()
 
 
 if not os.path.exists(cache_dir):
@@ -504,7 +545,7 @@ def free_memory():
 def show_result_summary(_da, _name, _args):
     from .config import print_args_table
 
-    _dp1, _fl, _ = get_ipython_funcs()
+    _dp1, _fl = get_ipython_funcs()[:2]
 
     _dp1.clear_output(wait=True)
 
