@@ -11,6 +11,7 @@ import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
+import wandb
 
 from . import __version__
 from .config import save_config_svg, default_args
@@ -197,19 +198,21 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in)
-            range_losses = range_loss(out)
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean()
+            tv_losses = tv_loss(x_in).sum()
+            range_losses = range_loss(out).sum()
+            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
             loss = (
-                tv_losses.sum() * scheduler.tv_scale
-                + range_losses.sum() * scheduler.range_scale
-                + sat_losses.sum() * scheduler.sat_scale
+                tv_losses * scheduler.tv_scale
+                + range_losses * scheduler.range_scale
+                + sat_losses * scheduler.sat_scale
             )
             if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init)
-                loss += init_losses.sum() * scheduler.init_scale
+                init_losses = lpips_model(x_in, init).sum()
+                loss += init_losses * scheduler.init_scale
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
+
+            cut_losses = 0
 
             for model_stat in model_stats:
 
@@ -273,6 +276,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         x_in,
                     )[0]
 
+                    cut_losses += cut_loss.detach().item()
+
         x_is_NaN = False
         if not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
@@ -285,7 +290,20 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 f'then your image is not updated and further steps are unnecessary.'
             )
 
-        loss_values.append(loss.detach().item())
+        loss_info = {
+            'total': loss.detach().item() + cut_losses,
+            'tv': tv_losses.detach().item(),
+            'range': range_losses.detach().item(),
+            'sat': sat_losses.detach().item(),
+            'init': init_losses.detach().item()
+            if init_losses is not None and scheduler.init_scale
+            else 0,
+            'cut': cut_losses,
+            'num_step': num_step,
+            't': t,
+        }
+        loss_values.append(loss_info)
+        wandb.log(loss_info)
 
         if scheduler.clamp_grad and not x_is_NaN:
             magnitude = grad.square().mean().sqrt()
@@ -306,6 +324,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     da_batches = DocumentArray()
 
     org_seed = args.seed
+    wandb.init(project=args.name_docarray, config=vars(args))
 
     for _nb in range(args.n_batches):
 
