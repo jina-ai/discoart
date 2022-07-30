@@ -291,14 +291,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )
 
         loss_info = {
-            'total': loss.detach().item() + cut_losses,
-            'tv': tv_losses.detach().item(),
-            'range': range_losses.detach().item(),
-            'sat': sat_losses.detach().item(),
-            'init': init_losses.detach().item()
+            'loss_total': loss.detach().item() + cut_losses,
+            'loss_tv': tv_losses.detach().item(),
+            'loss_range': range_losses.detach().item(),
+            'loss_sat': sat_losses.detach().item(),
+            'loss_init': init_losses.detach().item()
             if init is not None and scheduler.init_scale
             else 0,
-            'cut': cut_losses,
+            'loss_cut': cut_losses,
             'num_step': num_step,
             't': t,
         }
@@ -324,9 +324,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     da_batches = DocumentArray()
 
     org_seed = args.seed
-    wandb.init(project=args.name_docarray, config=vars(args), anonymous='must')
 
     for _nb in range(args.n_batches):
+        wrun = wandb.init(
+            project=args.name_docarray, config=vars(args), anonymous='must', reinit=True
+        )
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
@@ -430,6 +432,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         is_completed=cur_t == -1,
                     )
                 )
+
+        wrun.finish()
 
         for t in threads:
             t.join()
