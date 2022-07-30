@@ -308,17 +308,21 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             'losses/cuts': cut_losses,
         }
 
-        if not x_is_NaN:
-            traced_info['gradients'] = wandb.Histogram(r_grad.detach().cpu().numpy())
-
         traced_info.update(
             {
                 f'scheduler/{k}': int(v) if isinstance(v, bool) else v
                 for k, v in vars(scheduler).items()
             }
         )
-        loss_values.append(traced_info['losses/total'])
+
+        try:
+            traced_info['gradients'] = wandb.Histogram(r_grad.detach().cpu().numpy())
+        except ValueError:
+            # avoid nan gradients
+            pass
+
         wandb.log(traced_info)
+        loss_values.append(traced_info['losses/total'])
 
         return r_grad
 
