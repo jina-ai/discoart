@@ -62,17 +62,16 @@ def _sample(
             else:
                 da_gif[k].chunks.append(c)
 
+            da[k].tags['_status'] = {
+                'completed': cur_t == -1,
+                'cur_t': cur_t,
+                'step': j,
+                'loss': loss_values,
+            }
+
             _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
         image_display.value = '<br>\n'.join(_display_html)
-
-        da[k].tags['_status'] = {
-            'completed': cur_t == -1,
-            'cur_t': cur_t,
-            'step': j,
-            'loss': loss_values,
-        }
-
         logger.debug('sample and plot is done')
         is_sampling_done.set()
 
