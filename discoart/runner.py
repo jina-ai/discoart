@@ -322,7 +322,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
         _da_gif = [Document() for _ in range(args.batch_size)]
-        print(len(_da))
         da_batches.extend(_da)
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
@@ -378,8 +377,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     sample,
                     _nb,
                     cur_t,
-                    _da[j],
-                    _da_gif[j],
+                    _da,
+                    _da_gif,
                     image_display,
                     j,
                     loss_values,
@@ -392,13 +391,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             if is_save_step:
                 threads.append(
                     _save_progress_thread(
-                        _da[j],
-                        _da_gif[j],
+                        _da,
+                        _da_gif,
                         _nb,
                         output_dir,
                         args.gif_fps,
                         args.gif_size_ratio,
-                        j,
                     )
                 )
                 threads.extend(
