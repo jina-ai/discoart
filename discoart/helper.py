@@ -235,8 +235,6 @@ if not os.path.exists(cache_dir):
 
 logger.debug(f'`.cache` dir is set to: {cache_dir}')
 
-check_model_SHA = False
-
 
 def _wget(url, outputdir):
     logger.debug(f'downloading from {url}...')
@@ -324,11 +322,11 @@ def load_clip_models(
 
 
 def _check_sha(path, expected_sha):
-    if 'DISCOART_CHECK_MODEL_SHA' in os.environ:
+    if 'DISCOART_DISABLE_CHECK_MODEL_SHA' in os.environ:
+        return True
+    else:
         with open(path, 'rb') as f:
             return hashlib.sha256(f.read()).hexdigest() == expected_sha
-    else:
-        return True
 
 
 def _get_model_name(name: str) -> str:

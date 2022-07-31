@@ -331,15 +331,30 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     else:
         sample_fn = diffusion.plms_sample_loop_progressive
 
-    logger.info(f'creating artworks `{args.name_docarray}`...')
-
     is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
 
     org_seed = args.seed
 
+    if os.environ.get('WANDB_MODE', 'disabled') == 'disabled':
+        logger.info(
+            '''
+W&B dashboard is disabled. To enable the online dashboard for tracking losses, gradients, 
+scheduling tracking, please set `WANDB_MODE=online` before running/importing DiscoArt. e.g.
+
+    import os
+    os.environ['WANDB_MODE'] = 'online'
+
+    from discoart import create
+    create(...)
+'''
+        )
+
     for _nb in range(args.n_batches):
+        logger.info(
+            f'creating artworks `{args.name_docarray}` ({_nb}/{args.n_batches})...'
+        )
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
@@ -404,6 +419,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             config=vars(args),
             anonymous='must',
             reinit=True,
+            mode=os.environ.get('WANDB_MODE', 'disabled'),
         ):
             for j, sample in enumerate(samples):
                 if skip_event.is_set() or stop_event.is_set():

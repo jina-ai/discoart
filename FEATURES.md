@@ -118,11 +118,13 @@ Which means you can generate three images in one run. Not only this is faster th
 
 ## Weights & Biases integration
 
-By default, all losses, cut schedules are logged to W&B, this allows you to track and analyze and design your schedule strategy professionally, instead of flying blind. One `create()` corresponds to one W&B **project**, each `n_batches` corresponds to one W&B **run**.
+If `WANDB_MODE=online` env var is set beforehand, then all losses, cut schedules are logged to W&B. This allows you to track and analyze diffusion progress, and design your training & scheduling strategy professionally, instead of flying blind. Note, one `create()` corresponds to one W&B **project**, each `n_batches` corresponds to one W&B **run**.
 
-![](.github/wandb.png)
+Click the image below to see a demo dashboard:
 
-Please follow [W&B environment variables](https://docs.wandb.ai/guides/track/advanced/environment-variables) to control W&B behaviors. For example, po turn off this feature please set `WANDB_MODE=disabled`.
+[![](.github/wandb.png)](https://wandb.ai/hxiao/discoart-28a93568bdff90b8788d2f20101ea28b).  
+
+Please follow [W&B environment variables](https://docs.wandb.ai/guides/track/advanced/environment-variables) to control W&B behaviors.
 
 
 ## Spellchecking
