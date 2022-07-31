@@ -1,6 +1,7 @@
 import copy
 import os
 import random
+import uuid
 from types import SimpleNamespace
 from typing import Dict, Union, Optional
 
@@ -71,7 +72,7 @@ def load_config(
         }
     )
 
-    _id = random.getrandbits(128).to_bytes(16, 'big').hex()
+    _id = uuid.uuid1().hex
     if cfg['batch_name']:
         da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
