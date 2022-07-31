@@ -339,8 +339,16 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     if os.environ.get('WANDB_MODE', 'disabled') == 'disabled':
         logger.info(
-            'W&B dashboard is disabled. To enable the online dashboard for tracking losses, gradients, '
-            'scheduling tracking, please set `WANDB_MODE=online` before running/importing DiscoArt.'
+            '''
+W&B dashboard is disabled. To enable the online dashboard for tracking losses, gradients, 
+scheduling tracking, please set `WANDB_MODE=online` before running/importing DiscoArt. e.g.
+
+    import os
+    os.environ['WANDB_MODE'] = 'online'
+
+    from discoart import create
+    create(...)
+'''
         )
 
     for _nb in range(args.n_batches):

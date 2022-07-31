@@ -5,7 +5,7 @@ text_prompts:
 init_image:
 width_height: [ 1280, 768 ]
 
-skip_steps: 10
+skip_steps: 0
 steps: 250
 
 init_scale: 1000
