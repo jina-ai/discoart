@@ -404,6 +404,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             config=vars(args),
             anonymous='must',
             reinit=True,
+            mode=os.environ.get('WANDB_MODE', 'disabled'),
         ):
             for j, sample in enumerate(samples):
                 if skip_event.is_set() or stop_event.is_set():
