@@ -118,7 +118,7 @@ Which means you can generate three images in one run. Not only this is faster th
 
 ## Weights & Biases integration
 
-If `WANDB_MODE=online` env var is set before using DiscoArt, then all losses, cut schedules are logged to W&B. This allows you to track and analyze and design your schedule strategy professionally, instead of flying blind. Note, one `create()` corresponds to one W&B **project**, each `n_batches` corresponds to one W&B **run**.
+If `WANDB_MODE=online` env var is set beforehand, then all losses, cut schedules are logged to W&B. This allows you to track and analyze diffusion progress, and design your training & scheduling strategy professionally, instead of flying blind. Note, one `create()` corresponds to one W&B **project**, each `n_batches` corresponds to one W&B **run**.
 
 Click the image below to see a demo dashboard:
 
