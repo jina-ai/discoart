@@ -61,7 +61,7 @@ def create(
     skip_event: Optional[
         Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
     ] = None,
-    skip_steps: Optional[int] = 0,
+    skip_steps: Optional[int] = 10,
     steps: Optional[int] = 250,
     stop_event: Optional[
         Union['multiprocessing.Event', 'asyncio.Event', 'threading.Event']
