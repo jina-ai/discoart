@@ -95,6 +95,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1950,4 +1951,23 @@
 ### 🍹 Other Improvements
 
  - [[```1a6ed8d8```](https://github.com/jina-ai/discoart/commit/1a6ed8d810e5c4c3203c81501542674a526bb361)] __-__ __version__: the next version will be 0.10.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-3></a>
+## Release Note (`0.10.3`)
+
+> Release time: 2022-07-31 16:10:34
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```989b83be```](https://github.com/jina-ai/discoart/commit/989b83bed15c36f0763ee158165eaf183f83aeb6)] __-__ disable wandb by default (#117) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```6348454b```](https://github.com/jina-ai/discoart/commit/6348454b76d2f5b58517eb42f82551776eec25d2)] __-__ __version__: the next version will be 0.10.3 (*Jina Dev Bot*)
 
