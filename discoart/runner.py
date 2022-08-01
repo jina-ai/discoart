@@ -310,12 +310,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             )  # min=-0.02, min=-clamp_max,
 
         traced_info = {
-            'losses/total': loss.detach().item() + cut_losses,
-            'losses/tv': tv_losses,
-            'losses/range': range_losses,
-            'losses/sat': sat_losses,
-            'losses/init': init_losses,
-            'losses/cuts': cut_losses,
+            'losses/total': _detach(loss) + cut_losses,
+            'losses/tv': _detach(tv_losses),
+            'losses/range': _detach(range_losses),
+            'losses/sat': _detach(sat_losses),
+            'losses/init': _detach(init_losses),
+            'losses/cuts': _detach(cut_losses),
         }
 
         traced_info.update(
@@ -516,3 +516,10 @@ def _set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
+
+
+def _detach(val):
+    if isinstance(val, (int, float)):
+        return val
+    else:
+        return val.detach().cpu().item()
