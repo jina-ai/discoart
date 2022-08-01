@@ -285,7 +285,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     cut_loss = (
                         dists.mul(masked_weights).sum(2).mean(0).sum()
                         * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches,
+                        / scheduler.cutn_batches
                     )
 
                     x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
