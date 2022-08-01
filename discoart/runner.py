@@ -202,25 +202,36 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             else:
                 tv_losses = 0
 
-            if scheduler.range_scale:
-                range_losses = range_loss(out).sum() * scheduler.range_scale
-            else:
-                range_losses = 0
-
-            if scheduler.sat_scale:
-                sat_losses = (
-                    torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
-                    * scheduler.sat_scale
-                )
-            else:
-                sat_losses = 0
-
+            tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
+            range_losses = range_loss(out).sum() * scheduler.range_scale
+            sat_losses = (
+                torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+                * scheduler.sat_scale
+            )
+            loss = tv_losses + range_losses + sat_losses
             if init is not None and scheduler.init_scale:
                 init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
-            else:
-                init_losses = 0
+                loss += init_losses
 
-            loss = tv_losses + range_losses + sat_losses + init_losses
+            # if scheduler.range_scale:
+            #     range_losses = range_loss(out).sum() * scheduler.range_scale
+            # else:
+            #     range_losses = 0
+            #
+            # if scheduler.sat_scale:
+            #     sat_losses = (
+            #         torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+            #         * scheduler.sat_scale
+            #     )
+            # else:
+            #     sat_losses = 0
+            #
+            # if init is not None and scheduler.init_scale:
+            #     init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
+            # else:
+            #     init_losses = 0
+            #
+            # loss = tv_losses + range_losses + sat_losses + init_losses
 
             if loss != 0:
                 x_in_grad = torch.autograd.grad(loss, x_in)[0]
