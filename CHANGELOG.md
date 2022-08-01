@@ -98,6 +98,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2010,4 +2011,24 @@
 ### 🍹 Other Improvements
 
  - [[```7b752ba2```](https://github.com/jina-ai/discoart/commit/7b752ba281a5a738dab07335c48cc1eaea3bc49e)] __-__ __version__: the next version will be 0.10.5 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-6></a>
+## Release Note (`0.10.6`)
+
+> Release time: 2022-08-01 21:38:21
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Nan Wang,  Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```138cec60```](https://github.com/jina-ai/discoart/commit/138cec60d8f0bb93eeeeab131e54da0a70a04e9b)] __-__ fix loss tracking scale (#123) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```015449f4```](https://github.com/jina-ai/discoart/commit/015449f43f7f669d1414d1368cf45d7898dbdfc7)] __-__ remove the unused lines (#122) (*Nan Wang*)
+ - [[```5e27f28a```](https://github.com/jina-ai/discoart/commit/5e27f28a16a95f40a71bcd176a9affd39241f4d6)] __-__ __version__: the next version will be 0.10.6 (*Jina Dev Bot*)
 
