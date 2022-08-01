@@ -308,7 +308,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         r_grad = grad
         if scheduler.clamp_grad and not x_is_NaN:
-            r_grad *= 100000
             magnitude = r_grad.square().mean().sqrt()
             r_grad = (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
@@ -501,7 +500,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
-    _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '
+    _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
 
     svg0 = os.path.join(output_dir, 'config.svg')
     save_config_svg(args, svg0, only_non_default=True)
