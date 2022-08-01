@@ -197,19 +197,35 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in).sum()
-            range_losses = range_loss(out).sum()
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
-            loss = (
-                tv_losses * scheduler.tv_scale
-                + range_losses * scheduler.range_scale
-                + sat_losses * scheduler.sat_scale
-            )
-            if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init).sum()
-                loss += init_losses * scheduler.init_scale
+            if scheduler.tv_scale:
+                tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
+            else:
+                tv_losses = 0
 
-            x_in_grad = torch.autograd.grad(loss, x_in)[0]
+            if scheduler.range_scale:
+                range_losses = range_loss(x_in).sum() * scheduler.range_scale
+            else:
+                range_losses = 0
+
+            if scheduler.sat_scale:
+                sat_losses = (
+                    torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+                    * scheduler.sat_scale
+                )
+            else:
+                sat_losses = 0
+
+            if init is not None and scheduler.init_scale:
+                init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
+            else:
+                init_losses = 0
+
+            loss = tv_losses + range_losses + sat_losses + init_losses
+
+            if loss != 0:
+                x_in_grad = torch.autograd.grad(loss, x_in)[0]
+            else:
+                x_in_grad = 0
 
             cut_losses = 0
 
@@ -266,19 +282,20 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         ]
                     )
 
-                    cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
-
-                    x_in_grad += torch.autograd.grad(
-                        cut_loss
+                    cut_loss = (
+                        dists.mul(masked_weights).sum(2).mean(0).sum()
                         * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches,
-                        x_in,
-                    )[0]
+                        / scheduler.cutn_batches
+                    )
+
+                    x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
 
                     cut_losses += cut_loss.detach().item()
 
         x_is_NaN = False
-        if not torch.isnan(x_in_grad).any():
+        if isinstance(x_in_grad, int) and x_in_grad == 0:
+            grad = torch.zeros_like(x)
+        elif not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
         else:
             x_is_NaN = True
@@ -291,20 +308,18 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         r_grad = grad
         if scheduler.clamp_grad and not x_is_NaN:
-            magnitude = grad.square().mean().sqrt()
+            magnitude = r_grad.square().mean().sqrt()
             r_grad = (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
 
         traced_info = {
-            'losses/total': loss.detach().item() + cut_losses,
-            'losses/tv': tv_losses.detach().item(),
-            'losses/range': range_losses.detach().item(),
-            'losses/sat': sat_losses.detach().item(),
-            'losses/init': init_losses.detach().item()
-            if init is not None and scheduler.init_scale
-            else 0,
-            'losses/cuts': cut_losses,
+            'losses/total': _detach(loss) + cut_losses,
+            'losses/tv': _detach(tv_losses),
+            'losses/range': _detach(range_losses),
+            'losses/sat': _detach(sat_losses),
+            'losses/init': _detach(init_losses),
+            'losses/cuts': _detach(cut_losses),
         }
 
         traced_info.update(
@@ -485,7 +500,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
-    _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '
+    _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
 
     svg0 = os.path.join(output_dir, 'config.svg')
     save_config_svg(args, svg0, only_non_default=True)
@@ -505,3 +520,10 @@ def _set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
+
+
+def _detach(val):
+    if isinstance(val, (int, float)):
+        return val
+    else:
+        return val.detach().cpu().item()
