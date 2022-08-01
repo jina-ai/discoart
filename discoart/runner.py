@@ -293,7 +293,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     cut_losses += cut_loss.detach().item()
 
         x_is_NaN = False
-        if not torch.isnan(x_in_grad).any():
+        if x_in_grad != 0 and not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
         else:
             x_is_NaN = True
