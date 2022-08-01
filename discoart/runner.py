@@ -207,7 +207,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             else:
                 range_losses = 0
 
-            if scheduler.sat_losses:
+            if scheduler.sat_scale:
                 sat_losses = (
                     torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
                     * scheduler.sat_scale
