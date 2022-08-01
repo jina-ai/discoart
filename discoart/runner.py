@@ -200,14 +200,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             tv_losses = tv_loss(x_in).sum()
             range_losses = range_loss(out).sum()
             sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
-            loss = (
-                tv_losses * scheduler.tv_scale
-                + range_losses * scheduler.range_scale
-                + sat_losses * scheduler.sat_scale
-            )
-            if init is not None and scheduler.init_scale:
+            loss = tv_losses + range_losses + sat_losses
+            if init is not None:
                 init_losses = lpips_model(x_in, init).sum()
-                loss += init_losses * scheduler.init_scale
+                loss += init_losses
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
 
@@ -269,9 +265,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
 
                     x_in_grad += torch.autograd.grad(
-                        cut_loss
-                        * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches,
+                        cut_loss,
                         x_in,
                     )[0]
 
