@@ -13,8 +13,7 @@ import wandb
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
 
-from . import __version__
-from .config import save_config_svg, default_args
+from .config import save_config_svg, export_python
 from .helper import (
     logger,
     get_ipython_funcs,
@@ -496,29 +495,7 @@ def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
     save_config_svg(args, svg1)
     d = Document(uri=svg1).convert_uri_to_datauri()
     _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
-
-    non_defaults = {}
-    taboo = {'name_docarray'}
-    for k, v in vars(args).items():
-        if k.startswith('_') or k in taboo:
-            continue
-
-        if not default_args.get(k, None) == v:
-            non_defaults[k] = v
-
-    kwargs_string = ',\n    '.join(
-        f'{k}=\'{v}\'' if isinstance(v, str) else f'{k}={v}'
-        for k, v in non_defaults.items()
-    )
-    _handlers.code.value = f'''
-#!pip install docarray=={__version__}
-
-from discoart import create
-
-da = create(
-    {kwargs_string}
-)    
-    '''
+    _handlers.code.value = export_python(args)
     _redraw_fn()
 
 

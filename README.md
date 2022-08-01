@@ -228,6 +228,14 @@ save_config_svg(da)
 
 ![](.github/discoart-3205998582.svg)
 
+One can also generate runnable Python code directly from the config:
+
+```python
+from discoart.config import export_python
+
+export_python(da)
+```
+
 ### Pull results anywhere anytime
 
 If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. Or sometimes you just early stop the run as the first image is not good enough, and a keyboard interrupt will prevent `.create()` to return any result. Either case, you can easily recover the results by pulling the last session ID.

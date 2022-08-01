@@ -1,4 +1,4 @@
-from discoart.config import default_args, save_config, load_config
+from discoart.config import default_args, save_config, load_config, export_python
 
 
 def test_export_load_config(tmpfile):
@@ -19,3 +19,7 @@ def test_format_config():
         default_config['name_docarray']
         == f'test-{default_args["steps"]}-{default_args["clip_models"]}'
     )
+
+
+def test_export_python():
+    assert export_python(default_args)
