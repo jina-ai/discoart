@@ -203,10 +203,11 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
                 * scheduler.sat_scale
             )
-            loss = tv_losses + range_losses + sat_losses
             if init is not None and scheduler.init_scale:
                 init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
-                loss += init_losses
+            else:
+                init_losses = 0
+            loss = tv_losses + range_losses + sat_losses + init_losses
 
             # if scheduler.tv_scale:
             #     tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
