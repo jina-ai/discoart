@@ -198,7 +198,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             x_in = out * fac + x * (1 - fac)
 
             tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
-            range_losses = range_loss(out).sum() * scheduler.range_scale
+            range_losses = range_loss(x_in).sum() * scheduler.range_scale
             sat_losses = (
                 torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
                 * scheduler.sat_scale
