@@ -214,6 +214,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
             cut_losses = 0
 
+            cut_loss = 0
+
             for model_stat in model_stats:
 
                 if not model_stat['schedules'][num_step]:
@@ -267,16 +269,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         ]
                     )
 
-                    cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
+                    cut_loss += dists.mul(masked_weights).sum(2).mean(0).sum()
+                    # cut_losses += cut_loss.detach().item()
 
-                    x_in_grad += torch.autograd.grad(
-                        cut_loss
-                        * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches,
-                        x_in,
-                    )[0]
-
-                    cut_losses += cut_loss.detach().item()
+            x_in_grad += torch.autograd.grad(
+                cut_loss * scheduler.clip_guidance_scale / scheduler.cutn_batches,
+                x_in,
+            )[0]
 
         x_is_NaN = False
         if not torch.isnan(x_in_grad).any():
