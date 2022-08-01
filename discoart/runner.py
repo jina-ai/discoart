@@ -197,11 +197,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            if scheduler.tv_scale:
-                tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
-            else:
-                tv_losses = 0
-
             tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
             range_losses = range_loss(out).sum() * scheduler.range_scale
             sat_losses = (
@@ -213,6 +208,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
                 loss += init_losses
 
+            # if scheduler.tv_scale:
+            #     tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
+            # else:
+            #     tv_losses = 0
             # if scheduler.range_scale:
             #     range_losses = range_loss(out).sum() * scheduler.range_scale
             # else:
