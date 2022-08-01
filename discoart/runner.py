@@ -197,12 +197,15 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in).sum()
-            range_losses = range_loss(out).sum()
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+            tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
+            range_losses = range_loss(out).sum() * scheduler.range_scale
+            sat_losses = (
+                torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+                * scheduler.sat_scale
+            )
             loss = tv_losses + range_losses + sat_losses
             if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init).sum()
+                init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
                 loss += init_losses
 
             x_in_grad = torch.autograd.grad(loss, x_in)[0]
@@ -262,7 +265,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         ]
                     )
 
-                    cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
+                    cut_loss = (
+                        dists.mul(masked_weights).sum(2).mean(0).sum()
+                        * scheduler.clip_guidance_scale
+                    )
 
                     x_in_grad += torch.autograd.grad(
                         cut_loss / scheduler.cutn_batches,
