@@ -463,7 +463,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                     )
                 )
 
-                if is_save_step or is_complete:
+                if is_save_step:
                     threads.append(
                         _save_progress_thread(
                             _da,
@@ -474,6 +474,8 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                             args.gif_size_ratio,
                         )
                     )
+
+                if is_complete or is_save_step:
                     threads.extend(
                         _persist_thread(
                             da_batches,
