@@ -443,9 +443,8 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 
                 cur_t -= 1
 
-                is_save_step = (
-                    args.save_rate > 0 and j % args.save_rate == 0
-                ) or cur_t == -1
+                is_save_step = args.save_rate > 0 and j % args.save_rate == 0
+                is_complete = cur_t == -1
 
                 threads.append(
                     _sample_thread(
@@ -464,7 +463,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                     )
                 )
 
-                if is_save_step:
+                if is_save_step or is_complete:
                     threads.append(
                         _save_progress_thread(
                             _da,
@@ -481,7 +480,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                             args.name_docarray,
                             is_busy_evs[1:],
                             is_busy_evs[0],
-                            is_completed=cur_t == -1,
+                            is_completed=is_complete,
                         )
                     )
 
