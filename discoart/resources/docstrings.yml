@@ -121,11 +121,6 @@ cut_innercut: |
 cut_icgray_p: |
   In addition to the overall cut schedule, a portion of the cuts can be set to be grayscale instead of color. This may help with improved definition of shapes and edges, especially in the early diffusion steps where the image structure is being defined.  
 
-display_rate: |
-  [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. 
-  
-  There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
-  Setting this will override the `save_rate` parameter.
 save_rate: |
   [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter. Set it to -1 for not saving any intermediate result.
 
