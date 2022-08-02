@@ -1,6 +1,7 @@
 import copy
 import os.path
 import random
+import tempfile
 import threading
 
 import clip
@@ -301,9 +302,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             x_is_NaN = True
             grad = torch.zeros_like(x)
             logger.warning(
-                f'NaN detected in grad at the diffusion inner-step {num_step}, '
-                f'if this message continues to show up, '
-                f'then your image is not updated and further steps are unnecessary.'
+                f'NaN detected in grad at the diffusion inner-step {num_step}, no panic. '
+                f'However, if this message continues to show up *in a row*, '
+                f'then your generation is ill-conditioned and image will not updated, further steps are unnecessary.'
             )
 
         r_grad = grad
@@ -379,7 +380,6 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 _handlers,
                 _redraw_fn,
                 args,
-                output_dir,
                 _nb,
             )
         free_memory()
@@ -443,9 +443,9 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 
                 cur_t -= 1
 
-                is_save_step = (
-                    j % (args.display_rate or args.save_rate) == 0 or cur_t == -1
-                )
+                is_save_step = args.save_rate > 0 and j % args.save_rate == 0
+                is_complete = cur_t == -1
+
                 threads.append(
                     _sample_thread(
                         sample,
@@ -459,6 +459,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         output_dir,
                         is_busy_evs[0],
                         is_save_step,
+                        args.gif_fps > 0,
                     )
                 )
 
@@ -473,13 +474,15 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                             args.gif_size_ratio,
                         )
                     )
+
+                if is_complete or is_save_step:
                     threads.extend(
                         _persist_thread(
                             da_batches,
                             args.name_docarray,
                             is_busy_evs[1:],
                             is_busy_evs[0],
-                            is_completed=cur_t == -1,
+                            is_completed=is_complete,
                         )
                     )
 
@@ -497,19 +500,21 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
     return da_batches
 
 
-def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
+def redraw_widget(_handlers, _redraw_fn, args, _nb):
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
 
-    svg0 = os.path.join(output_dir, 'config.svg')
-    save_config_svg(args, svg0, only_non_default=True)
-    d = Document(uri=svg0).convert_uri_to_datauri()
-    _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
-    svg1 = os.path.join(output_dir, 'all-config.svg')
-    save_config_svg(args, svg1)
-    d = Document(uri=svg1).convert_uri_to_datauri()
-    _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name, only_non_default=True)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
+
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
+
     _handlers.code.value = export_python(args)
     _redraw_fn()
 
