@@ -1,4 +1,5 @@
 from discoart.config import default_args, save_config, load_config, export_python
+from discoart.helper import _eval_scheduling_str
 
 
 def test_export_load_config(tmpfile):
@@ -23,3 +24,13 @@ def test_format_config():
 
 def test_export_python():
     assert export_python(default_args)
+
+
+def test_eval_schedule_string():
+    assert _eval_scheduling_str('1') == [1] * 1000
+    assert _eval_scheduling_str('[1] * 1000') == [1] * 1000
+    assert _eval_scheduling_str(1) == [1] * 1000
+    assert _eval_scheduling_str('1.') == [1] * 1000
+    assert _eval_scheduling_str('True') == [True] * 1000
+    assert _eval_scheduling_str('False') == [False] * 1000
+    assert _eval_scheduling_str(True) == [True] * 1000

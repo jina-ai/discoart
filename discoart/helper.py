@@ -692,17 +692,18 @@ _MAX_DIFFUSION_STEPS = 1000
 
 def _eval_scheduling_str(val) -> List[float]:
     if isinstance(val, str):
-        r = eval(val)
-    elif isinstance(val, (int, float, bool)):
-        r = [val] * _MAX_DIFFUSION_STEPS
+        val = eval(val)
+
+    if isinstance(val, (int, float, bool)):
+        val = [val] * _MAX_DIFFUSION_STEPS
+    elif isinstance(val, (list, tuple)):
+        if len(val) != _MAX_DIFFUSION_STEPS:
+            raise ValueError(
+                f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
+            )
     else:
         raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
-
-    if len(r) != _MAX_DIFFUSION_STEPS:
-        raise ValueError(
-            f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
-        )
-    return r
+    return val
 
 
 def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':
