@@ -301,9 +301,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             x_is_NaN = True
             grad = torch.zeros_like(x)
             logger.warning(
-                f'NaN detected in grad at the diffusion inner-step {num_step}, '
-                f'if this message continues to show up, '
-                f'then your image is not updated and further steps are unnecessary.'
+                f'NaN detected in grad at the diffusion inner-step {num_step}, no panic. '
+                f'However, if this message continues to show up *in a row*, '
+                f'then your generation is ill-conditioned and image will not updated, further steps are unnecessary.'
             )
 
         r_grad = grad
