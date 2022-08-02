@@ -447,8 +447,6 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                     args.save_rate > 0 and j % args.save_rate == 0
                 ) or cur_t == -1
 
-                print(j, cur_t, is_save_step)
-
                 threads.append(
                     _sample_thread(
                         sample,
