@@ -101,6 +101,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2071,4 +2072,23 @@
 ### 🍹 Other Improvements
 
  - [[```ba37c51e```](https://github.com/jina-ai/discoart/commit/ba37c51ed0944505edb726be301651a6d34a0e1f)] __-__ __version__: the next version will be 0.10.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-9></a>
+## Release Note (`0.10.9`)
+
+> Release time: 2022-08-02 19:12:02
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```993a021b```](https://github.com/jina-ai/discoart/commit/993a021b1d8c8d9c9c3913bcdb0bc626d8c72786)] __-__ make eval schedule string safe (#126) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```a8cd98cc```](https://github.com/jina-ai/discoart/commit/a8cd98ccafa59d12a70732af837285d712bcab74)] __-__ __version__: the next version will be 0.10.9 (*Jina Dev Bot*)
 
