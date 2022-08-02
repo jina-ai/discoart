@@ -1,6 +1,7 @@
 import copy
 import os.path
 import random
+import tempfile
 import threading
 
 import clip
@@ -379,7 +380,6 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 _handlers,
                 _redraw_fn,
                 args,
-                output_dir,
                 _nb,
             )
         free_memory()
@@ -501,19 +501,21 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
     return da_batches
 
 
-def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
+def redraw_widget(_handlers, _redraw_fn, args, _nb):
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
 
-    svg0 = os.path.join(output_dir, 'config.svg')
-    save_config_svg(args, svg0, only_non_default=True)
-    d = Document(uri=svg0).convert_uri_to_datauri()
-    _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
-    svg1 = os.path.join(output_dir, 'all-config.svg')
-    save_config_svg(args, svg1)
-    d = Document(uri=svg1).convert_uri_to_datauri()
-    _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name, only_non_default=True)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
+
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
+
     _handlers.code.value = export_python(args)
     _redraw_fn()
 
