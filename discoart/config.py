@@ -248,7 +248,7 @@ def export_python(
     )
 
     return f'''
-#!pip install docarray=={__version__}
+#!pip install {__package__}=={__version__}
 
 from discoart import create
 
