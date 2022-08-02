@@ -56,6 +56,7 @@ def test_eval_schedule_string():
         ('[hello]*1000', False),
         ('del a', False),
         ('([1]+[2])*50', True),
+        ('[False,True,1,0.23,23,]*1000', True),
     ],
 )
 def test_chec_schedule_str(val, expected):

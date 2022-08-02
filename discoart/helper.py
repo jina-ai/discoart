@@ -690,7 +690,7 @@ _MAX_DIFFUSION_STEPS = 1000
 
 
 def _is_valid_schedule_str(val) -> bool:
-    r = re.match(r'(False\b|True\b|[\(\)\[\]0-9\, \.\*\+])+', val)
+    r = re.match(r'(False\b|True\b|[\(\)\[\]0-9\, \.\*\+\-])+', val)
     if r and r.group(0) == val:
         return True
     return False
