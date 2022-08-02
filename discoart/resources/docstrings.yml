@@ -127,7 +127,7 @@ display_rate: |
   There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
   Setting this will override the `save_rate` parameter.
 save_rate: |
-  [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter.
+  [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter. Set it to -1 for not saving any intermediate result.
 
 n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
@@ -220,7 +220,7 @@ text_clip_on_cpu: |
   [DiscoArt] Place text transformers of CLIP models on CPU. This saves more VRAM and will not hurt the speed at all on T4, P100, 3090; however, there are few community members report issue on V100 when it is `False`.
 
 gif_fps: |
-  [DiscoArt] The frame rate of the generated GIF.
+  [DiscoArt] The frame rate of the generated GIF. Set it to -1 for not saving GIF.
 
 gif_size_ratio: |
   [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.

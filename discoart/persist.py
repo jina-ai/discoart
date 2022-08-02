@@ -29,6 +29,7 @@ def _sample(
     output_dir,
     is_sampling_done,
     is_save_step,
+    is_save_gif,
 ):
     with threading.Lock():
         is_sampling_done.clear()
@@ -57,10 +58,12 @@ def _sample(
                     )
 
                 da[k].chunks.append(c)
-                # root doc always update with the latest progress
-                da[k].uri = c.uri
-            else:
+
+            if is_save_gif:
                 da_gif[k].chunks.append(c)
+
+            # root doc always update with the latest progress
+            da[k].uri = c.uri
 
             da[k].tags['_status'] = {
                 'completed': cur_t == -1,
