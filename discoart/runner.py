@@ -347,8 +347,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     is_busy_evs = [threading.Event() for _ in range(3)]
 
-    da_batches = DocumentArray()
-
     org_seed = args.seed
 
     if os.environ.get('WANDB_MODE', 'disabled') == 'disabled':
@@ -384,9 +382,10 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             )
         free_memory()
 
-        _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
-        _da_gif = [Document() for _ in range(args.batch_size)]
-        da_batches.extend(_da)
+        _da = DocumentArray(
+            [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
+        )
+        _da_gif = DocumentArray([Document() for _ in range(args.batch_size)])
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
 
@@ -475,7 +474,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                     )
                     threads.extend(
                         _persist_thread(
-                            da_batches,
+                            _da,
                             args.name_docarray,
                             is_busy_evs[1:],
                             is_busy_evs[0],
@@ -494,7 +493,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 
     logger.info(f'done! {args.name_docarray}')
 
-    return da_batches
+    return DocumentArray.load_binary(os.path.join(output_dir, f'da.protobuf.lz4'))
 
 
 def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):

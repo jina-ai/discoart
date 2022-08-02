@@ -111,20 +111,18 @@ def _save_progress(da, da_gif, _nb, output_dir, fps, size_ratio):
             logger.debug('can not plot progress into sprite image and gif')
 
 
-def _persist_thread(
-    da_batches, name_docarray, is_busy_evs, is_sampling_done, is_completed
-):
+def _persist_thread(docs, name_docarray, is_busy_evs, is_sampling_done, is_completed):
     for fn, idle_ev in zip((_local_save, _cloud_push), is_busy_evs):
         t = Thread(
             target=fn,
-            args=(da_batches, name_docarray, idle_ev, is_sampling_done, is_completed),
+            args=(docs, name_docarray, idle_ev, is_sampling_done, is_completed),
         )
         t.start()
         yield t
 
 
 def _local_save(
-    da_batches: DocumentArray,
+    docs: DocumentArray,
     name: str,
     is_busy_event: threading.Event,
     is_sampling_done: threading.Event,
@@ -137,7 +135,13 @@ def _local_save(
     is_busy_event.set()
     try:
         pb_path = os.path.join(get_output_dir(name), f'da.protobuf.lz4')
-        da_batches.save_binary(pb_path)
+        saved = docs
+        if os.path.exists(pb_path):
+            saved = DocumentArray.load_binary(pb_path)
+            for d in docs:
+                saved[d.id] = d
+
+        saved.save_binary(pb_path)
         logger.debug(f'local backup to {pb_path}')
     except Exception as ex:
         logger.debug(f'local backup failed: {ex}')
@@ -145,7 +149,7 @@ def _local_save(
 
 
 def _cloud_push(
-    da_batches: DocumentArray,
+    docs: DocumentArray,
     name: str,
     is_busy_event: threading.Event,
     is_sampling_done: threading.Event,
@@ -160,7 +164,15 @@ def _cloud_push(
     is_busy_event.set()
 
     try:
-        da_batches.push(name)
+        pb_path = os.path.join(get_output_dir(name), f'da.protobuf.lz4')
+        saved = docs
+        if os.path.exists(pb_path):
+            saved = DocumentArray.load_binary(pb_path)
+            for d in docs:
+                saved[d.id] = d
+
+        saved.push(name)
+
         logger.debug(f'cloud backup to {name}')
     except Exception as ex:
         logger.debug(f'cloud backup failed: {ex}')
