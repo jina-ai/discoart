@@ -222,3 +222,6 @@ gif_size_ratio: |
 
 truncate_overlength_prompt: |
   [DiscoArt] all CLIP models use 77 as the context length. Set this parameter truncates the prompt to the length of the model's context length.
+
+visualize_cuts: |
+  [DiscoArt] If set, then `cuts-{step}.png` will be saved for each step, visualizing all cuts in a sprite image at each step.

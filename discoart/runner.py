@@ -266,6 +266,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
+                    if args.visualize_cuts:
+                        _cuts_da = DocumentArray.empty(clip_in.shape[0])
+                        _cuts_da.tensors = clip_in
+                        _cuts_da.plot_image_sprites(
+                            os.path.join(output_dir, f'cuts-{num_step}.png'),
+                            show_index=True,
+                        )
+
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
