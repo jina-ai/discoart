@@ -228,6 +228,14 @@ save_config_svg(da)
 
 ![](.github/discoart-3205998582.svg)
 
+One can also generate runnable Python code directly from the config:
+
+```python
+from discoart.config import export_python
+
+export_python(da)
+```
+
 ### Pull results anywhere anytime
 
 If you are a free-tier Google Colab user, one annoy thing is the lost of sessions from time to time. Or sometimes you just early stop the run as the first image is not good enough, and a keyboard interrupt will prevent `.create()` to return any result. Either case, you can easily recover the results by pulling the last session ID.
@@ -287,7 +295,7 @@ DISCOART_OUTPUT_DIR='path/to/your-output-dir' # use a custom output directory fo
 DISCOART_CACHE_DIR='path/to/your-cache-dir' # use a custom cache directory for models and downloads
 DISCOART_DISABLE_REMOTE_MODELS='1' # disable the listing of diffusion models on Github, remote diffusion models allows user to use latest models without updating the codebase.
 DISCOART_REMOTE_MODELS_URL='https://yourdomain/models.yml' # use a custom remote URL for fetching models list
-DISCOART_CHECK_MODEL_SHA='1' # check if the local model SHA matches the remote model SHA
+DISCOART_DISABLE_CHECK_MODEL_SHA='1' # disable checking local model SHA matches the remote model SHA
 ```
 
 ## CLI

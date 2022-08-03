@@ -20,7 +20,6 @@ import torch
 import yaml
 from clip.simple_tokenizer import SimpleTokenizer, whitespace_clean, basic_clean
 from packaging.version import Version
-
 from spellchecker import SpellChecker
 from tqdm.auto import tqdm
 
@@ -235,8 +234,6 @@ if not os.path.exists(cache_dir):
 
 logger.debug(f'`.cache` dir is set to: {cache_dir}')
 
-check_model_SHA = False
-
 
 def _wget(url, outputdir):
     logger.debug(f'downloading from {url}...')
@@ -324,11 +321,11 @@ def load_clip_models(
 
 
 def _check_sha(path, expected_sha):
-    if 'DISCOART_CHECK_MODEL_SHA' in os.environ:
+    if 'DISCOART_DISABLE_CHECK_MODEL_SHA' in os.environ:
+        return True
+    else:
         with open(path, 'rb') as f:
             return hashlib.sha256(f.read()).hexdigest() == expected_sha
-    else:
-        return True
 
 
 def _get_model_name(name: str) -> str:
@@ -692,19 +689,32 @@ threading.Thread(target=_version_check, args=(__package__, 'discoart')).start()
 _MAX_DIFFUSION_STEPS = 1000
 
 
+def _is_valid_schedule_str(val) -> bool:
+    r = re.match(r'(False\b|True\b|[\(\)\[\]0-9\, \.\*\+\-])+', val)
+    if r and r.group(0) == val:
+        return True
+    return False
+
+
 def _eval_scheduling_str(val) -> List[float]:
     if isinstance(val, str):
-        r = eval(val)
-    elif isinstance(val, (int, float, bool)):
-        r = [val] * _MAX_DIFFUSION_STEPS
+        if _is_valid_schedule_str(val):
+            val = eval(val)
+        else:
+            raise ValueError(
+                f'invalid scheduling string: {val}, it contains unsafe code'
+            )
+
+    if isinstance(val, (int, float, bool)):
+        val = [val] * _MAX_DIFFUSION_STEPS
+    elif isinstance(val, (list, tuple)):
+        if len(val) != _MAX_DIFFUSION_STEPS:
+            raise ValueError(
+                f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
+            )
     else:
         raise ValueError(f'unsupported scheduling type: {val}: {type(val)}')
-
-    if len(r) != _MAX_DIFFUSION_STEPS:
-        raise ValueError(
-            f'invalid scheduling string: {val} the schedule steps should be exactly {_MAX_DIFFUSION_STEPS}'
-        )
-    return r
+    return val
 
 
 def _get_current_schedule(schedule_table: Dict, t: int) -> 'SimpleNamespace':

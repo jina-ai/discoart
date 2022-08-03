@@ -121,13 +121,8 @@ cut_innercut: |
 cut_icgray_p: |
   In addition to the overall cut schedule, a portion of the cuts can be set to be grayscale instead of color. This may help with improved definition of shapes and edges, especially in the early diffusion steps where the image structure is being defined.  
 
-display_rate: |
-  [DiscoArt] Display rate is deprecated in DiscoArt as it is always 1, meaning display is always in real-time. 
-  
-  There is no need to worry on the speed as the rendering happens in another thread. To control the save rate, use the `save_rate` parameter.
-  Setting this will override the `save_rate` parameter.
 save_rate: |
-  [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter.
+  [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter. Set it to -1 for not saving any intermediate result.
 
 n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
@@ -220,10 +215,13 @@ text_clip_on_cpu: |
   [DiscoArt] Place text transformers of CLIP models on CPU. This saves more VRAM and will not hurt the speed at all on T4, P100, 3090; however, there are few community members report issue on V100 when it is `False`.
 
 gif_fps: |
-  [DiscoArt] The frame rate of the generated GIF.
+  [DiscoArt] The frame rate of the generated GIF. Set it to -1 for not saving GIF.
 
 gif_size_ratio: |
   [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
 
 truncate_overlength_prompt: |
   [DiscoArt] all CLIP models use 77 as the context length. Set this parameter truncates the prompt to the length of the model's context length.
+
+image_output: |
+  [DiscoArt] If set, then output will be saved as images. This includes intermediate, final results in the form of PNG and GIF. If set to False, then no images will be saved, everything will be saved in a Protobuf LZ4 format. https://docarray.jina.ai/fundamentals/documentarray/serialization/#from-to-bytes

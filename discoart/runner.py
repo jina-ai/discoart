@@ -1,6 +1,7 @@
 import copy
 import os.path
 import random
+import tempfile
 import threading
 
 import clip
@@ -13,8 +14,7 @@ import wandb
 from docarray import DocumentArray, Document
 from torch.nn.functional import normalize as normalize_fn
 
-from . import __version__
-from .config import save_config_svg, default_args
+from .config import save_config_svg, export_python
 from .helper import (
     logger,
     get_ipython_funcs,
@@ -198,19 +198,35 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
 
-            tv_losses = tv_loss(x_in).sum()
-            range_losses = range_loss(out).sum()
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
-            loss = (
-                tv_losses * scheduler.tv_scale
-                + range_losses * scheduler.range_scale
-                + sat_losses * scheduler.sat_scale
-            )
-            if init is not None and scheduler.init_scale:
-                init_losses = lpips_model(x_in, init).sum()
-                loss += init_losses * scheduler.init_scale
+            if scheduler.tv_scale:
+                tv_losses = tv_loss(x_in).sum() * scheduler.tv_scale
+            else:
+                tv_losses = 0
 
-            x_in_grad = torch.autograd.grad(loss, x_in)[0]
+            if scheduler.range_scale:
+                range_losses = range_loss(x_in).sum() * scheduler.range_scale
+            else:
+                range_losses = 0
+
+            if scheduler.sat_scale:
+                sat_losses = (
+                    torch.abs(x_in - x_in.clamp(min=-1, max=1)).mean().sum()
+                    * scheduler.sat_scale
+                )
+            else:
+                sat_losses = 0
+
+            if init is not None and scheduler.init_scale:
+                init_losses = lpips_model(x_in, init).sum() * scheduler.init_scale
+            else:
+                init_losses = 0
+
+            loss = tv_losses + range_losses + sat_losses + init_losses
+
+            if loss != 0:
+                x_in_grad = torch.autograd.grad(loss, x_in)[0]
+            else:
+                x_in_grad = 0
 
             cut_losses = 0
 
@@ -267,45 +283,44 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         ]
                     )
 
-                    cut_loss = dists.mul(masked_weights).sum(2).mean(0).sum()
-
-                    x_in_grad += torch.autograd.grad(
-                        cut_loss
+                    cut_loss = (
+                        dists.mul(masked_weights).sum(2).mean(0).sum()
                         * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches,
-                        x_in,
-                    )[0]
+                        / scheduler.cutn_batches
+                    )
+
+                    x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
 
                     cut_losses += cut_loss.detach().item()
 
         x_is_NaN = False
-        if not torch.isnan(x_in_grad).any():
+        if isinstance(x_in_grad, int) and x_in_grad == 0:
+            grad = torch.zeros_like(x)
+        elif not torch.isnan(x_in_grad).any():
             grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
         else:
             x_is_NaN = True
             grad = torch.zeros_like(x)
             logger.warning(
-                f'NaN detected in grad at the diffusion inner-step {num_step}, '
-                f'if this message continues to show up, '
-                f'then your image is not updated and further steps are unnecessary.'
+                f'NaN detected in grad at the diffusion inner-step {num_step}, no panic. '
+                f'However, if this message continues to show up *in a row*, '
+                f'then your generation is ill-conditioned and image will not updated, further steps are unnecessary.'
             )
 
         r_grad = grad
         if scheduler.clamp_grad and not x_is_NaN:
-            magnitude = grad.square().mean().sqrt()
+            magnitude = r_grad.square().mean().sqrt()
             r_grad = (
                 grad * magnitude.clamp(max=scheduler.clamp_max) / magnitude
             )  # min=-0.02, min=-clamp_max,
 
         traced_info = {
-            'losses/total': loss.detach().item() + cut_losses,
-            'losses/tv': tv_losses.detach().item(),
-            'losses/range': range_losses.detach().item(),
-            'losses/sat': sat_losses.detach().item(),
-            'losses/init': init_losses.detach().item()
-            if init is not None and scheduler.init_scale
-            else 0,
-            'losses/cuts': cut_losses,
+            'losses/total': _detach(loss) + cut_losses,
+            'losses/tv': _detach(tv_losses),
+            'losses/range': _detach(range_losses),
+            'losses/sat': _detach(sat_losses),
+            'losses/init': _detach(init_losses),
+            'losses/cuts': _detach(cut_losses),
         }
 
         traced_info.update(
@@ -331,15 +346,30 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     else:
         sample_fn = diffusion.plms_sample_loop_progressive
 
-    logger.info(f'creating artworks `{args.name_docarray}`...')
-
     is_busy_evs = [threading.Event() for _ in range(3)]
 
     da_batches = DocumentArray()
 
     org_seed = args.seed
 
+    if os.environ.get('WANDB_MODE', 'disabled') == 'disabled':
+        logger.info(
+            '''
+W&B dashboard is disabled. To enable the online dashboard for tracking losses, gradients, 
+scheduling tracking, please set `WANDB_MODE=online` before running/importing DiscoArt. e.g.
+
+    import os
+    os.environ['WANDB_MODE'] = 'online'
+
+    from discoart import create
+    create(...)
+'''
+        )
+
     for _nb in range(args.n_batches):
+        logger.info(
+            f'creating artworks `{args.name_docarray}` ({_nb}/{args.n_batches})...'
+        )
 
         # set seed for each image in the batch
         new_seed = org_seed + _nb
@@ -350,7 +380,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 _handlers,
                 _redraw_fn,
                 args,
-                output_dir,
                 _nb,
             )
         free_memory()
@@ -404,6 +433,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             config=vars(args),
             anonymous='must',
             reinit=True,
+            mode=os.environ.get('WANDB_MODE', 'disabled'),
         ):
             for j, sample in enumerate(samples):
                 if skip_event.is_set() or stop_event.is_set():
@@ -413,9 +443,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                 cur_t -= 1
 
-                is_save_step = (
-                    j % (args.display_rate or args.save_rate) == 0 or cur_t == -1
-                )
+                is_save_step = args.save_rate > 0 and j % args.save_rate == 0
+                is_complete = cur_t == -1
+
                 threads.append(
                     _sample_thread(
                         sample,
@@ -428,28 +458,32 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         loss_values,
                         output_dir,
                         is_busy_evs[0],
-                        is_save_step,
+                        is_save_step or is_complete,
+                        args.gif_fps > 0,
+                        args.image_output,
                     )
                 )
 
-                if is_save_step:
-                    threads.append(
-                        _save_progress_thread(
-                            _da,
-                            _da_gif,
-                            _nb,
-                            output_dir,
-                            args.gif_fps,
-                            args.gif_size_ratio,
+                if is_complete or is_save_step:
+                    if args.image_output:
+                        threads.append(
+                            _save_progress_thread(
+                                _da,
+                                _da_gif,
+                                _nb,
+                                output_dir,
+                                args.gif_fps,
+                                args.gif_size_ratio,
+                            )
                         )
-                    )
+
                     threads.extend(
                         _persist_thread(
                             da_batches,
                             args.name_docarray,
                             is_busy_evs[1:],
                             is_busy_evs[0],
-                            is_completed=cur_t == -1,
+                            is_completed=is_complete,
                         )
                     )
 
@@ -467,42 +501,22 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     return da_batches
 
 
-def redraw_widget(_handlers, _redraw_fn, args, output_dir, _nb):
+def redraw_widget(_handlers, _redraw_fn, args, _nb):
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
-    _handlers.progress.description = f'Generating {_nb + 1}/{args.n_batches}: '
+    _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
 
-    svg0 = os.path.join(output_dir, 'config.svg')
-    save_config_svg(args, svg0, only_non_default=True)
-    d = Document(uri=svg0).convert_uri_to_datauri()
-    _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
-    svg1 = os.path.join(output_dir, 'all-config.svg')
-    save_config_svg(args, svg1)
-    d = Document(uri=svg1).convert_uri_to_datauri()
-    _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name, only_non_default=True)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.config.value = f'<img src="{d.uri}" alt="non-default config">'
 
-    non_defaults = {}
-    taboo = {'name_docarray'}
-    for k, v in vars(args).items():
-        if k.startswith('_') or k in taboo:
-            continue
+    with tempfile.NamedTemporaryFile(mode='wt', suffix='.svg') as fp:
+        save_config_svg(args, fp.name)
+        d = Document(uri=fp.name).convert_uri_to_datauri()
+        _handlers.all_config.value = f'<img src="{d.uri}" alt="all config">'
 
-        if not default_args.get(k, None) == v:
-            non_defaults[k] = v
-
-    kwargs_string = ',\n    '.join(
-        f'{k}=\'{v}\'' if isinstance(v, str) else f'{k}={v}'
-        for k, v in non_defaults.items()
-    )
-    _handlers.code.value = f'''
-#!pip install docarray=={__version__}
-
-from discoart import create
-
-da = create(
-    {kwargs_string}
-)    
-    '''
+    _handlers.code.value = export_python(args)
     _redraw_fn()
 
 
@@ -512,3 +526,10 @@ def _set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
+
+
+def _detach(val):
+    if isinstance(val, (int, float)):
+        return val
+    else:
+        return val.detach().cpu().item()

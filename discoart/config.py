@@ -1,8 +1,9 @@
 import copy
 import os
 import random
+import uuid
 from types import SimpleNamespace
-from typing import Dict, Union, Optional
+from typing import Dict, Union, Optional, Tuple
 
 import yaml
 from docarray import DocumentArray, Document
@@ -26,7 +27,7 @@ with open(
 ) as ymlfile:
     cut_schedules = yaml.load(ymlfile, Loader=Loader)
 
-_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt'}
+_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt', 'display_rate'}
 
 
 def load_config(
@@ -71,7 +72,7 @@ def load_config(
         }
     )
 
-    _id = random.getrandbits(128).to_bytes(16, 'big').hex()
+    _id = uuid.uuid1().hex
     if cfg['batch_name']:
         da_name = f'{__package__}-{cfg["batch_name"]}-{_id}'
     else:
@@ -85,14 +86,15 @@ def load_config(
 
 
 def show_config(
-    docs: Union['Document', 'Document', Dict, str], only_non_default: bool = True
+    docs: Union['Document', 'Document', Dict, str, SimpleNamespace],
+    only_non_default: bool = True,
 ):
     cfg = _extract_config_from_docs(docs)
     print_args_table(cfg, only_non_default=only_non_default)
 
 
 def save_config_svg(
-    docs: Union['DocumentArray', 'Document', Dict],
+    docs: Union['Document', 'Document', Dict, str, SimpleNamespace],
     output: Optional[str] = None,
     **kwargs,
 ) -> None:
@@ -202,7 +204,9 @@ def cheatsheet():
     console.print(param_tab)
 
 
-def save_config(docs: Union['Document', 'Document', Dict, str], output: str) -> None:
+def save_config(
+    docs: Union['Document', 'Document', Dict, str, SimpleNamespace], output: str
+) -> None:
     cfg = _extract_config_from_docs(docs)
     with open(output, 'w') as f:
         yaml.dump(cfg, f)
@@ -223,3 +227,31 @@ def _extract_config_from_docs(docs):
         cfg = DocumentArray.pull(docs)[0].tags
 
     return load_config(cfg)
+
+
+def export_python(
+    docs: Union['Document', 'Document', Dict, str, SimpleNamespace],
+    ignored_args: Tuple[str] = ('name_docarray',),
+) -> str:
+    cfg = _extract_config_from_docs(docs)
+    non_defaults = {}
+    for k, v in cfg.items():
+        if k.startswith('_') or k in ignored_args:
+            continue
+
+        if not default_args.get(k, None) == v:
+            non_defaults[k] = v
+
+    kwargs_string = ',\n    '.join(
+        f'{k}=\'{v}\'' if isinstance(v, str) else f'{k}={v}'
+        for k, v in non_defaults.items()
+    )
+
+    return f'''
+#!pip install {__package__}=={__version__}
+
+from discoart import create
+
+da = create(
+    {kwargs_string}
+)'''

@@ -95,6 +95,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -1950,4 +1959,176 @@
 ### 🍹 Other Improvements
 
  - [[```1a6ed8d8```](https://github.com/jina-ai/discoart/commit/1a6ed8d810e5c4c3203c81501542674a526bb361)] __-__ __version__: the next version will be 0.10.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-3></a>
+## Release Note (`0.10.3`)
+
+> Release time: 2022-07-31 16:10:34
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```989b83be```](https://github.com/jina-ai/discoart/commit/989b83bed15c36f0763ee158165eaf183f83aeb6)] __-__ disable wandb by default (#117) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```6348454b```](https://github.com/jina-ai/discoart/commit/6348454b76d2f5b58517eb42f82551776eec25d2)] __-__ __version__: the next version will be 0.10.3 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-4></a>
+## Release Note (`0.10.4`)
+
+> Release time: 2022-07-31 16:39:05
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```c19dfc5c```](https://github.com/jina-ai/discoart/commit/c19dfc5c385a4c70f0027ca3153f9720ad354968)] __-__ name_docarray should be unrelated to seed (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```f4f45fd6```](https://github.com/jina-ai/discoart/commit/f4f45fd6fa92a581b230393a54f931655abcfe11)] __-__ __version__: the next version will be 0.10.4 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-5></a>
+## Release Note (`0.10.5`)
+
+> Release time: 2022-08-01 13:36:37
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```d11c398a```](https://github.com/jina-ai/discoart/commit/d11c398a380f450b365bf2abef9e603d754cad93)] __-__ move python code generation to runner (#121) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```7b752ba2```](https://github.com/jina-ai/discoart/commit/7b752ba281a5a738dab07335c48cc1eaea3bc49e)] __-__ __version__: the next version will be 0.10.5 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-6></a>
+## Release Note (`0.10.6`)
+
+> Release time: 2022-08-01 21:38:21
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Nan Wang,  Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```138cec60```](https://github.com/jina-ai/discoart/commit/138cec60d8f0bb93eeeeab131e54da0a70a04e9b)] __-__ fix loss tracking scale (#123) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```015449f4```](https://github.com/jina-ai/discoart/commit/015449f43f7f669d1414d1368cf45d7898dbdfc7)] __-__ remove the unused lines (#122) (*Nan Wang*)
+ - [[```5e27f28a```](https://github.com/jina-ai/discoart/commit/5e27f28a16a95f40a71bcd176a9affd39241f4d6)] __-__ __version__: the next version will be 0.10.6 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-7></a>
+## Release Note (`0.10.7`)
+
+> Release time: 2022-08-02 08:21:01
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```4bbb3b00```](https://github.com/jina-ai/discoart/commit/4bbb3b0050db5a7938ef1e649350f7609030afe5)] __-__ eval schedule string (#125) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```cf1f5814```](https://github.com/jina-ai/discoart/commit/cf1f581432dbc81846c66d4dadb4db30091f3dbf)] __-__ __version__: the next version will be 0.10.7 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-8></a>
+## Release Note (`0.10.8`)
+
+> Release time: 2022-08-02 09:10:17
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```54b89a17```](https://github.com/jina-ai/discoart/commit/54b89a172fd96ec6e82b10221e303dd4c2b98597)] __-__ code generation package (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```ba37c51e```](https://github.com/jina-ai/discoart/commit/ba37c51ed0944505edb726be301651a6d34a0e1f)] __-__ __version__: the next version will be 0.10.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-9></a>
+## Release Note (`0.10.9`)
+
+> Release time: 2022-08-02 19:12:02
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```993a021b```](https://github.com/jina-ai/discoart/commit/993a021b1d8c8d9c9c3913bcdb0bc626d8c72786)] __-__ make eval schedule string safe (#126) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```a8cd98cc```](https://github.com/jina-ai/discoart/commit/a8cd98ccafa59d12a70732af837285d712bcab74)] __-__ __version__: the next version will be 0.10.9 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-10></a>
+## Release Note (`0.10.10`)
+
+> Release time: 2022-08-02 21:08:04
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```d554a35a```](https://github.com/jina-ai/discoart/commit/d554a35a18e7c1fa4375e52b22202ac6a81c2c3d)] __-__ less verbose on gif and progress output (#127) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```31a690e4```](https://github.com/jina-ai/discoart/commit/31a690e446c1690b795dff274060387ca72cd2d8)] __-__ __version__: the next version will be 0.10.10 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-11></a>
+## Release Note (`0.10.11`)
+
+> Release time: 2022-08-03 10:45:31
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```82b9b897```](https://github.com/jina-ai/discoart/commit/82b9b897568963b4d46a06089e145e0dd0c663cc)] __-__ final output and progress on save (#128) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```c9effc93```](https://github.com/jina-ai/discoart/commit/c9effc939440c10b05844790b33c0c7459919eab)] __-__ __version__: the next version will be 0.10.11 (*Jina Dev Bot*)
 
