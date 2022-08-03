@@ -105,6 +105,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2151,4 +2152,23 @@
 ### 🍹 Other Improvements
 
  - [[```a62b3324```](https://github.com/jina-ai/discoart/commit/a62b332499dfacfadf2a37765767c9340d25dbfe)] __-__ __version__: the next version will be 0.10.12 (*Jina Dev Bot*)
+
+<a name=release-note-0-10-13></a>
+## Release Note (`0.10.13`)
+
+> Release time: 2022-08-03 21:18:38
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```471c6dc9```](https://github.com/jina-ai/discoart/commit/471c6dc9e03702c67180ef6ce8990955c217e0db)] __-__ add display rate back for saving bandwidth (#132) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```5baa0da6```](https://github.com/jina-ai/discoart/commit/5baa0da6c9d7b2c1ee256b94abc16a8becc03ab6)] __-__ __version__: the next version will be 0.10.13 (*Jina Dev Bot*)
 
