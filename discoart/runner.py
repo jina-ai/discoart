@@ -172,6 +172,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
         num_step = _MAX_DIFFUSION_STEPS - t_int
         scheduler = _get_current_schedule(schedule_table, num_step)
+        is_cuts_visualized = False
 
         with torch.enable_grad():
 
@@ -266,13 +267,15 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
                     clip_in = normalize(cuts(x_in.add(1).div(2)))
 
-                    if args.visualize_cuts:
+                    if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
                         _cuts_da.tensors = clip_in
                         _cuts_da.plot_image_sprites(
                             os.path.join(output_dir, f'cuts-{num_step}.png'),
                             show_index=True,
+                            channel_axis=1,
                         )
+                        is_cuts_visualized = True
 
                     image_embeds = (
                         model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
