@@ -278,7 +278,7 @@ def load_clip_models(
     # load enabled models
     for k in enabled:
         if k not in clip_models:
-            if '::' in k and k.split('::')[-1] != 'openai':
+            if '::' in k and (k.split('::')[-1] != 'openai' or '-quickgelu' in k):
                 # use open_clip loader
                 k1, k2 = k.split('::')
                 logger.debug(f'use open_clip to load {k1}')
