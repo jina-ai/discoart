@@ -61,3 +61,4 @@ skip_event:
 stop_event:
 text_clip_on_cpu: False
 truncate_overlength_prompt: False
+image_output: True

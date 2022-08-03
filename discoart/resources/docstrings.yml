@@ -222,3 +222,6 @@ gif_size_ratio: |
 
 truncate_overlength_prompt: |
   [DiscoArt] all CLIP models use 77 as the context length. Set this parameter truncates the prompt to the length of the model's context length.
+
+image_output: |
+  [DiscoArt] If set, then output will be saved as images. This includes intermediate, final results in the form of PNG and GIF. If set to False, then no images will be saved, everything will be saved in a Protobuf LZ4 format. https://docarray.jina.ai/fundamentals/documentarray/serialization/#from-to-bytes
