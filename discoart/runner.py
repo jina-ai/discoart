@@ -459,6 +459,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 
                 is_save_step = args.save_rate > 0 and j % args.save_rate == 0
                 is_complete = cur_t == -1
+                is_display_step = args.display_rate > 0 and j % args.display_rate == 0
 
                 threads.append(
                     _sample_thread(
@@ -475,6 +476,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         is_save_step or is_complete,
                         args.gif_fps > 0,
                         args.image_output,
+                        is_display_step,
                     )
                 )
 

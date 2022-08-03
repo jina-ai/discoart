@@ -228,3 +228,6 @@ image_output: |
 
 visualize_cuts: |
   [DiscoArt] If set, then `cuts-{step}.png` will be saved for each step, visualizing all cuts in a sprite image at each step.
+
+display_rate: |
+  [DiscoArt] The rate of displaying the generated images in Notebook. The value has nothing to do with the rate of saving images and the speed of generation. Smaller value will consumes more network bandwidth, as your browser will actively fetching the image to local. Change it to a smaller value if you have limited network bandwith.
