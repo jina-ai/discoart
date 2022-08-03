@@ -472,24 +472,25 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         loss_values,
                         output_dir,
                         is_busy_evs[0],
-                        is_save_step,
+                        is_save_step or is_complete,
                         args.gif_fps > 0,
+                        args.image_output,
                     )
                 )
 
-                if is_save_step:
-                    threads.append(
-                        _save_progress_thread(
-                            _da,
-                            _da_gif,
-                            _nb,
-                            output_dir,
-                            args.gif_fps,
-                            args.gif_size_ratio,
-                        )
-                    )
-
                 if is_complete or is_save_step:
+                    if args.image_output:
+                        threads.append(
+                            _save_progress_thread(
+                                _da,
+                                _da_gif,
+                                _nb,
+                                output_dir,
+                                args.gif_fps,
+                                args.gif_size_ratio,
+                            )
+                        )
+
                     threads.extend(
                         _persist_thread(
                             da_batches,
