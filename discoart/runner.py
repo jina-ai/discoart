@@ -267,6 +267,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
 
                     clip_in = cuts(x_in.add(1).div(2))
+                    print(clip_in)
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
