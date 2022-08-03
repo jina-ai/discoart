@@ -265,20 +265,23 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         IC_Grey_P=scheduler.cut_icgray_p,
                         skip_augs=scheduler.skip_augs,
                     )
-                    clip_in = normalize(cuts(x_in.add(1).div(2)))
+
+                    clip_in = cuts(x_in.add(1).div(2))
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
                         _cuts_da.tensors = clip_in.detach().cpu().numpy()
                         _cuts_da.plot_image_sprites(
-                            os.path.join(output_dir, f'cuts-{num_step}.png'),
+                            os.path.join(output_dir, f'{_nb}-cuts-{num_step}.png'),
                             show_index=True,
                             channel_axis=0,
                         )
                         is_cuts_visualized = True
 
                     image_embeds = (
-                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
+                        model_stat['clip_model']
+                        .encode_image(normalize(clip_in))
+                        .unsqueeze(1)
                     )
 
                     dists = spherical_dist_loss(
