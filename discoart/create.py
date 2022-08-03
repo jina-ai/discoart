@@ -77,6 +77,7 @@ def create(
     use_horizontal_symmetry: Optional[bool] = False,
     use_secondary_model: Optional[Union[bool, str]] = True,
     use_vertical_symmetry: Optional[bool] = False,
+    visualize_cuts: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
 
@@ -144,6 +145,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
     :param use_secondary_model: Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.[DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.Note that without secondary model it will consume higher VRAM but gives better quality. Simply put, secondary model is faster, but a less accurate approximation to `p_mean_variance`.
     :param use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+    :param visualize_cuts: [DiscoArt] If set, then `cuts-{step}.png` will be saved for each step, visualizing all cuts in a sprite image at each step.
     :param width_height: Desired final image size, in pixels. You can have a square, wide, or tall image, but each edge length should be set to a multiple of 64px, and a minimum of 512px on the default CLIP model setting.  If you forget to use multiples of 64px in your dimensions, DD will adjust the dimensions of your image to make it so.
     :return: a DocumentArray object that has `n_batches` Documents
     """
