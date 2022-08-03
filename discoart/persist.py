@@ -30,6 +30,7 @@ def _sample(
     is_sampling_done,
     is_save_step,
     is_save_gif,
+    is_image_output,
 ):
     with threading.Lock():
         is_sampling_done.clear()
@@ -50,16 +51,19 @@ def _sample(
             ).load_pil_image_to_datauri(image)
 
             if is_save_step:
-                if cur_t == -1:
-                    c.save_uri_to_file(os.path.join(output_dir, f'{_nb}-done-{k}.png'))
-                else:
-                    c.save_uri_to_file(
-                        os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
-                    )
+                if is_image_output:
+                    if cur_t == -1:
+                        c.save_uri_to_file(
+                            os.path.join(output_dir, f'{_nb}-done-{k}.png')
+                        )
+                    else:
+                        c.save_uri_to_file(
+                            os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
+                        )
 
                 da[k].chunks.append(c)
 
-            if is_save_gif:
+            if is_save_gif and is_image_output:
                 da_gif[k].chunks.append(c)
 
             # root doc always update with the latest progress
