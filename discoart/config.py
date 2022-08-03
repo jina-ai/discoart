@@ -27,7 +27,7 @@ with open(
 ) as ymlfile:
     cut_schedules = yaml.load(ymlfile, Loader=Loader)
 
-_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt', 'display_rate'}
+_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt'}
 
 
 def load_config(
@@ -52,16 +52,15 @@ def load_config(
 
         cfg.update(**user_config)
 
-    for k, v in cfg.items():
-        if k in (
-            'batch_size',
-            'display_rate',
+    int_keys = {k for k, v in default_args.items() if isinstance(v, int)}
+    int_keys.union(
+        {
             'seed',
-            'skip_steps',
-            'steps',
-            'n_batches',
-            'cutn_batches',
-        ) and isinstance(v, float):
+        }
+    )
+
+    for k, v in cfg.items():
+        if k in int_keys and isinstance(v, float):
             cfg[k] = int(v)
         if k == 'width_height':
             cfg[k] = [int(vv) for vv in v]

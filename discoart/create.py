@@ -39,6 +39,7 @@ def create(
     diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
     diffusion_model_config: Optional[Dict[str, Any]] = None,
     diffusion_sampling_mode: Optional[str] = 'ddim',
+    display_rate: Optional[int] = 1,
     eta: Optional[float] = 0.8,
     gif_fps: Optional[int] = 20,
     gif_size_ratio: Optional[float] = 0.5,
@@ -114,6 +115,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param diffusion_model: Diffusion_model of choice. Note that you don't have to write the full name of the diffusion model, e.g. any prefix is enough.To use a listed all diffusion models, you can do:```pythonfrom discoart import createcreate(diffusion_model='portrait_generator', ...)```
     :param diffusion_model_config: [DiscoArt] The customized diffusion model config as a dictionary, if specified will override the values with the same name in the default model config.
     :param diffusion_sampling_mode: Two alternate diffusion denoising algorithms. ddim has been around longer, and is more established and tested.  plms is a newly added alternate method that promises good diffusion results in fewer steps, but has not been as fully tested and may have side effects. This new plms mode is actively being researched in the #settings-and-techniques channel in the DD Discord.
+    :param display_rate: [DiscoArt] The refresh rate of displaying the generated images in Notebook environment. The value has nothing to do with the rate of saving images and the speed of generation or sampling. It is purely about your browser refreshing. Smaller value (1 is the smallest, 0 will disable the refresh) will consume more network bandwidth, as your browser will actively fetch refreshed images to local. Change it to a bigger value if you have limited network bandwidth.
     :param eta: eta (greek letter η) is a diffusion model variable that mixes in a random amount of scaled noise into each timestep. 0 is no noise, 1.0 is more noise. As with most DD parameters, you can go below zero for eta, but it may give you unpredictable results. The steps parameter has a close relationship with the eta parameter. If you set eta to 0, then you can get decent output with only 50-75 steps. Setting eta to 1.0 favors higher step counts, ideally around 250 and up. eta has a subtle, unpredictable effect on image, so you’ll need to experiment to see how this affects your projects.
     :param gif_fps: [DiscoArt] The frame rate of the generated GIF. Set it to -1 for not saving GIF.
     :param gif_size_ratio: [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
