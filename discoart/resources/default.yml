@@ -4,6 +4,8 @@ text_prompts:
 
 init_image:
 width_height: [ 1280, 768 ]
+inpaint_image:
+inpaint_mask:
 
 skip_steps: 0
 steps: 250
