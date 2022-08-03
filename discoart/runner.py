@@ -267,11 +267,10 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     )
 
                     clip_in = cuts(x_in.add(1).div(2))
-                    print(clip_in)
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
-                        _cuts_da.tensors = clip_in.detach().cpu().numpy()
+                        _cuts_da.tensors = (clip_in * 255).detach().cpu().numpy()
                         _cuts_da.plot_image_sprites(
                             os.path.join(output_dir, f'{_nb}-cuts-{num_step}.png'),
                             show_index=True,
