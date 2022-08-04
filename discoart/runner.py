@@ -219,6 +219,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
+                    print(x_in)
+                    print(x_in.shape)
                     clip_in = torch.cat(
                         [augmenter(x_in.add(1).div(2)) for _ in range(16)]
                     )
