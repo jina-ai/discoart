@@ -27,7 +27,7 @@ with open(
 ) as ymlfile:
     cut_schedules = yaml.load(ymlfile, Loader=Loader)
 
-_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt'}
+_legacy_args = {'clip_sequential_evaluation', 'fuzzy_prompt', 'skip_augs'}
 
 
 def load_config(

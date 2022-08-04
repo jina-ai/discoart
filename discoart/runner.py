@@ -33,19 +33,22 @@ from .nn.transform import symmetry_transformation_fn
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
 from .prompt import PromptPlanner
 
+inv_normalize = T.Normalize(
+    mean=[-0.48145466 / 0.26862954, -0.4578275 / 0.26130258, -0.40821073 / 0.27577711],
+    std=[1 / 0.26862954, 1 / 0.26130258, 1 / 0.27577711],
+)
+
 
 def do_run(args, models, device, events) -> 'DocumentArray':
     skip_event, stop_event = events
+
+    _is_jupyter = is_jupyter()
 
     output_dir = get_output_dir(args.name_docarray)
 
     logger.info('preparing models...')
 
     model, diffusion, clip_models, secondary_model = models
-    normalize = T.Normalize(
-        mean=[0.48145466, 0.4578275, 0.40821073],
-        std=[0.26862954, 0.26130258, 0.27577711],
-    )
     lpips_model = lpips.LPIPS(net='vgg').to(device)
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
@@ -217,21 +220,22 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 else:
                     continue
 
-                for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
+                cuts = MakeCutoutsDango(
+                    model_stat['input_resolution'],
+                    Overview=scheduler.cut_overview,
+                    InnerCrop=scheduler.cut_innercut,
+                    IC_Size_Pow=scheduler.cut_ic_pow,
+                    IC_Grey_P=scheduler.cut_icgray_p,
+                )
 
+                for _ in range(scheduler.cutn_batches):
                     clip_in = cuts(x_in.add(1).div(2))
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
-                        _cuts_da.tensors = (clip_in * 255).detach().cpu().numpy()
+                        _cuts_da.tensors = (
+                            (inv_normalize(clip_in) * 255).detach().cpu().numpy()
+                        )
                         _cuts_da.plot_image_sprites(
                             os.path.join(output_dir, f'{_nb}-cuts-{num_step}.png'),
                             show_index=True,
@@ -240,9 +244,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         is_cuts_visualized = True
 
                     image_embeds = (
-                        model_stat['clip_model']
-                        .encode_image(normalize(clip_in))
-                        .unsqueeze(1)
+                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
 
                     dists = spherical_dist_loss(
@@ -350,7 +352,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
-        if is_jupyter():
+        if _is_jupyter:
             redraw_widget(
                 _handlers,
                 _redraw_fn,
@@ -377,7 +379,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
+                progress=_is_jupyter,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
@@ -394,7 +396,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
+                progress=_is_jupyter,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
