@@ -172,10 +172,6 @@ clip_models: |
 use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
 use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
 transformation_percent: Steps expressed in percentages in which the symmetry is enforced
-skip_augs: |
-  Controls whether to skip torchvision augmentations.
-  
-  [DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
 
 
 on_misspelled_token: |
