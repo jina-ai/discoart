@@ -296,6 +296,7 @@ DISCOART_CACHE_DIR='path/to/your-cache-dir' # use a custom cache directory for m
 DISCOART_DISABLE_REMOTE_MODELS='1' # disable the listing of diffusion models on Github, remote diffusion models allows user to use latest models without updating the codebase.
 DISCOART_REMOTE_MODELS_URL='https://yourdomain/models.yml' # use a custom remote URL for fetching models list
 DISCOART_DISABLE_CHECK_MODEL_SHA='1' # disable checking local model SHA matches the remote model SHA
+DISCOART_DISABLE_TQDM='1' # disable tqdm progress bar on diffusion
 ```
 
 ## CLI
