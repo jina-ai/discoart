@@ -89,6 +89,7 @@ augment = torch.jit.script(
                 interpolation=T.InterpolationMode.BILINEAR,
             ),
             T.RandomGrayscale(p=0.1),
+            T.RandomErasing(),
             T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         ]
     )
@@ -112,7 +113,7 @@ class MakeCutoutsDango(nn.Module):
         self.IC_Grey_P = IC_Grey_P
 
     def forward(self, input):
-        return augment(torch.cat(list(self._cut_generator(input))))
+        return torch.cat([augment(c) for c in self._cut_generator(input)])
 
     def _cut_generator(self, input):
         gray = T.Grayscale(3)
