@@ -94,17 +94,21 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
-        self.augs = T.Compose(
-            [
-                T.RandomHorizontalFlip(p=0.5),
-                T.RandomAffine(
-                    degrees=10,
-                    translate=(0.05, 0.05),
-                    interpolation=T.InterpolationMode.BILINEAR,
-                ),
-                T.RandomGrayscale(p=0.5),
-                T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-            ]
+        self.augs = torch.jit.script(
+            torch.nn.Sequential(
+                *[
+                    T.RandomHorizontalFlip(p=0.5),
+                    T.RandomAffine(
+                        degrees=10,
+                        translate=(0.05, 0.05),
+                        interpolation=T.InterpolationMode.BILINEAR,
+                    ),
+                    T.RandomGrayscale(p=0.1),
+                    T.ColorJitter(
+                        brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1
+                    ),
+                ]
+            )
         )
 
     def forward(self, input):
