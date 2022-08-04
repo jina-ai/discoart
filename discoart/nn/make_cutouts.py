@@ -102,7 +102,6 @@ class MakeCutoutsDango(nn.Module):
                     translate=(0.05, 0.05),
                     interpolation=T.InterpolationMode.BILINEAR,
                 ),
-                T.RandomPerspective(),
                 T.RandomGrayscale(p=0.5),
                 T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             ]
