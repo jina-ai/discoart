@@ -27,7 +27,7 @@ from .helper import (
     is_jupyter,
 )
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
-from .nn.make_cutouts import MakeCutoutsDango
+from .nn.make_cutouts import MakeCutouts
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
@@ -220,7 +220,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 else:
                     continue
 
-                cuts = MakeCutoutsDango(
+                cuts = MakeCutouts(
                     model_stat['input_resolution'],
                     Overview=scheduler.cut_overview,
                     InnerCrop=scheduler.cut_innercut,
