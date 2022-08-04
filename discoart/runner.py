@@ -222,6 +222,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     clip_in = torch.cat(
                         [augmenter(x_in.add(1).div(2)) for _ in range(16)]
                     )
+                    print(clip_in.shape)
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
