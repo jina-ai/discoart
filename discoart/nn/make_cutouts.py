@@ -57,7 +57,7 @@ class MakeCutoutsDango(nn.Module):
 
         cutout = resize(pad_input, out_shape=output_shape)
         for _ in range(self.Overview):
-            yield cutout + torch.randn_like(cutout) * 0.01
+            yield cutout
 
         for i in range(self.InnerCrop):
             size = int(
@@ -66,7 +66,6 @@ class MakeCutoutsDango(nn.Module):
             offsetx = torch.randint(0, sideX - size + 1, ())
             offsety = torch.randint(0, sideY - size + 1, ())
             cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
-            cutout += torch.randn_like(cutout) * 0.01
             if i <= int(self.IC_Grey_P * self.InnerCrop):
                 cutout = gray(cutout)
             yield resize(cutout, out_shape=output_shape)

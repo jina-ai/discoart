@@ -37,6 +37,8 @@ from .prompt import PromptPlanner
 def do_run(args, models, device, events) -> 'DocumentArray':
     skip_event, stop_event = events
 
+    _is_jupyter = is_jupyter()
+
     output_dir = get_output_dir(args.name_docarray)
 
     logger.info('preparing models...')
@@ -349,7 +351,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
         new_seed = org_seed + _nb
         _set_seed(new_seed)
         args.seed = new_seed
-        if is_jupyter():
+        if _is_jupyter:
             redraw_widget(
                 _handlers,
                 _redraw_fn,
@@ -376,7 +378,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
+                progress=_is_jupyter,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
@@ -393,7 +395,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 clip_denoised=args.clip_denoised,
                 model_kwargs={},
                 cond_fn=cond_fn,
-                progress=True,
+                progress=_is_jupyter,
                 skip_timesteps=skip_steps,
                 init_image=init,
                 randomize_class=args.randomize_class,
