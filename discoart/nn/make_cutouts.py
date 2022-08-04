@@ -131,6 +131,7 @@ class MakeCutoutsDango(nn.Module):
             ),
             **padargs,
         )
+
         cutout = resize(pad_input, out_shape=output_shape)
         for _ in range(self.Overview):
             yield cutout
@@ -144,8 +145,7 @@ class MakeCutoutsDango(nn.Module):
             cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
             if i <= int(self.IC_Grey_P * self.InnerCrop):
                 cutout = gray(cutout)
-            cutout = resize(cutout, out_shape=output_shape)
-            yield cutout
+            yield resize(cutout, out_shape=output_shape)
 
 
 def resample(input, size, align_corners=True):
