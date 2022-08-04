@@ -39,6 +39,7 @@ def create(
     diffusion_model: Optional[str] = '512x512_diffusion_uncond_finetune_008100',
     diffusion_model_config: Optional[Dict[str, Any]] = None,
     diffusion_sampling_mode: Optional[str] = 'ddim',
+    display_rate: Optional[int] = 1,
     eta: Optional[float] = 0.8,
     gif_fps: Optional[int] = 20,
     gif_size_ratio: Optional[float] = 0.5,
@@ -79,6 +80,7 @@ def create(
     use_horizontal_symmetry: Optional[bool] = False,
     use_secondary_model: Optional[Union[bool, str]] = True,
     use_vertical_symmetry: Optional[bool] = False,
+    visualize_cuts: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
 
@@ -115,6 +117,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param diffusion_model: Diffusion_model of choice. Note that you don't have to write the full name of the diffusion model, e.g. any prefix is enough.To use a listed all diffusion models, you can do:```pythonfrom discoart import createcreate(diffusion_model='portrait_generator', ...)```
     :param diffusion_model_config: [DiscoArt] The customized diffusion model config as a dictionary, if specified will override the values with the same name in the default model config.
     :param diffusion_sampling_mode: Two alternate diffusion denoising algorithms. ddim has been around longer, and is more established and tested.  plms is a newly added alternate method that promises good diffusion results in fewer steps, but has not been as fully tested and may have side effects. This new plms mode is actively being researched in the #settings-and-techniques channel in the DD Discord.
+    :param display_rate: [DiscoArt] The refresh rate of displaying the generated images in Notebook environment. The value has nothing to do with the rate of saving images and the speed of generation or sampling. It is purely about your browser refreshing. Smaller value (1 is the smallest, 0 will disable the refresh) will consume more network bandwidth, as your browser will actively fetch refreshed images to local. Change it to a bigger value if you have limited network bandwidth.
     :param eta: eta (greek letter η) is a diffusion model variable that mixes in a random amount of scaled noise into each timestep. 0 is no noise, 1.0 is more noise. As with most DD parameters, you can go below zero for eta, but it may give you unpredictable results. The steps parameter has a close relationship with the eta parameter. If you set eta to 0, then you can get decent output with only 50-75 steps. Setting eta to 1.0 favors higher step counts, ideally around 250 and up. eta has a subtle, unpredictable effect on image, so you’ll need to experiment to see how this affects your projects.
     :param gif_fps: [DiscoArt] The frame rate of the generated GIF. Set it to -1 for not saving GIF.
     :param gif_size_ratio: [DiscoArt] The relative size vs. the original image, small size ratio gives smaller file size.
@@ -148,6 +151,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param use_horizontal_symmetry: Enforce symmetry over y axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
     :param use_secondary_model: Option to use a secondary purpose-made diffusion model to clean up interim diffusion images for CLIP evaluation.    If this option is turned off, DD will use the regular (large) diffusion model.    Using the secondary model is faster - one user reported a 50% improvement in render speed! However, the secondary model is much smaller, and may reduce image quality and detail.  I suggest you experiment with this.[DiscoArt] It can be also an boolean list schedule that represents on/off on secondary model at each step, same as `clip_models_schedules` or `cut_overview`.Note that without secondary model it will consume higher VRAM but gives better quality. Simply put, secondary model is faster, but a less accurate approximation to `p_mean_variance`.
     :param use_vertical_symmetry: Enforce symmetry over x axis of the image on [tr_ststeps for tr_st in transformation_steps] steps of the diffusion process
+    :param visualize_cuts: [DiscoArt] If set, then `cuts-{step}.png` will be saved for each step, visualizing all cuts in a sprite image at each step.
     :param width_height: Desired final image size, in pixels. You can have a square, wide, or tall image, but each edge length should be set to a multiple of 64px, and a minimum of 512px on the default CLIP model setting.  If you forget to use multiples of 64px in your dimensions, DD will adjust the dimensions of your image to make it so.
     :return: a DocumentArray object that has `n_batches` Documents
     """

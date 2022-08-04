@@ -225,3 +225,9 @@ truncate_overlength_prompt: |
 
 image_output: |
   [DiscoArt] If set, then output will be saved as images. This includes intermediate, final results in the form of PNG and GIF. If set to False, then no images will be saved, everything will be saved in a Protobuf LZ4 format. https://docarray.jina.ai/fundamentals/documentarray/serialization/#from-to-bytes
+
+visualize_cuts: |
+  [DiscoArt] If set, then `cuts-{step}.png` will be saved for each step, visualizing all cuts in a sprite image at each step.
+
+display_rate: |
+  [DiscoArt] The refresh rate of displaying the generated images in Notebook environment. The value has nothing to do with the rate of saving images and the speed of generation or sampling. It is purely about your browser refreshing. Smaller value (1 is the smallest, 0 will disable the refresh) will consume more network bandwidth, as your browser will actively fetch refreshed images to local. Change it to a bigger value if you have limited network bandwidth.

@@ -31,6 +31,7 @@ def _sample(
     is_save_step,
     is_save_gif,
     is_image_output,
+    is_display_step,
 ):
     with threading.Lock():
         is_sampling_done.clear()
@@ -78,7 +79,8 @@ def _sample(
 
             _display_html.append(f'<img src="{c.uri}" alt="step {j} minibatch {k}">')
 
-        _handlers.preview.value = '<br>\n'.join(_display_html)
+        if is_display_step:
+            _handlers.preview.value = '<br>\n'.join(_display_html)
         logger.debug('sample and plot is done')
         is_sampling_done.set()
 
