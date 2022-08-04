@@ -114,7 +114,14 @@ def do_run(args, models, device, events) -> 'DocumentArray':
     _set_seed(args.seed)
     if args.init_image:
         d = Document(uri=args.init_image).load_uri_to_image_tensor(side_x, side_y)
-        init = TF.to_tensor(d.tensor).to(device).unsqueeze(0).mul(2).sub(1)
+        init = (
+            TF.to_tensor(d.tensor)
+            .to(device)
+            .unsqueeze(0)
+            .mul(2)
+            .sub(1)
+            .expand(args.batch_size, -1, -1, -1)
+        )
 
     cur_t = None
 
@@ -362,9 +369,6 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             init = regen_perlin(
                 args.perlin_mode, side_y, side_x, device, args.batch_size
             )
-
-        print(init.requires_grad)
-        init.requires_grad_(False)
 
         if args.diffusion_sampling_mode == 'ddim':
             samples = sample_fn(
