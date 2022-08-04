@@ -98,7 +98,6 @@ class MakeCutoutsDango(nn.Module):
         self.skip_augs = skip_augs
         self.augs = T.Compose(
             [
-                T.RandomPosterize(bits=2),
                 T.RandomHorizontalFlip(p=0.5),
                 T.RandomAffine(
                     degrees=10,
