@@ -55,7 +55,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     schedule_table = _get_schedule_table(args)
 
-    from .nn.perlin_noises import create_perlin_noise, regen_perlin
+    from .nn.perlin_noises import regen_perlin
 
     skip_steps = args.skip_steps
 
@@ -220,15 +220,15 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 else:
                     continue
 
-                cuts = MakeCutouts(
-                    model_stat['input_resolution'],
-                    Overview=scheduler.cut_overview,
-                    InnerCrop=scheduler.cut_innercut,
-                    IC_Size_Pow=scheduler.cut_ic_pow,
-                    IC_Grey_P=scheduler.cut_icgray_p,
-                )
-
                 for _ in range(scheduler.cutn_batches):
+                    cuts = MakeCutouts(
+                        model_stat['input_resolution'],
+                        Overview=scheduler.cut_overview,
+                        InnerCrop=scheduler.cut_innercut,
+                        IC_Size_Pow=scheduler.cut_ic_pow,
+                        IC_Grey_P=scheduler.cut_icgray_p,
+                    )
+
                     clip_in = cuts(x_in.add(1).div(2))
 
                     if args.visualize_cuts and not is_cuts_visualized:
