@@ -99,15 +99,12 @@ class MakeCutoutsDango(nn.Module):
         self.augs = T.Compose(
             [
                 T.RandomHorizontalFlip(p=0.5),
-                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.RandomAffine(
                     degrees=10,
                     translate=(0.05, 0.05),
                     interpolation=T.InterpolationMode.BILINEAR,
                 ),
-                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.RandomGrayscale(p=0.1),
-                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             ]
         )
