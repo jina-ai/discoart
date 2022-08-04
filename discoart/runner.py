@@ -257,55 +257,59 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
-
-                    clip_in = cuts(x_in.add(1).div(2))
-
-                    if args.visualize_cuts and not is_cuts_visualized:
-                        _cuts_da = DocumentArray.empty(clip_in.shape[0])
-                        _cuts_da.tensors = (clip_in * 255).detach().cpu().numpy()
-                        _cuts_da.plot_image_sprites(
-                            os.path.join(output_dir, f'{_nb}-cuts-{num_step}.png'),
-                            show_index=True,
-                            channel_axis=0,
+                    for _cut_schedules in (
+                        (scheduler.cut_overview, 0),
+                        (0, scheduler.cut_innercut),
+                    ):
+                        cuts = MakeCutoutsDango(
+                            model_stat['input_resolution'],
+                            Overview=_cut_schedules[0],
+                            InnerCrop=_cut_schedules[1],
+                            IC_Size_Pow=scheduler.cut_ic_pow,
+                            IC_Grey_P=scheduler.cut_icgray_p,
+                            skip_augs=scheduler.skip_augs,
                         )
-                        is_cuts_visualized = True
 
-                    image_embeds = (
-                        model_stat['clip_model']
-                        .encode_image(normalize(clip_in))
-                        .unsqueeze(1)
-                    )
+                        clip_in = cuts(x_in.add(1).div(2))
 
-                    dists = spherical_dist_loss(
-                        image_embeds,
-                        masked_embeds.unsqueeze(0),  # 1, 2, 512
-                    )
+                        if args.visualize_cuts and not is_cuts_visualized:
+                            _cuts_da = DocumentArray.empty(clip_in.shape[0])
+                            _cuts_da.tensors = (clip_in * 255).detach().cpu().numpy()
+                            _cuts_da.plot_image_sprites(
+                                os.path.join(output_dir, f'{_nb}-cuts-{num_step}.png'),
+                                show_index=True,
+                                channel_axis=0,
+                            )
+                            is_cuts_visualized = True
 
-                    dists = dists.view(
-                        [
-                            scheduler.cut_overview + scheduler.cut_innercut,
-                            x.shape[0],
-                            -1,
-                        ]
-                    )
+                        image_embeds = (
+                            model_stat['clip_model']
+                            .encode_image(normalize(clip_in))
+                            .unsqueeze(1)
+                        )
 
-                    cut_loss = (
-                        dists.mul(masked_weights).sum(2).mean(0).sum()
-                        * scheduler.clip_guidance_scale
-                        / scheduler.cutn_batches
-                    )
+                        dists = spherical_dist_loss(
+                            image_embeds,
+                            masked_embeds.unsqueeze(0),  # 1, 2, 512
+                        )
 
-                    x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
+                        dists = dists.view(
+                            [
+                                scheduler.cut_overview + scheduler.cut_innercut,
+                                x.shape[0],
+                                -1,
+                            ]
+                        )
 
-                    cut_losses += cut_loss.detach().item()
+                        cut_loss = (
+                            dists.mul(masked_weights).sum(2).mean(0).sum()
+                            * scheduler.clip_guidance_scale
+                            / scheduler.cutn_batches
+                        )
+
+                        x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
+
+                        cut_losses += cut_loss.detach().item()
 
         x_is_NaN = False
         if isinstance(x_in_grad, int) and x_in_grad == 0:
