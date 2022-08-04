@@ -363,6 +363,9 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 args.perlin_mode, side_y, side_x, device, args.batch_size
             )
 
+        print(init.requires_grad)
+        init.requires_grad_(False)
+
         if args.diffusion_sampling_mode == 'ddim':
             samples = sample_fn(
                 model,
