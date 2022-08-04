@@ -124,7 +124,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     cur_t = None
 
-    augmenter = T.RandAugment()
+    augmenter = T.RandomPerspective(distortion_scale=0.6, p=1.0)
 
     def cond_fn(x, t, **kwargs):
 
@@ -219,8 +219,6 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
-                    print(x_in)
-                    print(x_in.shape)
                     clip_in = torch.cat(
                         [augmenter(x_in.add(1).div(2)) for _ in range(16)]
                     )
