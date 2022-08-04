@@ -42,6 +42,7 @@ class MakeCutouts(nn.Module):
         return torch.cat([self.augment(c) for c in self._cut_generator(input)])
 
     def _cut_generator(self, input):
+        cutouts = []
         gray = T.Grayscale(3)
         sideY, sideX = input.shape[2:4]
         max_size = min(sideX, sideY)
@@ -60,13 +61,13 @@ class MakeCutouts(nn.Module):
         cutout = resize(pad_input, out_shape=output_shape)
         for j in range(self.Overview):
             if j == 1:
-                yield gray(cutout)
+                cutouts.append(gray(cutout))
             elif j == 2:
-                yield TF.hflip(cutout)
+                cutouts.append(TF.hflip(cutout))
             elif j == 3:
-                yield gray(TF.hflip(cutout))
+                cutouts.append(gray(TF.hflip(cutout)))
             else:
-                yield cutout
+                cutouts.append(cutout)
 
         for i in range(self.InnerCrop):
             size = int(
@@ -77,4 +78,5 @@ class MakeCutouts(nn.Module):
             cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
             if i <= int(self.IC_Grey_P * self.InnerCrop):
                 cutout = gray(cutout)
-            yield resize(cutout, out_shape=output_shape)
+            cutouts.append(resize(cutout, out_shape=output_shape))
+        return cutouts
