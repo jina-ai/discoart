@@ -134,7 +134,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
             ),
             T.RandomGrayscale(p=0.1),
             T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-            T.Resize(x),
+            T.Resize(size=(x, x)),
             T.Normalize(
                 mean=[0.48145466, 0.4578275, 0.40821073],
                 std=[0.26862954, 0.26130258, 0.27577711],
