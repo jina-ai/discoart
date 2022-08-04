@@ -5,27 +5,8 @@ from torch.nn import functional as F
 from torchvision import transforms as T
 from torchvision.transforms import functional as TF
 
-augment = torch.jit.script(
-    torch.nn.Sequential(
-        *[
-            T.RandomHorizontalFlip(p=0.5),
-            T.RandomAffine(
-                degrees=10,
-                translate=(0.05, 0.05),
-                interpolation=T.InterpolationMode.BILINEAR,
-            ),
-            T.RandomGrayscale(p=0.1),
-            T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-            T.Normalize(
-                mean=[0.48145466, 0.4578275, 0.40821073],
-                std=[0.26862954, 0.26130258, 0.27577711],
-            ),
-        ]
-    )
-)
 
-
-class MakeCutoutsDango(nn.Module):
+class MakeCutouts(nn.Module):
     def __init__(
         self,
         cut_size,
@@ -40,9 +21,28 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
+        self.augment = T.Compose(
+            [
+                T.RandomHorizontalFlip(p=0.5),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+                T.RandomAffine(
+                    degrees=10,
+                    translate=(0.05, 0.05),
+                    interpolation=T.InterpolationMode.BILINEAR,
+                ),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+                T.RandomGrayscale(p=0.1),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
+                T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+                T.Normalize(
+                    mean=[0.48145466, 0.4578275, 0.40821073],
+                    std=[0.26862954, 0.26130258, 0.27577711],
+                ),
+            ]
+        )
 
     def forward(self, input):
-        return torch.cat([augment(c) for c in self._cut_generator(input)])
+        return torch.cat([self.augment(c) for c in self._cut_generator(input)])
 
     def _cut_generator(self, input):
         gray = T.Grayscale(3)
