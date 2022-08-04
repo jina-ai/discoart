@@ -3,7 +3,6 @@ import os.path
 import random
 import tempfile
 import threading
-
 import clip
 import lpips
 import numpy as np
@@ -125,6 +124,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     cur_t = None
 
+    augmenter = T.RandAugment()
+
     def cond_fn(x, t, **kwargs):
 
         t_int = (
@@ -218,16 +219,9 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     continue
 
                 for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
+                    clip_in = torch.cat(
+                        [augmenter(x_in.add(1).div(2)) for _ in range(16)]
                     )
-
-                    clip_in = cuts(x_in.add(1).div(2))
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
