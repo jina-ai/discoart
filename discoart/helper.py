@@ -731,7 +731,6 @@ def _get_schedule_table(args) -> Dict:
             'cut_ic_pow',
             'use_secondary_model',
             'cutn_batches',
-            'skip_augs',
             'clip_guidance_scale',
             'tv_scale',
             'range_scale',
