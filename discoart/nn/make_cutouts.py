@@ -113,7 +113,9 @@ class MakeCutoutsDango(nn.Module):
         )
 
     def forward(self, input):
-        cutouts = []
+        return torch.cat([self.augs(c) for c in self._cut_generator(input)])
+
+    def _cut_generator(self, input):
         gray = T.Grayscale(3)
         sideY, sideX = input.shape[2:4]
         max_size = min(sideX, sideY)
@@ -130,40 +132,20 @@ class MakeCutoutsDango(nn.Module):
             **padargs,
         )
         cutout = resize(pad_input, out_shape=output_shape)
+        for _ in range(self.Overview):
+            yield cutout
 
-        if self.Overview > 0:
-            if self.Overview <= 4:
-                if self.Overview >= 1:
-                    cutouts.append(cutout)
-                if self.Overview >= 2:
-                    cutouts.append(gray(cutout))
-                if self.Overview >= 3:
-                    cutouts.append(TF.hflip(cutout))
-                if self.Overview == 4:
-                    cutouts.append(gray(TF.hflip(cutout)))
-            else:
-                cutout = resize(pad_input, out_shape=output_shape)
-                for _ in range(self.Overview):
-                    cutouts.append(cutout)
-
-        if self.InnerCrop > 0:
-            for i in range(self.InnerCrop):
-                size = int(
-                    torch.rand([]) ** self.IC_Size_Pow * (max_size - min_size)
-                    + min_size
-                )
-                offsetx = torch.randint(0, sideX - size + 1, ())
-                offsety = torch.randint(0, sideY - size + 1, ())
-                cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
-                if i <= int(self.IC_Grey_P * self.InnerCrop):
-                    cutout = gray(cutout)
-                cutout = resize(cutout, out_shape=output_shape)
-                cutouts.append(cutout)
-
-        cutouts = torch.cat(cutouts)
-        if not self.skip_augs:
-            cutouts = self.augs(cutouts)
-        return cutouts
+        for i in range(self.InnerCrop):
+            size = int(
+                torch.rand([]) ** self.IC_Size_Pow * (max_size - min_size) + min_size
+            )
+            offsetx = torch.randint(0, sideX - size + 1, ())
+            offsety = torch.randint(0, sideY - size + 1, ())
+            cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
+            if i <= int(self.IC_Grey_P * self.InnerCrop):
+                cutout = gray(cutout)
+            cutout = resize(cutout, out_shape=output_shape)
+            yield cutout
 
 
 def resample(input, size, align_corners=True):
