@@ -217,16 +217,15 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 else:
                     continue
 
-                for _ in range(scheduler.cutn_batches):
-                    cuts = MakeCutoutsDango(
-                        model_stat['input_resolution'],
-                        Overview=scheduler.cut_overview,
-                        InnerCrop=scheduler.cut_innercut,
-                        IC_Size_Pow=scheduler.cut_ic_pow,
-                        IC_Grey_P=scheduler.cut_icgray_p,
-                        skip_augs=scheduler.skip_augs,
-                    )
+                cuts = MakeCutoutsDango(
+                    model_stat['input_resolution'],
+                    Overview=scheduler.cut_overview,
+                    InnerCrop=scheduler.cut_innercut,
+                    IC_Size_Pow=scheduler.cut_ic_pow,
+                    IC_Grey_P=scheduler.cut_icgray_p,
+                )
 
+                for _ in range(scheduler.cutn_batches):
                     clip_in = cuts(x_in.add(1).div(2))
 
                     if args.visualize_cuts and not is_cuts_visualized:

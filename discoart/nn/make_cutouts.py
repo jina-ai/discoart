@@ -87,7 +87,6 @@ class MakeCutoutsDango(nn.Module):
         InnerCrop=0,
         IC_Size_Pow=0.5,
         IC_Grey_P=0.2,
-        skip_augs=False,
     ):
         super().__init__()
         self.cut_size = cut_size
@@ -95,7 +94,6 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
-        self.skip_augs = skip_augs
         self.augs = T.Compose(
             [
                 T.RandomHorizontalFlip(p=0.5),
