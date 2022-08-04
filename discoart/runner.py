@@ -3,6 +3,7 @@ import os.path
 import random
 import tempfile
 import threading
+
 import clip
 import lpips
 import numpy as np
@@ -26,7 +27,6 @@ from .helper import (
     is_jupyter,
 )
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
-from .nn.make_cutouts import MakeCutoutsDango
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
@@ -51,7 +51,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     schedule_table = _get_schedule_table(args)
 
-    from .nn.perlin_noises import create_perlin_noise, regen_perlin
+    from .nn.perlin_noises import regen_perlin
 
     skip_steps = args.skip_steps
 
@@ -124,7 +124,23 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
     cur_t = None
 
-    augmenter = T.RandomPerspective(distortion_scale=0.6, p=1.0)
+    augmenter = lambda x: T.Compose(
+        [
+            T.RandomHorizontalFlip(p=0.5),
+            T.RandomAffine(
+                degrees=10,
+                translate=(0.05, 0.05),
+                interpolation=T.InterpolationMode.BILINEAR,
+            ),
+            T.RandomGrayscale(p=0.1),
+            T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+            T.Resize(x),
+            T.Normalize(
+                mean=[0.48145466, 0.4578275, 0.40821073],
+                std=[0.26862954, 0.26130258, 0.27577711],
+            ),
+        ]
+    )
 
     def cond_fn(x, t, **kwargs):
 
@@ -218,11 +234,12 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                 else:
                     continue
 
+                _aug_fn = augmenter(model_stat['input_resolution'])
+
                 for _ in range(scheduler.cutn_batches):
                     clip_in = torch.cat(
-                        [augmenter(x_in.add(1).div(2)) for _ in range(16)]
+                        [_aug_fn(x_in.add(1).div(2)) for _ in range(16)]
                     )
-                    print(clip_in.shape)
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
@@ -235,9 +252,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         is_cuts_visualized = True
 
                     image_embeds = (
-                        model_stat['clip_model']
-                        .encode_image(normalize(clip_in))
-                        .unsqueeze(1)
+                        model_stat['clip_model'].encode_image(clip_in).unsqueeze(1)
                     )
 
                     dists = spherical_dist_loss(
