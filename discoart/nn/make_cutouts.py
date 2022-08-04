@@ -24,12 +24,15 @@ class MakeCutouts(nn.Module):
         self.augment = T.Compose(
             [
                 T.RandomHorizontalFlip(p=0.5),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.RandomAffine(
                     degrees=10,
                     translate=(0.05, 0.05),
                     interpolation=T.InterpolationMode.BILINEAR,
                 ),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.RandomGrayscale(p=0.1),
+                T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
                 T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
                 T.Normalize(
                     mean=[0.48145466, 0.4578275, 0.40821073],
@@ -42,7 +45,6 @@ class MakeCutouts(nn.Module):
         return torch.cat([self.augment(c) for c in self._cut_generator(input)])
 
     def _cut_generator(self, input):
-        cutouts = []
         gray = T.Grayscale(3)
         sideY, sideX = input.shape[2:4]
         max_size = min(sideX, sideY)
@@ -61,13 +63,13 @@ class MakeCutouts(nn.Module):
         cutout = resize(pad_input, out_shape=output_shape)
         for j in range(self.Overview):
             if j == 1:
-                cutouts.append(gray(cutout))
+                yield gray(cutout)
             elif j == 2:
-                cutouts.append(TF.hflip(cutout))
+                yield TF.hflip(cutout)
             elif j == 3:
-                cutouts.append(gray(TF.hflip(cutout)))
+                yield gray(TF.hflip(cutout))
             else:
-                cutouts.append(cutout)
+                yield cutout
 
         for i in range(self.InnerCrop):
             size = int(
@@ -78,5 +80,4 @@ class MakeCutouts(nn.Module):
             cutout = input[:, :, offsety : offsety + size, offsetx : offsetx + size]
             if i <= int(self.IC_Grey_P * self.InnerCrop):
                 cutout = gray(cutout)
-            cutouts.append(resize(cutout, out_shape=output_shape))
-        return cutouts
+            yield resize(cutout, out_shape=output_shape)
