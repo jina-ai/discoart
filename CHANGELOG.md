@@ -110,6 +110,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2251,4 +2252,23 @@
 ### 🍹 Other Improvements
 
  - [[```640211ef```](https://github.com/jina-ai/discoart/commit/640211ef05109efc67b6b81e27463936ed7713c5)] __-__ __version__: the next version will be 0.11.1 (*Jina Dev Bot*)
+
+<a name=release-note-0-11-2></a>
+## Release Note (`0.11.2`)
+
+> Release time: 2022-08-04 22:20:10
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```48bb8fa0```](https://github.com/jina-ai/discoart/commit/48bb8fa0b2b36e59c37d03b3578a20692e2c2dcb)] __-__ add DISCOART_DISABLE_TQDM to control tqdm (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```53a8a366```](https://github.com/jina-ai/discoart/commit/53a8a36643b43c0402bfbc2aac2134b4c14d76a9)] __-__ __version__: the next version will be 0.11.2 (*Jina Dev Bot*)
 
