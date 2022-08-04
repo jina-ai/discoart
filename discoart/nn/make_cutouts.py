@@ -79,6 +79,22 @@ class MakeCutouts(nn.Module):
         return cutouts
 
 
+augment = torch.jit.script(
+    torch.nn.Sequential(
+        *[
+            T.RandomHorizontalFlip(p=0.5),
+            T.RandomAffine(
+                degrees=10,
+                translate=(0.05, 0.05),
+                interpolation=T.InterpolationMode.BILINEAR,
+            ),
+            T.RandomGrayscale(p=0.1),
+            T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
+        ]
+    )
+)
+
+
 class MakeCutoutsDango(nn.Module):
     def __init__(
         self,
@@ -94,25 +110,9 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
-        self.augs = torch.jit.script(
-            torch.nn.Sequential(
-                *[
-                    T.RandomHorizontalFlip(p=0.5),
-                    T.RandomAffine(
-                        degrees=10,
-                        translate=(0.05, 0.05),
-                        interpolation=T.InterpolationMode.BILINEAR,
-                    ),
-                    T.RandomGrayscale(p=0.1),
-                    T.ColorJitter(
-                        brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1
-                    ),
-                ]
-            )
-        )
 
     def forward(self, input):
-        return torch.cat([self.augs(c) for c in self._cut_generator(input)])
+        return augment(torch.cat(list(self._cut_generator(input))))
 
     def _cut_generator(self, input):
         gray = T.Grayscale(3)
