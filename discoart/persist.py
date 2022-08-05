@@ -32,6 +32,7 @@ def _sample(
     is_save_gif,
     is_image_output,
     is_display_step,
+    image_callback,
 ):
     with threading.Lock():
         is_sampling_done.clear()
@@ -54,13 +55,13 @@ def _sample(
             if is_save_step:
                 if is_image_output:
                     if cur_t == -1:
-                        c.save_uri_to_file(
-                            os.path.join(output_dir, f'{_nb}-done-{k}.png')
-                        )
+                        f_name = os.path.join(output_dir, f'{_nb}-done-{k}.png')
                     else:
-                        c.save_uri_to_file(
-                            os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
-                        )
+                        f_name = os.path.join(output_dir, f'{_nb}-step-{j}-{k}.png')
+                    c.save_uri_to_file(f_name)
+
+                    if callable(image_callback):
+                        image_callback(f_name)
 
                 da[k].chunks.append(c)
 
