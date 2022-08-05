@@ -3,7 +3,6 @@ from resize_right import resize
 from torch import nn
 from torch.nn import functional as F
 from torchvision import transforms as T
-from torchvision.transforms import functional as TF
 
 
 class MakeCutouts(nn.Module):
@@ -62,14 +61,7 @@ class MakeCutouts(nn.Module):
 
         cutout = resize(pad_input, out_shape=output_shape)
         for j in range(self.Overview):
-            if j == 1:
-                yield gray(cutout)
-            elif j == 2:
-                yield TF.hflip(cutout)
-            elif j == 3:
-                yield gray(TF.hflip(cutout))
-            else:
-                yield cutout
+            yield cutout
 
         for i in range(self.InnerCrop):
             size = int(
