@@ -111,6 +111,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2271,4 +2272,23 @@
 ### 🍹 Other Improvements
 
  - [[```53a8a366```](https://github.com/jina-ai/discoart/commit/53a8a36643b43c0402bfbc2aac2134b4c14d76a9)] __-__ __version__: the next version will be 0.11.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-11-3></a>
+## Release Note (`0.11.3`)
+
+> Release time: 2022-08-05 21:32:42
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```d0e6e189```](https://github.com/jina-ai/discoart/commit/d0e6e1891a36130b8b0186f7ef374b4b47da68e4)] __-__ add image callback in sampling (#140) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```4738bc09```](https://github.com/jina-ai/discoart/commit/4738bc091ad52a2e2e0ea701db27b8de59b003d6)] __-__ __version__: the next version will be 0.11.3 (*Jina Dev Bot*)
 
