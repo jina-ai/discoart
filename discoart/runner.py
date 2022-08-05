@@ -259,7 +259,7 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                     dists = dists.view(
                         [
-                            scheduler.cut_overview + scheduler.cut_innercut,
+                            clip_in.shape[0],
                             x.shape[0],
                             -1,
                         ]
