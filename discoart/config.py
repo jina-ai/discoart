@@ -63,7 +63,7 @@ def load_config(
 
     cfg.update(
         **{
-            'seed': int(cfg['seed']) or random.randint(0, 2**32),
+            'seed': int(cfg['seed'] or random.randint(0, 2**32)),
         }
     )
 
