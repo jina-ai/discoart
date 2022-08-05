@@ -56,7 +56,7 @@ def load_config(
     int_keys.add('seed')
 
     for k, v in cfg.items():
-        if k in int_keys and not isinstance(v, int):
+        if k in int_keys and v is not None and not isinstance(v, int):
             cfg[k] = int(v)
         if k == 'width_height':
             cfg[k] = [int(vv) for vv in v]
