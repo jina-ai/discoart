@@ -53,21 +53,17 @@ def load_config(
         cfg.update(**user_config)
 
     int_keys = {k for k, v in default_args.items() if isinstance(v, int)}
-    int_keys.union(
-        {
-            'seed',
-        }
-    )
+    int_keys.add('seed')
 
     for k, v in cfg.items():
-        if k in int_keys and isinstance(v, float):
+        if k in int_keys and v is not None and not isinstance(v, int):
             cfg[k] = int(v)
         if k == 'width_height':
             cfg[k] = [int(vv) for vv in v]
 
     cfg.update(
         **{
-            'seed': cfg['seed'] or random.randint(0, 2**32),
+            'seed': int(cfg['seed'] or random.randint(0, 2**32)),
         }
     )
 
