@@ -232,6 +232,8 @@ def do_run(args, models, device, events) -> 'DocumentArray':
 
                 resize_x_in = resize(x_in.add(1).div(2))
 
+                cut_loss = 0
+
                 for _ in range(scheduler.cutn_batches):
 
                     clip_in = cuts(resize_x_in)
@@ -265,15 +267,15 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                         ]
                     )
 
-                    cut_loss = (
+                    cut_loss += (
                         dists.mul(masked_weights).sum(2).mean(0).sum()
                         * scheduler.clip_guidance_scale
                         / scheduler.cutn_batches
                     )
 
-                    x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
+                x_in_grad += torch.autograd.grad(cut_loss, x_in)[0]
 
-                    cut_losses += cut_loss.detach().item()
+                cut_losses += cut_loss.detach().item()
 
         x_is_NaN = False
         if isinstance(x_in_grad, int) and x_in_grad == 0:
