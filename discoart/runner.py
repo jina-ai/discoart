@@ -27,7 +27,7 @@ from .helper import (
     is_jupyter,
 )
 from .nn.losses import spherical_dist_loss, tv_loss, range_loss
-from .nn.make_cutouts import MakeCutouts
+from .nn.make_cutouts import MakeCutouts, Resize
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
@@ -228,9 +228,13 @@ def do_run(args, models, device, events) -> 'DocumentArray':
                     IC_Grey_P=scheduler.cut_icgray_p,
                 )
 
+                resize = Resize(model_stat['input_resolution'])
+
+                resize_x_in = resize(x_in.add(1).div(2))
+
                 for _ in range(scheduler.cutn_batches):
 
-                    clip_in = cuts(x_in.add(1).div(2))
+                    clip_in = cuts(resize_x_in)
 
                     if args.visualize_cuts and not is_cuts_visualized:
                         _cuts_da = DocumentArray.empty(clip_in.shape[0])
