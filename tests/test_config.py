@@ -61,3 +61,42 @@ def test_eval_schedule_string():
 )
 def test_chec_schedule_str(val, expected):
     assert _is_valid_schedule_str(val) == expected
+
+
+@pytest.mark.parametrize(
+    'field',
+    [
+        'cut_overview',
+        'cut_innercut',
+        'cut_icgray_p',
+        'cut_ic_pow',
+        'use_secondary_model',
+        'cutn_batches',
+        'clip_guidance_scale',
+        'tv_scale',
+        'range_scale',
+        'sat_scale',
+        'init_scale',
+        'clamp_grad',
+        'clamp_max',
+    ],
+)
+@pytest.mark.parametrize(
+    'val',
+    [
+        True,
+        False,
+        1,
+        0.5,
+        'True',
+        'False',
+        '1',
+        '0.5',
+        '[100]*600+[200]*400',
+        '[True, False]*1000',
+    ],
+)
+def test_eval_config(field, val):
+    cfg = load_config(default_args)
+    cfg[field] = val
+    assert load_config(cfg)[field] is not None
