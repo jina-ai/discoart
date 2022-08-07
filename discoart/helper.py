@@ -176,7 +176,7 @@ def get_ipython_funcs(show_widgets: bool = False):
         def __call__(self, *args, **kwargs):
             return NOP()
 
-        __getattr__ = __enter__ = __exit__ = __call__
+        __getattr__ = __enter__ = __exit__ = __iadd__ = __add__ = __call__
 
     if is_jupyter():
         from IPython import display as dp1
@@ -200,6 +200,8 @@ def get_ipython_funcs(show_widgets: bool = False):
 
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
+            completed_handle = HTML()
+            completed_handle.value = '<h4>Completed images will be displayed below</h4>'
             code_snippet_handle = Textarea(rows=20)
             tab = Tab()
             tab.children = [
@@ -207,9 +209,16 @@ def get_ipython_funcs(show_widgets: bool = False):
                 nondefault_config_handle,
                 all_config_handle,
                 code_snippet_handle,
+                completed_handle,
             ]
             for idx, j in enumerate(
-                ('Preview', 'Non-default config', 'Full config', 'Code snippet')
+                (
+                    'Preview',
+                    'Non-default config',
+                    'Full config',
+                    'Code snippet',
+                    'Completed',
+                )
             ):
                 tab.set_title(idx, j)
 
@@ -218,6 +227,7 @@ def get_ipython_funcs(show_widgets: bool = False):
                 config=nondefault_config_handle,
                 all_config=all_config_handle,
                 code=code_snippet_handle,
+                completed=completed_handle,
                 progress=pg_bar,
             )
 
