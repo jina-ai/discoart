@@ -200,6 +200,7 @@ def get_ipython_funcs(show_widgets: bool = False):
 
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
+            completed_handle = HTML()
             code_snippet_handle = Textarea(rows=20)
             tab = Tab()
             tab.children = [
@@ -207,9 +208,16 @@ def get_ipython_funcs(show_widgets: bool = False):
                 nondefault_config_handle,
                 all_config_handle,
                 code_snippet_handle,
+                completed_handle,
             ]
             for idx, j in enumerate(
-                ('Preview', 'Non-default config', 'Full config', 'Code snippet')
+                (
+                    'Preview',
+                    'Non-default config',
+                    'Full config',
+                    'Code snippet',
+                    'Completed',
+                )
             ):
                 tab.set_title(idx, j)
 
@@ -218,6 +226,7 @@ def get_ipython_funcs(show_widgets: bool = False):
                 config=nondefault_config_handle,
                 all_config=all_config_handle,
                 code=code_snippet_handle,
+                completed=completed_handle,
                 progress=pg_bar,
             )
 

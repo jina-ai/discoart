@@ -358,8 +358,10 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             )
         free_memory()
 
-        _da = [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
-        _da_gif = [Document() for _ in range(args.batch_size)]
+        _da = DocumentArray(
+            [Document(tags=copy.deepcopy(vars(args))) for _ in range(args.batch_size)]
+        )
+        _da_gif = DocumentArray([Document() for _ in range(args.batch_size)])
         da_batches.extend(_da)
 
         cur_t = diffusion.num_timesteps - skip_steps - 1
