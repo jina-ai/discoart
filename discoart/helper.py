@@ -176,7 +176,7 @@ def get_ipython_funcs(show_widgets: bool = False):
         def __call__(self, *args, **kwargs):
             return NOP()
 
-        __getattr__ = __enter__ = __exit__ = __call__
+        __getattr__ = __enter__ = __exit__ = __iadd__ = __add__ = __call__
 
     if is_jupyter():
         from IPython import display as dp1
