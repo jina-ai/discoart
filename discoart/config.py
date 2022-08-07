@@ -53,7 +53,7 @@ def load_config(
         cfg.update(**user_config)
 
     int_keys = {k for k, v in default_args.items() if isinstance(v, int)}
-    int_keys.add('seed')
+    int_keys = int_keys.union({'seed', 'cut_overview', 'cut_innercut'})
 
     for k, v in cfg.items():
         if k in int_keys and v is not None and not isinstance(v, (int, str)):
