@@ -83,7 +83,7 @@ def _sample(
         if is_display_step:
             _handlers.preview.value = '<br>\n'.join(_display_html)
             if cur_t == -1:
-                _handlers.completed.value += f'seed: {da[k].tags["seed"]}<br><img src="{c.uri}" alt="step {j} minibatch {k}">\n'
+                _handlers.completed.value += f'<br>seed: {da[k].tags["seed"]}<br><img src="{c.uri}" alt="step {j} minibatch {k}"><br>'
         logger.debug('sample and plot is done')
         is_sampling_done.set()
 

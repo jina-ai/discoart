@@ -201,7 +201,7 @@ def get_ipython_funcs(show_widgets: bool = False):
             nondefault_config_handle = HTML()
             all_config_handle = HTML()
             completed_handle = HTML()
-            completed_handle.value = '<h3>Completed images will be displayed below</h3>'
+            completed_handle.value = '<h4>Completed images will be displayed below</h4>'
             code_snippet_handle = Textarea(rows=20)
             tab = Tab()
             tab.children = [
