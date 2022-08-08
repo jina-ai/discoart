@@ -53,7 +53,7 @@ This applies to both *self-hosting*, *Google Colab*, system integration, non-GUI
 - **Use it from CLI**: [`python -m discoart create`](#cli) and `python -m discoart config` are CLI commands.
 - **Use it as a service**: [`python -m discoart serve`](#serving) allows one to run it as gRPC/HTTP/websockets service.
 
-## GUI
+### GUI
 
 DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The built-in Jupyter Notebook support gives you basic yet limited user experience, e.g. it does not offer any intuitive GUI for [prompt scheduling](FEATURES.md#prompt-scheduling). Note that DiscoArt is developer-centric and API-first, hence improving consumer-facing experience is out of the scope. There are services, platforms and products (not Jina AI affiliated) that already integrate DiscoArt and provide nice UI and features on top of it:
 - [Fever Dreams](https://www.feverdreams.app/): a free community-powered service with nice GUI and gallery, where people generate and share their DiscoArt artworks, prompts and configs.
