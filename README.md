@@ -55,7 +55,7 @@ This applies to both *self-hosting*, *Google Colab*, system integration, non-GUI
 
 ## GUI
 
-DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The built-in Jupyter Notebook support gives you basic yet limited user experience. Note that DiscoArt is developer-centric, hence improving consumer-facing experience is out of the scope. There are services, platforms and products (not Jina AI affiliated) that already integrate DiscoArt and provide nice UI and features:
+DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The built-in Jupyter Notebook support gives you basic yet limited user experience, e.g. it does not offer any intuitive GUI for [prompt scheduling](FEATURES.md#prompt-scheduling). Note that DiscoArt is developer-centric and API-first, hence improving consumer-facing experience is out of the scope. There are services, platforms and products (not Jina AI affiliated) that already integrate DiscoArt and provide nice UI and features on top of it:
 - [Fever Dreams](https://www.feverdreams.app/): a free community-driven server with nice GUI and gallery, where people generate, share their DiscoArt artworks and prompts and configs.
 - [Replicate](https://replicate.com/nightmareai/disco-diffusion): a free webform-based GUI of DiscoArt with sandbox user experience and the visualizations.  
 - [RunPod](https://www.runpod.io/blog/accelerate-your-generate-art-with-disco-diffusion-and-runpod): a paid GPU cloud provider that runs DiscoArt container with a nice GUI to visualize the configs and generation.
