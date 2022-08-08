@@ -55,13 +55,19 @@ This applies to both *self-hosting*, *Google Colab*, system integration, non-GUI
 
 ### GUI
 
-DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The built-in Jupyter Notebook support gives you basic yet limited user experience, e.g. it does not offer any intuitive GUI for [prompt scheduling](FEATURES.md#prompt-scheduling). Note that DiscoArt is developer-centric and API-first, hence improving consumer-facing experience is out of the scope. There are services, platforms and products (not Jina AI affiliated) that already integrate DiscoArt and provide nice UI and features on top of it:
+DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The built-in Jupyter Notebook support gives you basic yet limited user experience, e.g. it does not offer any intuitive GUI for [prompt scheduling](FEATURES.md#prompt-scheduling). Note that DiscoArt is developer-centric and API-first, hence improving consumer-facing experience is out of the scope. There are services, platforms and products (not Jina AI affiliated) that already integrate DiscoArt as a service and provide nice GUI on top of it, e.g. Fever Dreams, Replicate, RunPod and Renderflux.
+
+<details>
+  <summary>Click to see third-party GUI</summary>
+  
 - [Fever Dreams](https://www.feverdreams.app/): a free community-powered service with nice GUI and gallery, where people generate and share their DiscoArt artworks, prompts and configs.
 - [Replicate](https://replicate.com/nightmareai/disco-diffusion): a free form-based GUI of DiscoArt with sandbox user experience and the visualizations.  
 - [RunPod](https://www.runpod.io/blog/accelerate-your-generate-art-with-disco-diffusion-and-runpod): a paid GPU cloud provider that runs DiscoArt container with a simple and clean GUI to visualize the configs and creations.
 - [Renderflux](https://beta.renderflux.com/register?invite=bughunting): a paid creative art platform that wraps DiscoArt and provides end-to-end GUI for creation management.
 
-Please be aware that these platforms, products or companies are not affiliated with Jina AI. They define their own terms of services, paywall and data and privacy policies, which are not in the scope of DiscoArt MIT License.
+**Please be aware that these platforms, products or companies are not affiliated with Jina AI.** They define their own terms of services, paywall and data and privacy policies, which are not in the scope of DiscoArt MIT License.
+
+</details>
 
 ## Get Started
 
