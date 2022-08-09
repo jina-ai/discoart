@@ -250,6 +250,12 @@ def gobig(
 ) -> 'Document':
     from .config import load_config
 
+    if 'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ:
+        os.environ['DISCOART_DISABLE_RESULT_SUMMARY'] = '1'
+        recover_disabled_summary = True
+    else:
+        recover_disabled_summary = False
+
     old_args = SimpleNamespace(**load_config(user_config=doc.tags))
 
     d = Document(doc, copy=True)
@@ -319,4 +325,8 @@ which means running `create` iteratively over {len(d.chunks)} chunks, this may t
         :,
     ]
     d.tensor = np.array(final[:, :, :, 0] / final[:, :, :, 1], dtype='uint8')
+
+    if recover_disabled_summary:
+        del os.environ['DISCOART_DISABLE_RESULT_SUMMARY']
+
     return d.convert_image_tensor_to_uri()
