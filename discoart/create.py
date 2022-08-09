@@ -244,7 +244,7 @@ def gobig(
     doc: 'Document',
     window_size: int = 256,
     upscale_factor: int = 2,
-    skip_rate: float = 0.8,
+    skip_rate: float = 0.9,
     stride_size: Optional[int] = None,
     **kwargs,
 ) -> 'Document':
@@ -273,6 +273,13 @@ def gobig(
             2,
         ),
         dtype='int',
+    )
+
+    from .helper import logger
+
+    logger.info(
+        f'you are about to gobig from {d.tensor[:2]} to {(d.tensor[0]*upscale_factor, d.tensor[1]*upscale_factor)},'
+        f'which means running `create` iteratively over {len(d.chunks)} chunks, this may take a while'
     )
 
     for c in d.chunks:
