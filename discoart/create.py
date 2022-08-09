@@ -4,7 +4,7 @@ import os
 import warnings
 from types import SimpleNamespace
 from typing import overload, List, Optional, Dict, Any, Union, TYPE_CHECKING
-
+import numpy as np
 
 if TYPE_CHECKING:
     import threading
@@ -238,3 +238,67 @@ def create(**kwargs) -> Optional['DocumentArray']:
                 and 'DISCOART_DISABLE_IPYTHON' not in os.environ
             ):
                 show_result_summary(_da, _name, _args)
+
+
+def gobig(
+    doc: 'Document',
+    window_size: int = 256,
+    upscale_factor: int = 2,
+    skip_rate: float = 0.8,
+    stride_size: Optional[int] = None,
+    **kwargs,
+) -> 'Document':
+    from config import load_config
+
+    old_args = SimpleNamespace(**load_config(user_config=doc.tags))
+
+    d = Document(doc, copy=True)
+
+    d.chunks.clear()
+
+    stride_size = stride_size or (window_size // 2)
+
+    d.load_uri_to_image_tensor().convert_image_tensor_to_sliding_windows(
+        window_shape=(window_size, window_size),
+        strides=(stride_size, stride_size),
+        as_chunks=True,
+        padding=True,
+    )
+
+    final = np.zeros(
+        shape=(
+            (d.chunks[-1].location[0] + window_size) * upscale_factor,
+            (d.chunks[-1].location[1] + window_size) * upscale_factor,
+            3,
+            2,
+        ),
+        dtype='int',
+    )
+
+    for c in d.chunks:
+        start_x = upscale_factor * c.location[0]
+        end_x = start_x + upscale_factor * window_size
+        start_y = upscale_factor * c.location[1]
+        end_y = start_y + upscale_factor * window_size
+
+        _partial = create(
+            init_document=c.convert_image_tensor_to_uri(),
+            n_batches=1,
+            batch_size=1,
+            width_height=[window_size * 2, window_size * 2],
+            skip_steps=int(old_args.steps * skip_rate),
+            name_docarray=f'{old_args.name_docarray}_gobig',
+            **kwargs,
+        )[0].load_uri_to_image_tensor()
+        patch = np.stack([_partial] * 2, axis=-1)
+        patch[:, :, :, 1] = 1
+        final[start_x:end_x, start_y:end_y, :, :] += patch
+
+    final = final[
+        0 : d.tensor.shape[0] * upscale_factor,
+        0 : d.tensor.shape[1] * upscale_factor,
+        :,
+        :,
+    ]
+    d.tensor = np.array(final[:, :, :, 0] / final[:, :, :, 1], dtype='uint8')
+    return d.convert_image_tensor_to_uri()
