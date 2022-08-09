@@ -303,7 +303,7 @@ which means running `create` iteratively over {len(d.chunks)} chunks, this may t
                 batch_size=1,
                 width_height=[window_size * 2, window_size * 2],
                 skip_steps=int(old_args.steps * skip_rate),
-                name_docarray=f'{old_args.name_docarray}-gobig-{idx}/{len(d.chunks)}',
+                name_docarray=f'{old_args.name_docarray}-gobig-{idx}-{len(d.chunks)}',
                 **kwargs,
             )[0]
             .load_uri_to_image_tensor()
