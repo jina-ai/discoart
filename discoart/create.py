@@ -244,7 +244,7 @@ def gobig(
     doc: 'Document',
     window_size: int = 256,
     upscale_factor: int = 2,
-    skip_rate: float = 0.9,
+    skip_rate: float = 0.8,
     stride_size: Optional[int] = None,
     **kwargs,
 ) -> 'Document':
