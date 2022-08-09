@@ -2,7 +2,7 @@ import os
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
-__version__ = '0.11.8'
+__version__ = '0.12.0'
 
 __all__ = ['create', 'cheatsheet']
 
@@ -17,5 +17,5 @@ __resources_path__ = os.path.join(
     'resources',
 )
 
-from .create import create
+from .create import create, go_big
 from .config import cheatsheet, show_config, save_config, load_config

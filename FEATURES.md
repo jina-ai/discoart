@@ -205,6 +205,17 @@ list_diffusion_models()
 
 You can also specify the environment variable `DISCOART_MODELS_YAML` to build your list of diffusion models.
 
+## Go Big
+
+"Upscale" a DiscoArt image by iteratively invoking `create()` with the same set of config (but higher `skip_rate`) on each small sliding window. 
+Each sliding window is diffused into higher resolution. All sliding windows are stitched together to form the final image. Overlapped areas are averaged.
+
+```python
+from discoart import create, go_big
+
+doc = create()
+doc = go_big(doc)
+```
 
 ## Feature changes
 - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.4).
