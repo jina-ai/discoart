@@ -211,10 +211,10 @@ You can also specify the environment variable `DISCOART_MODELS_YAML` to build yo
 Each sliding window is diffused into higher resolution. All sliding windows are stitched together to form the final image. Overlapped areas are averaged.
 
 ```python
-from discoart import create, gobig
+from discoart import create, go_big
 
 doc = create()
-doc = gobig(doc)
+doc = go_big(doc)
 ```
 
 ## Feature changes

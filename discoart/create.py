@@ -241,7 +241,7 @@ def create(**kwargs) -> Optional['DocumentArray']:
                 show_result_summary(_da, _name, _args)
 
 
-def gobig(
+def go_big(
     doc: 'Document',
     window_size: int = 256,
     upscale_factor: int = 2,
