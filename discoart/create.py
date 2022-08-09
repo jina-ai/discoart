@@ -4,6 +4,7 @@ import os
 import warnings
 from types import SimpleNamespace
 from typing import overload, List, Optional, Dict, Any, Union, TYPE_CHECKING
+
 import numpy as np
 
 if TYPE_CHECKING:
@@ -80,7 +81,6 @@ def create(
     visualize_cuts: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
-
     ...
 
 
@@ -262,7 +262,7 @@ def gobig(
 
     d.chunks.clear()
 
-    stride_size = stride_size or (window_size // 2)
+    stride_size = stride_size or int(window_size * 3 / 4)
 
     d.load_uri_to_image_tensor().convert_image_tensor_to_sliding_windows(
         window_shape=(window_size, window_size),
@@ -285,7 +285,7 @@ def gobig(
 
     logger.info(
         f'''
-you are about to gobig from {d.tensor.shape[:2]} to {(d.tensor.shape[0]*upscale_factor, d.tensor.shape[1]*upscale_factor)}
+you are about to gobig from {d.tensor.shape[:2]} to {(d.tensor.shape[0] * upscale_factor, d.tensor.shape[1] * upscale_factor)}
 which means running `create` iteratively over {len(d.chunks)} chunks, this may take a while. If this takes too long, please consider:
 
 -  increasing the `window_size`, which leads to fewer chunks
