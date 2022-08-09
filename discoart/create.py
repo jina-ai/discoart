@@ -81,6 +81,7 @@ def create(
     visualize_cuts: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
 ) -> Optional['DocumentArray']:
+
     ...
 
 
