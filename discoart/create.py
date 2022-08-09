@@ -276,11 +276,7 @@ def gobig(
     )
 
     for c in d.chunks:
-        start_x = upscale_factor * c.location[0]
-        end_x = start_x + upscale_factor * window_size
-        start_y = upscale_factor * c.location[1]
-        end_y = start_y + upscale_factor * window_size
-
+        c.tags = copy.deepcopy(d.tags)
         _partial = create(
             init_document=c.convert_image_tensor_to_uri(),
             n_batches=1,
@@ -292,6 +288,11 @@ def gobig(
         )[0].load_uri_to_image_tensor()
         patch = np.stack([_partial] * 2, axis=-1)
         patch[:, :, :, 1] = 1
+
+        start_x = upscale_factor * c.location[0]
+        end_x = start_x + upscale_factor * window_size
+        start_y = upscale_factor * c.location[1]
+        end_y = start_y + upscale_factor * window_size
         final[start_x:end_x, start_y:end_y, :, :] += patch
 
     final = final[
