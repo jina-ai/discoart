@@ -279,7 +279,7 @@ def gobig(
 
     logger.info(
         f'''
-you are about to gobig from {d.tensor[:2]} to {(d.tensor[0]*upscale_factor, d.tensor[1]*upscale_factor)}
+you are about to gobig from {d.tensor.shape[:2]} to {(d.tensor.shape[0]*upscale_factor, d.tensor.shape[1]*upscale_factor)}
 which means running `create` iteratively over {len(d.chunks)} chunks, this may take a while. If this takes too long, please consider:
 
 -  increasing the `window_size`, which leads to fewer chunks
@@ -288,7 +288,7 @@ which means running `create` iteratively over {len(d.chunks)} chunks, this may t
     '''
     )
 
-    for c in d.chunks:
+    for idx, c in enumerate(d.chunks):
         c.tags = copy.deepcopy(d.tags)
         c.tensor = (
             create(
@@ -297,7 +297,7 @@ which means running `create` iteratively over {len(d.chunks)} chunks, this may t
                 batch_size=1,
                 width_height=[window_size * 2, window_size * 2],
                 skip_steps=int(old_args.steps * skip_rate),
-                name_docarray=f'{old_args.name_docarray}_gobig',
+                name_docarray=f'{old_args.name_docarray}-gobig-{idx}/{len(d.chunks)}',
                 **kwargs,
             )[0]
             .load_uri_to_image_tensor()
