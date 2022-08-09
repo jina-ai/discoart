@@ -17,5 +17,5 @@ __resources_path__ = os.path.join(
     'resources',
 )
 
-from .create import create
+from .create import create, gobig
 from .config import cheatsheet, show_config, save_config, load_config

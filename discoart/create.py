@@ -248,7 +248,7 @@ def gobig(
     stride_size: Optional[int] = None,
     **kwargs,
 ) -> 'Document':
-    from config import load_config
+    from .config import load_config
 
     old_args = SimpleNamespace(**load_config(user_config=doc.tags))
 
