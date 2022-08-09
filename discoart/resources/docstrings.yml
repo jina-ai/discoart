@@ -123,7 +123,8 @@ cut_icgray_p: |
 
 save_rate: |
   [DiscoArt] The number of steps to save intermediate results. It is a replacement to original `display_rate` parameter. Set it to -1 for not saving any intermediate result.
-
+progress_rate: |
+  [DiscoArt] The number of steps to per progress update callback function
 n_batches: |
   This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
 batch_name: |
