@@ -278,22 +278,32 @@ def gobig(
     from .helper import logger
 
     logger.info(
-        f'you are about to gobig from {d.tensor[:2]} to {(d.tensor[0]*upscale_factor, d.tensor[1]*upscale_factor)},'
-        f'which means running `create` iteratively over {len(d.chunks)} chunks, this may take a while'
+        f'''
+you are about to gobig from {d.tensor[:2]} to {(d.tensor[0]*upscale_factor, d.tensor[1]*upscale_factor)}
+which means running `create` iteratively over {len(d.chunks)} chunks, this may take a while. If this takes too long, please consider:
+
+-  increasing the `window_size`, which leads to fewer chunks
+-  increasing the `skip_rate`, which leads to fewer diffusion steps
+-  decreasing the `upscale_factor`, which leads to smaller final result
+    '''
     )
 
     for c in d.chunks:
         c.tags = copy.deepcopy(d.tags)
-        _partial = create(
-            init_document=c.convert_image_tensor_to_uri(),
-            n_batches=1,
-            batch_size=1,
-            width_height=[window_size * 2, window_size * 2],
-            skip_steps=int(old_args.steps * skip_rate),
-            name_docarray=f'{old_args.name_docarray}_gobig',
-            **kwargs,
-        )[0].load_uri_to_image_tensor()
-        patch = np.stack([_partial] * 2, axis=-1)
+        c.tensor = (
+            create(
+                init_document=c.convert_image_tensor_to_uri(),
+                n_batches=1,
+                batch_size=1,
+                width_height=[window_size * 2, window_size * 2],
+                skip_steps=int(old_args.steps * skip_rate),
+                name_docarray=f'{old_args.name_docarray}_gobig',
+                **kwargs,
+            )[0]
+            .load_uri_to_image_tensor()
+            .tensor
+        )
+        patch = np.stack([c.tensor] * 2, axis=-1)
         patch[:, :, :, 1] = 1
 
         start_x = upscale_factor * c.location[0]
