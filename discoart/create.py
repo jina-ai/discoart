@@ -249,6 +249,23 @@ def gobig(
     stride_size: Optional[int] = None,
     **kwargs,
 ) -> 'Document':
+    """
+    "Upscale" a DiscoArt image by iteratively applying `create()` with the same config (but higher skip rate) on each small sliding window.
+    Each sliding window is diffused into higher resolution. All sliding windows are stitched together to form the final image. Overlapped areas are averaged.
+
+    This algorithm is coined as GoBig by DiscoArt community.
+
+    One should NOT use this function to upscale an image and expect high fidelity. It is more for creating fractal-style images. https://en.wikipedia.org/wiki/Fractal_art
+    as when skip_rate is low, it adds many details recursively to the image.
+
+    :param doc: the resulted doc from `create()`
+    :param window_size: the size of the small sliding window
+    :param upscale_factor: the upscale factor, the final image size will be `original size * upscale_factor`
+    :param skip_rate: skipping diffusion, high skip rate will result in a faster upscaling and less disruption to original image
+    :param stride_size: the size between sliding window, if not set, it will be `window_size * 0.75`. Smaller value means high overlap and more chunks hence slower.
+    :param kwargs: other kwargs will be passed to `create()`
+    :return: the GoBig document where image is in URI
+    """
     from .config import load_config
 
     if 'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ:
