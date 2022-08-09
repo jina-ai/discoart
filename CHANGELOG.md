@@ -116,6 +116,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2371,4 +2372,25 @@
 ### 🍹 Other Improvements
 
  - [[```ae2060c9```](https://github.com/jina-ai/discoart/commit/ae2060c9c91bc5ed2da4cc230c7b56f5eeb2944a)] __-__ __version__: the next version will be 0.11.7 (*Jina Dev Bot*)
+
+<a name=release-note-0-12-0></a>
+## Release Note (`0.12.0`)
+
+> Release time: 2022-08-09 21:23:56
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```00e78b7c```](https://github.com/jina-ai/discoart/commit/00e78b7c1025b4c28b01cecf96bb86c4f215c979)] __-__ add gobig api (#158) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```9d7f12df```](https://github.com/jina-ai/discoart/commit/9d7f12dfec91b58abe25dc2cee9afcb90b586e03)] __-__ fix readme (*Han Xiao*)
+ - [[```14e73876```](https://github.com/jina-ai/discoart/commit/14e73876a257fad89d8999b296e5a10900776989)] __-__ add discoart integration list (#152) (*Han Xiao*)
+ - [[```82d7a46e```](https://github.com/jina-ai/discoart/commit/82d7a46e60cb20b416a7e0eeee87f7bd3e2c3074)] __-__ __version__: the next version will be 0.11.8 (*Jina Dev Bot*)
 
