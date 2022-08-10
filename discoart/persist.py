@@ -1,6 +1,5 @@
 import os
 import threading
-import base64
 from threading import Thread
 
 import torchvision.transforms.functional as TF
