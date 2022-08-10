@@ -80,6 +80,7 @@ def create(
     use_vertical_symmetry: Optional[bool] = False,
     visualize_cuts: Optional[bool] = False,
     width_height: Optional[List[int]] = [1280, 768],
+    disable_progress_grid: Optional[bool] = False,
 ) -> Optional['DocumentArray']:
 
     ...
