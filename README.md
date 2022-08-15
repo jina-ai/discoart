@@ -59,7 +59,7 @@ DiscoArt is the **infrastructure** for creating Disco Diffusion artworks. The bu
 
 <details>
   <summary>Click to see third-party GUI</summary>
-  
+
 - [Fever Dreams](https://www.feverdreams.app/): a free community-powered service with nice GUI and gallery, where people generate and share their DiscoArt artworks, prompts and configs.
 - [Replicate](https://replicate.com/nightmareai/disco-diffusion): a free form-based GUI of DiscoArt with sandbox user experience and the visualizations.  
 - [RunPod](https://www.runpod.io/blog/accelerate-your-generate-art-with-disco-diffusion-and-runpod): a paid GPU cloud provider that runs DiscoArt container with a simple and clean GUI to visualize the configs and creations.
@@ -261,7 +261,7 @@ If you are a free-tier Google Colab user, one annoy thing is the lost of session
 2. Pull the result via that ID **on any machine at any time**, not necessarily on Google Colab:
     ```python
     from docarray import DocumentArray
-
+    
     da = DocumentArray.pull('discoart-3205998582')
     ```
 
@@ -582,6 +582,15 @@ docker run -p 51000:8888 -v $(pwd):/home/jovyan/ -v $HOME/.cache:/root/.cache --
 ```
 
 Now you can visit `http://127.0.0.1:51000` to access the notebook
+
+### Enable GPU in Docker on Windows
+
+ You can use it on Windows Subsystem for Linux (WSL), Check the official guide [here](https://docs.microsoft.com/en-us/windows/ai/directml/gpu-cuda-in-wsl).
+
+```bash
+# Make sure you install Windows 11 or Windows 10, version 21H2
+docker run -p 8888:8888 -v $HOME/.cache:/root/.cache --gpus all jinaai/discoart
+```
 
 ### Use as a service
 
