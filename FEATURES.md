@@ -213,8 +213,8 @@ Each sliding window is diffused into higher resolution. All sliding windows are 
 ```python
 from discoart import create, go_big
 
-doc = create()
-doc = go_big(doc)
+docs = create()
+a_big_doc = go_big(docs[0])
 ```
 
 ## Feature changes
