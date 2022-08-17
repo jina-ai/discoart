@@ -215,7 +215,9 @@ from discoart import create, go_big
 
 docs = create()
 a_big_doc = go_big(docs[0])
+a_big_doc.display()
 ```
+
 
 ## Feature changes
 - DiscoArt does not support video generation and `image_prompt` (which was marked as ineffective in DD 5.4).
