@@ -185,7 +185,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
     else:
         _args = load_config(user_config=kwargs)
 
-    print_args_table(_args)
+    if 'DISCOART_DISABLE_ARGS_TABLE' not in os.environ:
+        print_args_table(_args)
     _args = SimpleNamespace(**_args)
 
     from .helper import (
