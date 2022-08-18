@@ -59,7 +59,7 @@ def do_run(
 
     model_stats = []
 
-    _dp1, _, _handlers, _redraw_fn = get_ipython_funcs(show_widgets=True)
+    _dp1, _, _handlers, _redraw_fn = get_ipython_funcs(show_widgets='DISCOART_DISABLE_IPYTHON' not in os.environ)
     _dp1.clear_output(wait=True)
 
     prompts = PromptPlanner(args)
