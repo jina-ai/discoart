@@ -456,7 +456,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                                 args.gif_size_ratio,
                             )
                         )
-                logger.info('label: 060')
+                    logger.info('label: 060')
                     threads.extend(
                         _persist_thread(
                             da_batches,
