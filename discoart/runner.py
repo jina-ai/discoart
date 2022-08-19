@@ -370,7 +370,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             init = regen_perlin(
                 args.perlin_mode, side_y, side_x, device, args.batch_size
             )
-
+        logger.info('label: 000')
         if args.diffusion_sampling_mode == 'ddim':
             samples = sample_fn(
                 model,
@@ -403,7 +403,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             )
 
         threads = []
-        logger.debug('010')
+        logger.info('label: 010')
         with wandb.init(
             project=args.name_docarray,
             config=vars(args),
@@ -411,7 +411,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             reinit=True,
             mode=os.environ.get('WANDB_MODE', 'disabled'),
         ):
-            logger.debug('020')
+            logger.info('label: 020')
             for j, sample in enumerate(samples):
                 if skip_event.is_set() or stop_event.is_set():
                     logger.debug('skip_event/stop_event is set, skipping this run')
@@ -419,11 +419,11 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                     break
 
                 cur_t -= 1
-
+                logger.info('label: 030')
                 is_save_step = args.save_rate > 0 and j % args.save_rate == 0
                 is_complete = cur_t == -1
                 is_display_step = args.display_rate > 0 and j % args.display_rate == 0
-
+                logger.info('label: 040')
                 threads.append(
                     _sample_thread(
                         sample,
@@ -443,7 +443,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         image_callback,
                     )
                 )
-
+                logger.info('label: 050')
                 if is_complete or is_save_step:
                     if args.image_output:
                         threads.append(
@@ -456,7 +456,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                                 args.gif_size_ratio,
                             )
                         )
-
+                logger.info('label: 060')
                     threads.extend(
                         _persist_thread(
                             da_batches,
@@ -467,12 +467,12 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         )
                     )
 
-        logger.debug('070')
+        logger.info('label: 070')
         for t in threads:
             t.join()
-        logger.debug('080')
+        logger.info('label: 080')
         _dp1.clear_output(wait=True)
-        logger.debug('090')
+        logger.info('label: 090')
 
         if stop_event.is_set():
             logger.debug('stop_event is set, skipping the while `n_batches`')
@@ -485,6 +485,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
 
 
 def redraw_widget(_handlers, _redraw_fn, args, _nb):
+    logger.info('label: (redraw_widget')
     _handlers.progress.max = args.n_batches
     _handlers.progress.value = _nb + 1
     _handlers.progress.description = f'Baking {_nb + 1}/{args.n_batches}: '
@@ -500,3 +501,4 @@ def redraw_widget(_handlers, _redraw_fn, args, _nb):
 
     _handlers.code.value = export_python(args)
     _redraw_fn()
+    logger.info('label: redraw_widget)')
