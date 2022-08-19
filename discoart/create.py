@@ -231,16 +231,20 @@ def create(**kwargs) -> Optional['DocumentArray']:
 
         _name = _args.name_docarray
 
-        pb_path = os.path.join(get_output_dir(_name), 'da.protobuf.lz4')
+        if (
+            'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+            and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+        ):
+            pb_path = os.path.join(get_output_dir(_name), 'da.protobuf.lz4')
 
-        if os.path.exists(pb_path) and is_exit0:
-            _da = DocumentArray.load_binary(pb_path)
+            if os.path.exists(pb_path) and is_exit0:
+                _da = DocumentArray.load_binary(pb_path)
 
-            if (
-                'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
-                and 'DISCOART_DISABLE_IPYTHON' not in os.environ
-            ):
-                show_result_summary(_da, _name, _args)
+                if (
+                    'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+                    and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+                ):
+                    show_result_summary(_da, _name, _args)
 
 
 def go_big(
