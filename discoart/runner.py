@@ -45,7 +45,7 @@ def do_run(
     logger.info('preparing models...')
 
     model, diffusion, clip_models, secondary_model = models
-    lpips_model = lpips.LPIPS(net='vgg').to(device)
+    lpips_model = lpips.LPIPS(net='vgg', verbose=False).to(device)
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
 
