@@ -19,3 +19,4 @@ __resources_path__ = os.path.join(
 
 from .create import create, go_big
 from .config import cheatsheet, show_config, save_config, load_config
+from .helper import get_output_dir
