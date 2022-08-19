@@ -403,7 +403,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             )
 
         threads = []
-
+        logger.debug('010')
         with wandb.init(
             project=args.name_docarray,
             config=vars(args),
@@ -411,6 +411,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
             reinit=True,
             mode=os.environ.get('WANDB_MODE', 'disabled'),
         ):
+            logger.debug('020')
             for j, sample in enumerate(samples):
                 if skip_event.is_set() or stop_event.is_set():
                     logger.debug('skip_event/stop_event is set, skipping this run')
@@ -466,9 +467,12 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         )
                     )
 
+        logger.debug('070')
         for t in threads:
             t.join()
+        logger.debug('080')
         _dp1.clear_output(wait=True)
+        logger.debug('090')
 
         if stop_event.is_set():
             logger.debug('stop_event is set, skipping the while `n_batches`')
