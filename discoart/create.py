@@ -222,29 +222,25 @@ def create(**kwargs) -> Optional['DocumentArray']:
             device=device,
             events=events,
         )
-        is_exit0 = True
+        is_exit0 = 'DISCOART_OPTOUT_LOCAL_BACKUP' not in os.environ
         return da
     except KeyboardInterrupt:
-        is_exit0 = True
+        is_exit0 = 'DISCOART_OPTOUT_LOCAL_BACKUP' not in os.environ
     finally:
         free_memory()
 
         _name = _args.name_docarray
 
-        if (
-            'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
-            and 'DISCOART_DISABLE_IPYTHON' not in os.environ
-        ):
-            pb_path = os.path.join(get_output_dir(_name), 'da.protobuf.lz4')
+        pb_path = os.path.join(get_output_dir(_name), 'da.protobuf.lz4')
 
-            if os.path.exists(pb_path) and is_exit0:
-                _da = DocumentArray.load_binary(pb_path)
+        if os.path.exists(pb_path) and is_exit0:
+            _da = DocumentArray.load_binary(pb_path)
 
-                if (
-                    'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
-                    and 'DISCOART_DISABLE_IPYTHON' not in os.environ
-                ):
-                    show_result_summary(_da, _name, _args)
+            if (
+                'DISCOART_DISABLE_RESULT_SUMMARY' not in os.environ
+                and 'DISCOART_DISABLE_IPYTHON' not in os.environ
+            ):
+                show_result_summary(_da, _name, _args)
 
 
 def go_big(
