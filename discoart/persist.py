@@ -144,6 +144,8 @@ def _local_save(
     is_sampling_done: threading.Event,
     force: bool = False,
 ) -> None:
+    if 'DISCOART_OPTOUT_LOCAL_BACKUP' in os.environ:
+        return
     if is_busy_event.is_set() and not force:
         logger.debug(f'another save is running, skipping')
         return
