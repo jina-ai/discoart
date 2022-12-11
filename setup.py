@@ -53,6 +53,7 @@ setup(
         'openai-clip',
         'packaging',
         'wandb',
+        'timm',
     ],
     extras_require={
         'test': [
