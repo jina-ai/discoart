@@ -54,6 +54,7 @@ setup(
         'packaging',
         'wandb',
         'timm',
+        'protobuf',
     ],
     extras_require={
         'test': [
