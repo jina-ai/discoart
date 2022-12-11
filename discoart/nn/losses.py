@@ -25,7 +25,7 @@ class DepthLoss(nn.Module):
     def __init__(self, trim=0.2):
         super().__init__()
         self.trim = trim
-        self.model = torch.hub.load("intel-isl/MiDaS", "DPT_Large", trust_repo=True)
+        self.model = torch.hub.load("intel-isl/MiDaS", "DPT_Hybrid", trust_repo=True)
         self.transform = T.Compose(
             [
                 T.Resize((384, 384)),
