@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+import torchvision.transforms as T
 
 
 def spherical_dist_loss(x, y):
