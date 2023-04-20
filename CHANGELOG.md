@@ -117,6 +117,7 @@
 
 
 
+
 <a name=release-note-0-0-1></a>
 ## Release Note (`0.0.1`)
 
@@ -2393,4 +2394,28 @@
  - [[```9d7f12df```](https://github.com/jina-ai/discoart/commit/9d7f12dfec91b58abe25dc2cee9afcb90b586e03)] __-__ fix readme (*Han Xiao*)
  - [[```14e73876```](https://github.com/jina-ai/discoart/commit/14e73876a257fad89d8999b296e5a10900776989)] __-__ add discoart integration list (#152) (*Han Xiao*)
  - [[```82d7a46e```](https://github.com/jina-ai/discoart/commit/82d7a46e60cb20b416a7e0eeee87f7bd3e2c3074)] __-__ __version__: the next version will be 0.11.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-12-1></a>
+## Release Note (`0.12.1`)
+
+> Release time: 2023-04-20 08:17:28
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Joan Fontanals,  Han Xiao,  Sa Zhang,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```7a620967```](https://github.com/jina-ai/discoart/commit/7a62096753316d9340f131a050846aaf3940a855)] __-__ limit docarray version (#193) (*Joan Fontanals*)
+
+### 📗 Documentation
+
+ - [[```843b239b```](https://github.com/jina-ai/discoart/commit/843b239bd9721e1c271b9959e5f0b1333ee57bfa)] __-__ add docker usage on wsl (#166) (*Sa Zhang*)
+
+### 🍹 Other Improvements
+
+ - [[```6bd664f2```](https://github.com/jina-ai/discoart/commit/6bd664f203109ccd08bf06e74732cd02be5b734c)] __-__ fix docs (*Han Xiao*)
+ - [[```8662bfa9```](https://github.com/jina-ai/discoart/commit/8662bfa972af2a63149318e91c18b6ce6cf149b2)] __-__ __version__: the next version will be 0.12.1 (*Jina Dev Bot*)
 
