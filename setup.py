@@ -43,7 +43,7 @@ setup(
         'numpy',
         'lpips',
         'ftfy',
-        'docarray[common]>=0.14.6',
+        'docarray[common]>=0.14.6,<0.30.0',
         'pyyaml',
         'open_clip_torch',
         'pyspellchecker',
