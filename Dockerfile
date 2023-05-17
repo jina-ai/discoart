@@ -4,7 +4,7 @@ FROM nvidia/cuda:11.6.2-cudnn8-devel-ubuntu20.04
 ENV SHELL=/bin/bash
 
 # Create a working directory
-WORKDIR /app/
+WORKDIR /home/jovyan/
 
 # Build with some basic utilities
 RUN apt-get update && apt-get install -y \
