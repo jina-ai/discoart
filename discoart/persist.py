@@ -99,18 +99,23 @@ def _save_progress_thread(*args):
     return t
 
 
-def _save_progress(da, da_gif, _nb, output_dir, fps, size_ratio):
+def _save_progress(da, da_gif, _nb, output_dir, fps, size_ratio, disable_progress_grid):
     with threading.Lock():
         try:
             for idx, d in enumerate(da):
                 if d.chunks:
-                    # only print the first image of the minibatch in progress
-                    d.chunks.plot_image_sprites(
-                        os.path.join(output_dir, f'{_nb}-progress-{idx}.png'),
-                        skip_empty=True,
-                        show_index=True,
-                        keep_aspect_ratio=True,
-                    )
+                    if disable_progress_grid:
+                        #save only the latest image
+                        file_name = os.path.join(output_dir, f'{_nb}-progress.png')
+                        d.load_uri_to_image_tensor().save_image_tensor_to_file(file_name)
+                    else:
+                        # only print the first image of the minibatch in progress
+                        d.chunks.plot_image_sprites(
+                            os.path.join(output_dir, f'{_nb}-progress-{idx}.png'),
+                            skip_empty=True,
+                            show_index=True,
+                            keep_aspect_ratio=True,
+                        )
             for idx, d_gif in enumerate(da_gif):
                 if d_gif.chunks and fps > 0:
                     d_gif.chunks.save_gif(

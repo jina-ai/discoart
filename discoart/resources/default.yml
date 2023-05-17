@@ -63,3 +63,4 @@ truncate_overlength_prompt: False
 image_output: True
 visualize_cuts: False
 display_rate: 1
+disable_progress_grid: False

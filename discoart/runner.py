@@ -453,6 +453,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                                 output_dir,
                                 args.gif_fps,
                                 args.gif_size_ratio,
+                                args.disable_progress_grid,
                             )
                         )
 
