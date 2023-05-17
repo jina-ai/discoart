@@ -37,6 +37,7 @@ cut_icgray_p: "[0.2]*400+[0]*600"
 cut_ic_pow: 1.
 
 save_rate: 20
+progress_rate: 10
 gif_fps: 20
 gif_size_ratio: 0.5
 n_batches: 4

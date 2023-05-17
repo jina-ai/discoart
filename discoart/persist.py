@@ -32,7 +32,9 @@ def _sample(
     is_save_gif,
     is_image_output,
     is_display_step,
+    is_progress_step,
     image_callback,
+    progress_callback
 ):
     with threading.Lock():
         is_sampling_done.clear()
@@ -64,6 +66,14 @@ def _sample(
                         image_callback(f_name)
 
                 da[k].chunks.append(c)
+
+            if is_progress_step:
+                if callable(progress_callback):
+                    progress_callback({
+                        "sample" : sample['pred_xstart'],
+                        "cur_t" : cur_t,
+                        "j" : j
+                    })
 
             if is_save_gif and is_image_output:
                 da_gif[k].chunks.append(c)

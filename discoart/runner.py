@@ -34,7 +34,9 @@ from .prompt import PromptPlanner
 
 
 def do_run(
-    args, models, device, events, image_callback: Optional[Callable[[str], None]] = None
+    args, models, device, events,
+    image_callback: Optional[Callable[[str], None]] = None,
+    progress_callback: Optional[Callable[[str], None]] = None
 ) -> 'DocumentArray':
     skip_event, stop_event = events
 
@@ -422,6 +424,7 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                 is_save_step = args.save_rate > 0 and j % args.save_rate == 0
                 is_complete = cur_t == -1
                 is_display_step = args.display_rate > 0 and j % args.display_rate == 0
+                is_progress_step = args.progress_rate > 0 and j % args.progress_rate == 0
 
                 threads.append(
                     _sample_thread(
@@ -439,7 +442,9 @@ scheduling tracking, please set `WANDB_MODE=online` before running/importing Dis
                         args.gif_fps > 0,
                         args.image_output,
                         is_display_step,
+                        is_progress_step,
                         image_callback,
+                        progress_callback,
                     )
                 )
 
