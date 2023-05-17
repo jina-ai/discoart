@@ -185,7 +185,9 @@ def create(**kwargs) -> Optional['DocumentArray']:
     else:
         _args = load_config(user_config=kwargs)
 
-    print_args_table(_args)
+    if 'DISCOART_DISABLE_ARGS_TABLE' not in os.environ:
+        print_args_table(_args)
+
     _args = SimpleNamespace(**_args)
 
     from .helper import (
@@ -220,10 +222,10 @@ def create(**kwargs) -> Optional['DocumentArray']:
             device=device,
             events=events,
         )
-        is_exit0 = True
+        is_exit0 = 'DISCOART_OPTOUT_LOCAL_BACKUP' not in os.environ
         return da
     except KeyboardInterrupt:
-        is_exit0 = True
+        is_exit0 = 'DISCOART_OPTOUT_LOCAL_BACKUP' not in os.environ
     finally:
         free_memory()
 
