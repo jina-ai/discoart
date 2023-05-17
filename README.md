@@ -301,8 +301,10 @@ You can set environment variables to control the meta-behavior of DiscoArt. The 
 ```bash
 DISCOART_LOG_LEVEL='DEBUG' # more verbose logs
 DISCOART_OPTOUT_CLOUD_BACKUP='1' # opt-out from cloud backup
+DISCOART_OPTOUT_LOCAL_BACKUP='1' # opt-out from local backup
 DISCOART_DISABLE_IPYTHON='1' # disable ipython dependency
 DISCOART_DISABLE_RESULT_SUMMARY='1' # disable result summary after the run ends
+DISCOART_DISABLE_ARGS_TABLE='1' # disable args table before the run starts
 DISCOART_DEFAULT_PARAMETERS_YAML='path/to/your-default.yml' # use a custom default parameters file
 DISCOART_CUT_SCHEDULES_YAML='path/to/your-schedules.yml' # use a custom cut schedules file
 DISCOART_MODELS_YAML='path/to/your-models.yml' # use a custom list of models file

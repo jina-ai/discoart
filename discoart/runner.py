@@ -25,7 +25,7 @@ from .helper import (
     is_jupyter,
 )
 from .nn.helper import set_seed, detach_gpu
-from .nn.losses import spherical_dist_loss, tv_loss, range_loss
+from .nn.losses import spherical_dist_loss, tv_loss, range_loss, DepthLoss
 from .nn.make_cutouts import MakeCutouts
 from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn, inv_normalize
@@ -45,7 +45,7 @@ def do_run(
     logger.info('preparing models...')
 
     model, diffusion, clip_models, secondary_model = models
-    lpips_model = lpips.LPIPS(net='vgg').to(device)
+    lpips_model = DepthLoss().to(device)
 
     side_x, side_y = ((args.width_height[j] // 64) * 64 for j in (0, 1))
 
