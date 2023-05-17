@@ -48,6 +48,8 @@ def create(
     init_document: Optional[Union['Document', 'DocumentArray']] = None,
     init_image: Optional[str] = None,
     init_scale: Optional[Union[int, str]] = 1000,
+    inpaint_image: Optional[str] = None,
+    inpaint_mask: Optional[str] = None,
     n_batches: Optional[int] = 4,
     name_docarray: Optional[str] = None,
     on_misspelled_token: Optional[str] = 'ignore',
@@ -123,6 +125,8 @@ def create(**kwargs) -> Optional['DocumentArray']:
     :param init_document: [DiscoArt] Use a Document object as the initial state for DD: its ``.tags`` will be used as parameters, ``.uri`` (if present) will be used as init image.
     :param init_image: Recall that in the image sequence above, the first image shown is just noise.  If an init_image is provided, diffusion will replace the noise with the init_image as its starting state.  To use an init_image, upload the image to the Colab instance or your Google Drive, and enter the full image path here. If using an init_image, you may need to increase skip_steps to ~ 50% of total steps to retain the character of the init. See skip_steps above for further discussion.
     :param init_scale: This controls how strongly CLIP will try to match the init_image provided.  This is balanced against the clip_guidance_scale (CGS) above.  Too much init scale, and the image won’t change much during diffusion. Too much CGS and the init image will be lost.[DiscoArt] Can be scheduled via syntax `[val1]*400+[val2]*600`.
+    :param inpaint_image: [DiscoArt] If an inpaint image and mask is provided, final image will match the inpaint image in non-masked areas.
+    :param inpaint_mask: [DiscoArt] If an inpaint image and mask is provided, final image will match the inpaint image in non-masked areas.
     :param n_batches: This variable sets the number of still images you want DD to create.  If you are using an animation mode (see below for details) DD will ignore n_batches and create a single set of animated frames based on the animation settings.
     :param name_docarray: [DiscoArt] When specified, it overrides the default naming schema of the resulted DocumentArray. Useful when you have to know the result DocumentArray name in advance.The name also supports variable substitution via `{}`. For example, `name_docarray='test-{steps}-{perlin_init}'` will give the name of the DocumentArray as `test-250-False`. Any variable in the config can be substituted.
     :param on_misspelled_token: [DiscoArt] Strategy when encounter misspelled token, can be 'raise', 'correct' and 'ignore'. If 'raise', then the misspelled token in the prompt will raise a ValueError. If 'correct', then the token will be replaced with the correct token. If 'ignore', then the token will be ignored but a warning will show.

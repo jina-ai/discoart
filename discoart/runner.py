@@ -31,6 +31,7 @@ from .nn.sec_diff import alpha_sigma_to_t
 from .nn.transform import symmetry_transformation_fn, inv_normalize
 from .persist import _sample_thread, _persist_thread, _save_progress_thread
 from .prompt import PromptPlanner
+from .nn.inpainting import wrap_inpaint
 
 
 def do_run(
@@ -314,6 +315,14 @@ def do_run(
         loss_values.append(traced_info['losses/total'])
 
         return r_grad
+
+    if args.inpaint_image and args.inpaint_mask:
+        d = Document(uri=args.inpaint_image).load_uri_to_image_tensor(side_x, side_y)
+        inpaint = TF.to_tensor(d.tensor).to(device).unsqueeze(0).mul(2).sub(1)
+        d = Document(uri=args.inpaint_mask).load_uri_to_image_tensor(side_x, side_y)
+        mask = TF.to_tensor(d.tensor).to(device).unsqueeze(0)
+        noise = torch.randn(*inpaint.size(), device=device)
+        wrap_inpaint(diffusion, inpaint, mask, noise)
 
     if args.diffusion_sampling_mode == 'ddim':
         sample_fn = diffusion.ddim_sample_loop_progressive
